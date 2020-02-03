@@ -1,0 +1,90 @@
+.vote-green{
+    color: green;
+}
+.vote-red{
+    color: red;
+}
+.cursor-click{
+    cursor: pointer;
+}
+
+
+/*battle plan css */
+.floorChanger{
+    position: absolute;
+}
+
+.cursor-click {
+    cursor: pointer;
+}
+
+.margin10 {
+    margin-right: 10px;
+    margin-left: 10px;
+}
+
+.no-margin {
+    margin-right: 0px;
+    margin-left: 0px;
+}
+
+.sidebar-btn {
+    min-width: 105px;
+}
+
+.no-pointer {
+    cursor: default !important;
+}
+
+/* .cursor-click:hover {
+    background-color: lightgray;
+} */
+
+#EngineContainer {
+    margin: 0px;
+    top: 0px;
+    right: 0px;
+    left: 0px;
+    bottom: 0px;
+    position: fixed;
+    z-index: -1;
+    /* height: calc(100vh - 92px); */
+}
+.operatorContainer {
+    position: absolute;
+}
+#viewport {
+    width: 100%
+}
+
+.fixed {
+    position: fixed;
+}
+
+canvas {
+    width: 100%;
+}
+
+.buttonGroup {
+    background-color: black;
+}
+
+.inline {
+    display: inline;
+}
+
+label {
+    color: white;
+}
+
+.content {
+    background-color: white;
+    overflow: hidden;
+}
+
+.operator-border {
+    border-style: solid;
+    border-width: 10px;
+    height: 90px;
+    width: 90px;
+}

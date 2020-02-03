@@ -1,0 +1,44 @@
+/* .content{
+  margin-top: 56px;
+} */
+.dropdown-item:focus, .dropdown-item:hover{
+  color: white !important;
+  text-decoration: none !important;
+  background-color: #212529 !important;
+}
+.dropdown-item{
+  color: rgba(255,255,255,.5) !important;
+  cursor: pointer !important;
+}
+
+.new-tag {
+  font-size: 13px;
+  position: fixed;
+  margin-top: -8px;
+  margin-left: -10px;
+  animation-duration: 1200ms;
+  animation-name: blink;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+  -webkit-animation:blink 1200ms infinite; /* Safari and Chrome */
+
+  -ms-transform: rotate(-20deg); /* IE 9 */
+  -webkit-transform: rotate(-20deg); /* Safari 3-8 */
+  transform: rotate(-20deg);
+}
+@keyframes blink {
+  from {
+    color:#FFD700;
+  }
+  to {
+      color:rgba(255, 217, 0, 0.829);
+  }
+}
+/* @-webkit-keyframes blink {
+  from {
+      color:rgba(255, 217, 0, 0.829);
+  }
+  to {
+      color:#FFD700;
+  }
+} */

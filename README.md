@@ -1,1 +1,4 @@
-# website-laravel-battleplanner-v2
+## installation
+
+php artisan passport:install
+php artisan passport:keys
