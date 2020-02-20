@@ -16,7 +16,7 @@ class CreateMapsTable extends Migration
         Schema::create('maps', function (Blueprint $table) {
             $table->increments('id');
             $table->text('name');
-            $table->text('thumbsrc');
+            $table->text('thumbnail_path');
             $table->boolean('comp');
             $table->timestamps();
         });

@@ -83,7 +83,7 @@
                     <td>{{$battleplan->id}}</td>
                     <td>{{ucwords($battleplan->map->name)}}</td>
                     <td>{{$battleplan->name}}</td>
-                    <td>{{$battleplan->Owner->username}}</td>
+                    <td>{{$battleplan->owner->username}}</td>
                 </tr>
                 @endforeach
             </tbody>

@@ -63,6 +63,12 @@ class Draw extends Model
     /**
      * Scopes
      */
+    public function scopeCopiable($query){
+        return $query
+            ->where('deleted', false)
+            ->where('saved', true);
+    }
+    
     public function scopeNotDeleted($query)
     {
         return $query->where('deleted', '=', false);

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Map extends Model
 {
   protected $fillable = [
-    'name', 'thumbsrc', 'comp', 'battleplan_id',
+    'name', 'thumb_path', 'comp', 'battleplan_id',
   ];
 
   /**

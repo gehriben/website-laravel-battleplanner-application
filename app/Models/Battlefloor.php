@@ -5,6 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Line;
 
+// Model
+use App\Models\Floor;
+use App\Models\Battleplan;
+use App\Models\Draw;
+
 class Battlefloor extends Model
 {
     public $timestamps = true;
@@ -18,25 +23,19 @@ class Battlefloor extends Model
      */
     public function floor()
     {
-        return $this->belongsTo('App\Models\Floor');
+        return $this->belongsTo(Floor::class);
     }
 
     public function battleplan()
     {
-        return $this->belongsTo('App\Models\Battleplan', 'battleplan_id', 'id');
+        return $this->belongsTo(Battlefloor::class);
     }
 
     public function draws()
     {
-        return $this->hasMany('App\Models\Draw', 'battlefloor_id');
+        return $this->hasMany(Draw::class);
     }
 
-    public function drawsCopiable()
-    {
-        return $this->hasMany('App\Models\Draw', 'battlefloor_id')
-            ->where('deleted', '=', false)
-            ->where('saved', '=', true);
-    }
 
     /**
      * Copy Constructor

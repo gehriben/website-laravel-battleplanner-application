@@ -75,44 +75,44 @@ class RoomController extends Controller
     // Create the room
     $room = Room::create([
         'owner' => Auth::User()->id,
-        'connection_string' => uniqid()
+        'connection_string' => Room::generateConnectionString()
     ]);
 
     // Respond with redirect
     return response()->success($room);
   }
+  
+  public  function read(Request $request){
+    $data = $request->validate([
+      "conn_string" => ["required", "exists:Room,conn_string"],
+    ]);
+    return Room::Connection($request->conn_string);
+  }
 
-  public function setBattleplan(Request $request){
-    // define variables
-    $room = Room::Connection($request->conn_string);
-    $battleplan = Battleplan::findOrFail($request->battleplanId);
+  public function update(Request $request, Room $room){
+    $data = $request->validate([
+      "battleplan_id" => ["required", "exists:Battleplans,id"],
+    ]);
 
     // make sure the deleter is also the owner of the map
-    if (!$room->Owner == Auth::User()) {
-        return response()->error("You do not own the room.");
+    if (!$room->owner == Auth::User()) {
+      return response()->error("Unauthorized", [], 403);
     }
 
     // Undo any unsaved work
-    $battleplan->deleteUnsavedChanges();
+    // $battleplan->deleteUnsavedChanges();
 
     // set the battleplan
-    $room->battleplan_id = $battleplan->id;
-    $room->save();
+    // $room->battleplan_id = $data["battleplan_id"];
+    // $room->save();
+
+    $room->update($data);
 
     // Fire event to listeners
-    event(new BattleplanChange($room->connection_string));
+    //event(new BattleplanChange($room->connection_string));
 
     // Respond
     return response()->json($room);
-  }
-
-  public function getBattleplan($conn_string){
-    // variable declaration
-    $battleplan = Room::Connection($conn_string)->Battleplan;
-    if($battleplan == null){
-        return null;
-    }
-    return response()->json(Battleplan::json($battleplan->id));
   }
 
 }

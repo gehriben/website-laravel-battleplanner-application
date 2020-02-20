@@ -23,61 +23,23 @@ class DrawController extends Controller
       * Create a single draw
       */
     public function create(Request $request){
-        // @here seperate into methods 
+        $draws;
 
         // Batch upload
-        if(is_array($request->all()[0])){
-            $draws = [];
-            // validate request object contains all needed data
-            $data = $request->validate([
-                "*" => ["battlefloor_id" => 'required',
-                "originX" => 'required',
-                "originY" => 'required',
-                "destinationX" => 'required',
-                "destinationY" => 'required',
-                'drawable_type' => 'required',
-                "color" => 'required',
-                "lineSize" => 'required',]
-            ]);
-            
-            // Create each new draw
-            foreach ($request->draws as $key => $attributes) {
-                $draw =  $this->createDraw($attributes);
-                if($draw){
-                    $draws[] = $draw;
-                }
-            }
-            
-            // Fire event on listeners for socket.io
-            event(new CreateDraws($draws, $request->conn_string, $request->userId));
-
-            // Create the draw and return it with the response
-            return response()->success($draw);
+        if(isset($request->all()[0]) && is_array($request->all()[0])){
+            $draws = $this->batchCreate($request);
         }
 
         // single create
         else{
-            // validate request object contains all needed data
-            $data = $request->validate([
-                "battlefloor_id" => 'required',
-                "originX" => 'required',
-                "originY" => 'required',
-                "destinationX" => 'required',
-                "destinationY" => 'required',
-                'drawable_type' => 'required',
-                "color" => 'required',
-                "lineSize" => 'required',
-            ]);
-
-            // create model instance
-            $draw = $this->createDraw($data);
-            
-            // Fire event on listeners for socket.io
-            event(new CreateDraws([$draw], $request->conn_string, $request->userId));
-
-            // Create the draw and return it with the response
-            return response()->success($draw);
+            $draws = $this->singleCreate($request);
         }
+        
+        // Fire event on listeners for socket.io
+        //event(new CreateDraws($draws, $request->conn_string, $request->userId));
+        
+        // Create the draw and return it with the response
+        return response()->success($draws);
 
     }
 
@@ -90,39 +52,66 @@ class DrawController extends Controller
         $draw = $this->deleteDraw($draw->id);
 
         // Fire event on listeners for socket.io
-        event(new CreateDraws([$draw], $request->conn_string, $request->userId));
+        //event(new CreateDraws([$draw], $request->conn_string, $request->userId));
 
         // Create the draw and return it with the response
         return response()->success($draw);
     }
      
     /**
-     * Group functions
-     * (Optimized)
-     */
-
-    /**
      * Delete numerous draws from a single request
      * (This is optimized for async functions to minimize the number of requests made to the backend)
      */
-    private function batchDelete(Request $request){
+    public function batchDelete(Request $request){
+        $data = $request->validate([
+            'ids.*' =>[ "required", "exists:draws,id"]
+        ]);
+
         // Declarations
         $deletedDraws = []; // used for event notification
 
         // delete the list
-        foreach ($request->draws as $key => $attributes) {
-            $deleted = $this->deleteDraw($attributes["id"]);
+        foreach ($data["ids"] as $key => $id) {
+        
+            $deleted = $this->deleteDraw($id);
             if($deleted){
                 $deletedDraws[] = $deleted;
             }
         }
-        
+
         // Fire event on listeners for socket.io
-        event(new DeleteDraws($deletedDraws, $request->conn_string, $request->userId));
+        //event(new DeleteDraws($deletedDraws, $request->conn_string, $request->userId));
 
         // Respond
         return response()->json($deletedDraws);
     }
+
+    
+
+    /**
+     * Helper functions
+     */
+
+     /**
+     * Single creation of a draw object
+     */
+    private function singleCreate(Request $request){
+        // validate request object contains all needed data
+        $data = $request->validate([
+            "battlefloor_id" => 'required',
+            "originX" => 'required',
+            "originY" => 'required',
+            "destinationX" => 'required',
+            "destinationY" => 'required',
+            'drawable_type' => 'required',
+            "color" => 'required',
+            "lineSize" => 'required',
+        ]);
+
+        // create model instance
+        return  [$this->createDraw($data)];
+    }
+   
 
     /**
      * Create numerous draws from a single request
@@ -132,24 +121,25 @@ class DrawController extends Controller
     {
         $draws = [];
 
+        // validate request object contains all needed data
+        $data = $request->validate([
+            "*" => ["battlefloor_id" => 'required',
+            "originX" => 'required',
+            "originY" => 'required',
+            "destinationX" => 'required',
+            "destinationY" => 'required',
+            'drawable_type' => 'required',
+            "color" => 'required',
+            "lineSize" => 'required',]
+        ]);
+        
         // Create each new draw
-        foreach ($request->draws as $key => $attributes) {
-            $draw =  $this->createDraw($attributes);
-            if($draw){
-                $draws[] = $draw;
-            }
+        foreach ($request->all() as $key => $attributes) {
+            $draws[] =  $this->createDraw($attributes);
         }
         
-        // Fire event on listeners for socket.io
-        event(new CreateDraws($draws, $request->conn_string, $request->userId));
-
-        // Respond
-        return response()->success($draws);
+        return $draws;
     }
-
-    /**
-     * Helper functions
-     */
 
     /**
      * Creates a draw and it's morph
@@ -183,11 +173,7 @@ class DrawController extends Controller
     /**
      * Delete a draw (Soft deletes)
      */
-    private function deleteDraw($id = null){
-        // Draw was never saved, it was deleted before being created in the DB
-        if(!$id){
-            return false;
-        }
+    private function deleteDraw($id){
 
         // Make draw morph relationship
         $draw = Draw::find($id);

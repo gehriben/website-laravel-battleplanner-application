@@ -68,8 +68,7 @@ class DrawRouteTest extends TestCase
             "color" => "#ffffff",
             "lineSize" => 5
         ];
-
-        $response = $this->postJson('/api/v1/draw', $data);
+        $response = $this->postJson('api/v1/draw', $data);
         $response->assertStatus(200);
     }
 
@@ -91,11 +90,10 @@ class DrawRouteTest extends TestCase
         ];
 
         $response = $this->postJson('/api/v1/draw', $data);
-        dd($response);
         $response->assertStatus(200);
     }
 
-    public function testDrawBatchDelete()
+    public function testDrawDelete()
     {
         $response = $this->delete("/api/v1/draw/{$this->line->id}");
         $response->assertStatus(200);
@@ -104,6 +102,19 @@ class DrawRouteTest extends TestCase
         $response->assertStatus(200);
         
         $response = $this->delete("/api/v1/draw/{$this->icon->id}");
+        $response->assertStatus(200);
+    }
+
+    public function testDrawBatchDelete()
+    {
+        $data = [
+            'ids' => [
+                $this->icon->id,
+                $this->square->id,
+                $this->icon->id
+            ]
+        ];
+        $response = $this->delete("/api/v1/draw",$data);
         $response->assertStatus(200);
     }
 }

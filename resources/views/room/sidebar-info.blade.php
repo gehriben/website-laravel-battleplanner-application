@@ -12,7 +12,7 @@
         <label class="inline connection" for="connection">Owner :</label>
     </div>
     <div class="col-8">
-        <input class="col-4 form-control inline col-12" id="owner" value="{{$room->Owner->username}}" type="text" disabled="">
+        <input class="col-4 form-control inline col-12" id="owner" value="{{$room->owner->username}}" type="text" disabled="">
     </div>
 </div>
 <div class="row margin10">

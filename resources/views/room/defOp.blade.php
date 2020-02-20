@@ -1,8 +1,8 @@
 <div class="row text-center">
   @foreach($def_operators as $operator)
     @if($operator)
-        {{-- {{dd($room->Owner == Auth::User())}} --}}
-      @if ($room->Owner == Auth::User())
+        {{-- {{dd($room->owner == Auth::User())}} --}}
+      @if ($room->owner == Auth::User())
           <div class="col-md-3 col-xs-12 top-buffer cursor-click" data-toggle="modal" data-target="#opModal" onclick="app.engine.changeOperatorSlot($('#EditingOperatorSlot').val(),{{$operator->id}})">
       @else
           <div class="col-md-3 col-xs-12 top-buffer">

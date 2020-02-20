@@ -10739,7 +10739,7 @@ return jQuery;
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! D:\Repositories\battleplanner\resources\js\room\sidebar.js */"./resources/js/room/sidebar.js");
+module.exports = __webpack_require__(/*! /home/vagrant/battleplanner/resources/js/room/sidebar.js */"./resources/js/room/sidebar.js");
 
 
 /***/ })

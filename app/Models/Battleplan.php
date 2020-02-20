@@ -49,7 +49,7 @@ class Battleplan extends Model
         return $this->belongsTo('App\Models\Gametype');
     }
 
-    public function slots()
+    public function operatorSlots()
     {
         return $this->hasMany('App\Models\OperatorSlot');
     }
@@ -85,8 +85,8 @@ class Battleplan extends Model
 
     public function scopeSlotData($query){
         $query
-            ->with("slots")
-            ->with("slots.operator");
+            ->with("operatorSlots")
+            ->with("operatorSlots.operator");
     }
 
     public function scopeMapData($query){
@@ -105,24 +105,6 @@ class Battleplan extends Model
                         ->with("drawable");
                 }]);
     }
-
-    /**
-     * TODO: Refactor
-     * Print methods
-     */
-    // public static function json($id)
-    // {
-    //     return Battleplan::where('id', $id)
-    //         ->with("battlefloors")
-    //         ->with("battlefloors.floor")
-    //         ->with(['battlefloors.draws' => function ($q) {
-    //                 $q->notDeleted()->with("drawable");
-    //             }])
-    //         ->with("slots")
-    //         ->with("slots.operator")
-    //         ->first();
-    // }
-
     
     /**
      * Copy Constructor

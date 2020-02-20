@@ -112,7 +112,7 @@
                                     </tr>
                                     <tr>
                                         <td>Creator</td>
-                                        <td>{{$battleplan->Owner->username}}</td>
+                                        <td>{{$battleplan->owner->username}}</td>
                                     </tr>
                                     <tr>
                                         <td>Points</td>

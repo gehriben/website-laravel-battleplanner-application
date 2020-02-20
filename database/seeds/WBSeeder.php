@@ -17,7 +17,7 @@ class WBSeeder extends Seeder
     public function run()
     {
       $mapArray = [
-        /*Fortress*/ ['name'=>"fortress",'thumbsrc'=> "/media/thumbs/fortress.jpg", 'comp'=>true]
+        /*Fortress*/ ['name'=>"fortress",'thumbnail_path'=> "/media/thumbs/fortress.jpg", 'comp'=>true]
       ];
 
       Map::insert($mapArray);

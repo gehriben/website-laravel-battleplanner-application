@@ -106,7 +106,7 @@ window.join = function join(id) {
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! D:\Repositories\battleplanner\resources\js\room\join.js */"./resources/js/room/join.js");
+module.exports = __webpack_require__(/*! /home/vagrant/battleplanner/resources/js/room/join.js */"./resources/js/room/join.js");
 
 
 /***/ })

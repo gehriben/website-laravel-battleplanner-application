@@ -24,7 +24,7 @@
 <script src="{{asset('js/room/sidebar.js')}}"></script>
 
 {{-- post init --}}
-@if (Auth::User()->id == $room->Owner->id && !$room->battleplan)
+@if (Auth::User()->id == $room->owner->id && !$room->battleplan)
 <script type="text/javascript">
     $("#mapModal").modal("show")
 </script>
@@ -197,7 +197,7 @@
         @if ($room->battleplan != null)
         @foreach ($room->battleplan->slots as $key => $slot)
         <div class="row">
-            @if ($room->Owner == Auth::User())
+            @if ($room->owner == Auth::User())
             @if (!$slot->operator || !$slot->operator->exists)
             <input type="image" id="operatorSlot-{{$slot->id}}" data-id="{{$slot->id}}" src="/media/ops/empty.png" class="op-icon operator-slot operator-border" data-toggle="modal" data-target="#opModal" onclick="setEditingOperatorSlot($(this).data('id'))"
               style="border-color: black" />
@@ -222,7 +222,7 @@
 @push('modals')
 
 {{-- only load this modal if room owner --}}
-@if (Auth::User()->id == $room->Owner->id)
+@if (Auth::User()->id == $room->owner->id)
 <div class="modal" id="mapModal" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content">

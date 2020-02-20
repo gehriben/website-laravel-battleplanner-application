@@ -1,6 +1,6 @@
 <div class="row margin10">
     <div class="col-12">
-        @if (Auth::user() == $room->Owner)
+        @if (Auth::user() == $room->owner)
             @if ($room->battleplan && $room->battleplan->notes)
                 <textarea class="form-control battleplan_notes" id="battleplan_notes">{{$room->battleplan->notes}}</textarea>
             @else

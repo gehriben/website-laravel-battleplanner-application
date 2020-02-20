@@ -4,6 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+// Models
+use App\Models\User;
+use App\Models\Battleplan;
+
 class Room extends Model
 {
   protected $fillable = [
@@ -14,11 +18,11 @@ class Room extends Model
    * Relationships
    */
   public function Owner() {
-    return $this->hasOne('App\Models\User', 'id', 'owner');
+    return $this->belongsTo(User::class, 'owner');
   }
 
   public function Battleplan() {
-    return $this->belongsTo('App\Models\Battleplan');
+    return $this->belongsTo(Battleplan::class);
   }
 
   /**
@@ -26,5 +30,12 @@ class Room extends Model
    */
   public static function Connect($conn_string) {
     return Room::where('connection_string', $conn_string)->first();
+  }
+
+  /**
+   * Public Static methods
+   */
+  public static function generateConnectionString(){
+    return uniqid();
   }
 }

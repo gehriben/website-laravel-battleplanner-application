@@ -47,7 +47,7 @@ class Vote extends Model
     {
         // Cannot divide by 0
         if($attributes['value'] == 0){
-            throw new \Exception('Cannot devide by 0');
+            throw new \Exception('Cannot divide by 0');
         }
 
         // Find pre-existing vote

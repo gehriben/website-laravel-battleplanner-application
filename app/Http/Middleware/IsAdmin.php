@@ -16,7 +16,7 @@ class IsAdmin
     public function handle($request, Closure $next, $role)
     {
         if( get_class($request->user()->admin != true)){
-            return response()->error("Not authorized to do this action",[], 403);
+            return response()->error("Unauthorized", [], 403);
         }
         return $next($request);
     }

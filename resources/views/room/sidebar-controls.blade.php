@@ -1,4 +1,4 @@
-@if ($room->Owner == Auth::User())
+@if ($room->owner == Auth::User())
     <div class="row margin10">
         <div class="col-6" data-toggle="tooltip" data-placement="top" title="Keybind: Ctrl + D">
                 <button type="button" id="loadModalToggle" name="button" class="btn btn-info sidebar-btn" data-toggle="modal"

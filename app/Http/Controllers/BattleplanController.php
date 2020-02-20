@@ -81,11 +81,9 @@ class BattleplanController extends Controller
             'notes' => []
         ]);
 
-        $bp = Battleplan::create([
-            'map_id' => $data["map_id"],
-            'name' => $data["name"],
-            'owner_id' => Auth::User()->id
-        ]);
+        $data['owner_id'] = Auth::User()->id;
+
+        $bp = Battleplan::create($data);
         
         return response()->success(
             $bp
@@ -116,33 +114,27 @@ class BattleplanController extends Controller
             return response()->success($this->fullPlanData($battleplan));
         }
 
-        return response()->error("Plan is private");
+        return response()->error("Unauthorized", [], 403);
     }
-
+    
     /**
-     * Mark the changes to the battleplan as being "saved"
-     * and update the battle plans name, notes and public visibility
+     * Update a battleplan values
      */
     public function update(Request $request, Battleplan $battleplan){
-  
+        
+        // Is not owner
+        if ($battleplan->owner->id != Auth::User()->id) {
+            return response()->error("Unauthorized", [], 403);
+        }
+
         // validate request object contains all needed data
-        $validatedData = $request->validate([
+        $data = $request->validate([
             'name' => 'required',
             'notes' => 'required',
             'public' => 'required',
         ]);
-        
-        // Is not owner
-        if ($battleplan->Owner->id != Auth::User()->id) {
-            return response()->error("Unauthorized", [], 403);
-        }
-        
-        // propagate the save
-        $battleplan->savePublicChanges([
-            $validatedData["name"],
-            $validatedData["notes"],
-            $validatedData["public"]
-        ]);
+
+        $battleplan->update($data);
 
         // respond with update object
         return response()->success($this->fullPlanData($battleplan->fresh()));
@@ -171,36 +163,21 @@ class BattleplanController extends Controller
     public function copy(Request $request, Battleplan $battleplan){
         
         // validate request object contains all needed data
-        $validatedData = $request->validate([
+        $data = $request->validate([
             'name' => 'required',
         ]);
 
+        $data['user_id'] = Auth::user()->id;
+
+        $copy = Battleplan::copy($battleplan,$data);
+        
         // Create the copy and respond with the new instance
-        return response()->success(
-            Battleplan::copy($battleplan, Auth::user(), $validatedData["name"])
-        );
+        return response()->success($copy);
     }
     
     /**
-     * Vote for a battleplan
+     * Helper function
      */
-    public function vote(Request $request, Battleplan $battleplan){
-        
-        // validate request object contains all needed data
-        $validatedData = $request->validate([
-            'value' => 'required',
-        ]);
-
-        // Cast the vote
-        $vote = $battleplan->vote($value,Auth::user());
-        
-        // respond with the vote and the sum
-        return response()->success([
-            "vote" => $vote,
-            "tally" => Battleplan::copy($battleplan, Auth::user(), $validatedData["name"])
-        ]);
-    }
-
     private function fullPlanData($battleplan){
         return $battleplan
             ->slotData()

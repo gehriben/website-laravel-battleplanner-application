@@ -115,8 +115,8 @@
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(/*! D:\Repositories\battleplanner\resources\js\index\index.js */"./resources/js/index/index.js");
-module.exports = __webpack_require__(/*! D:\Repositories\battleplanner\resources\sass\app.scss */"./resources/sass/app.scss");
+__webpack_require__(/*! /home/vagrant/battleplanner/resources/js/index/index.js */"./resources/js/index/index.js");
+module.exports = __webpack_require__(/*! /home/vagrant/battleplanner/resources/sass/app.scss */"./resources/sass/app.scss");
 
 
 /***/ })

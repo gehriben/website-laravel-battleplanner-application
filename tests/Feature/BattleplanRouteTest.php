@@ -52,7 +52,7 @@ class BattleplanRouteTest extends TestCase
             ->assertJsonStructure(
                 [
                     'data' => [
-                        'slots',
+                        'operator_slots',
                         'map',
                         'battlefloors',
                     ]
@@ -68,7 +68,7 @@ class BattleplanRouteTest extends TestCase
             ->assertJsonStructure(
                 [
                     'data' => [
-                        'slots',
+                        'operator_slots',
                         'map',
                         'battlefloors',
                     ]
@@ -91,7 +91,7 @@ class BattleplanRouteTest extends TestCase
             ->assertJsonStructure(
                 [
                     'data' => [
-                        'slots',
+                        'operator_slots',
                         'map',
                         'battlefloors',
                     ]

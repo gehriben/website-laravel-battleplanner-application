@@ -17,7 +17,7 @@ class BHSeeder extends Seeder
     public function run()
     {
       $mapArray = [
-        /*Outback*/ ['name'=>"outback",'thumbsrc'=> "/media/thumbs/outback.jpg", 'comp'=>true]
+        /*Outback*/ ['name'=>"outback",'thumbnail_path'=> "/media/thumbs/outback.jpg", 'comp'=>true]
       ];
 
       Map::insert($mapArray);
