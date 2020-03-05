@@ -20,6 +20,12 @@ Route::get('/', function(){
     return View("index.index");
 })->name("index");
 
+
+Route::prefix('/battleplan')->group(function () {
+    Route::get('/', 'BattleplanController@index')->name("Battleplan.index");
+    Route::get('/{battleplan/{battleplan}', 'BattleplanController@show')->name("Battleplan.show");
+});
+
 Route::prefix('/room')->group(function () {
     Route::get('/', 'RoomController@index')->name("Room.index");
     Route::get('/create', 'RoomController@create')->name("Room.create");

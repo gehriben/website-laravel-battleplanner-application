@@ -1,54 +1,51 @@
-<!-- Navigation -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
-  <a class="navbar-brand" href="/">Battle Planner</a>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="/">Battleplanner</a>
 
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample05" aria-controls="navbarsExample05" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
 
-  <div class="collapse navbar-collapse" id="navbarText">
+    <div class="collapse navbar-collapse" id="navbarsExample05">
+        <ul class="navbar-nav mr-auto">
 
-    <ul class="navbar-nav mr-auto">
-      
-        <li class="nav-item">
-            <a class="nav-link js-scroll-trigger" href="/battleplan">Public Plans</a>
-          </li>
-      @auth
-        <li class="nav-item">
-          <a class="nav-link js-scroll-trigger" href="/room">Rooms</a>
-        </li>
-        
-        
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            {{Auth::User()->username}}
-          </a>
-          <div class="dropdown-menu bg-dark" aria-labelledby="navbarDropdownMenuLink">
-              <a class="dropdown-item" href='#' onclick='logout()'>Logout</a>
-          </div>
-        </li>
-      @endauth
+            <li class="nav-item">
+                <a class="nav-link js-scroll-trigger" href="/battleplan">Public Plans</a>
+            </li>
 
-      @guest
-        <li class="nav-item">
-          <a class="nav-link js-scroll-trigger" href="/login">Login</a>
-        </li>
+            @auth
+            <li class="nav-item">
+                <a class="nav-link js-scroll-trigger" href="/room">Rooms</a>
+            </li>
 
-        <li class="nav-item">
-          <a class="nav-link js-scroll-trigger" href="/register">Register</a>
-        </li>
-      @endguest
-      <li class="nav-item">
-        <a class="nav-link js-scroll-trigger" href="https://tavernsidepodcast.com">
-          <!-- <i class="fas fa-certificate new-tag"></i> -->
-          <div class="new-tag">new</div>
-          Podcast
-        </a>
-      </li>
-    </ul>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  {{Auth::User()->username}}
+                </a>
+                <div class="dropdown-menu bg-dark" aria-labelledby="navbarDropdownMenuLink">
+                    <a class="dropdown-item" href='#' onclick='logout()'>Logout</a>
+                </div>
+            </li>
+            @endauth
+            
+            @guest
+            <li class="nav-item">
+                <a class="nav-link js-scroll-trigger" href="/login">Login</a>
+            </li>
 
-  </div>
+            <li class="nav-item">
+                <a class="nav-link js-scroll-trigger" href="/register">Register</a>
+            </li>
+            @endguest
+
+        </ul>
+
+        <form class="form-inline my-2 my-md-0">
+            <input class="form-control" type="text" placeholder="Search">
+        </form>
+    </div>
 </nav>
+
+
 @push('js')
   <script type="text/javascript">
     function logout(){

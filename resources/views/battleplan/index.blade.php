@@ -2,94 +2,63 @@
 
 @push('js')
   <script src="{{asset("js/battleplan/index.js")}}"></script>
-  <script src="//cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js" charset="utf-8"></script>
-
-  <script>
-    $(document).ready(function() {
-        $('[data-toggle="tooltip"]').tooltip();
-        $('.datatable').DataTable({
-        "order": [[ 0, "desc" ]]
-      });
-    });
-  </script>
+  
 @endpush
 
 @push('css')
-  <link rel="stylesheet" href="{{asset("css/battleplan/index.css")}}">
-  <link rel="stylesheet" href="//cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
+  <!-- <link rel="stylesheet" href="{{asset("css/battleplan/index.css")}}"> -->
   <style media="screen">
-      .black-border{
-          text-shadow: 2px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;
+      body{
+        background-color: black;
+        background-image: url("https://battleplanner-production.s3.ca-central-1.amazonaws.com/static/R6S.jpg");
       }
   </style>
 @endpush
 
 @section('content')
+<div class="row">
+  <div class="col-12 text-center">
+    <h1>Battleplans</h1>
+  <div>
+</div>
 
-  <div class="row">
-    <div class="col-12 text-center">
-      <h1>Public Battleplans</h1>
+<div class="row">
+  <div class="col-12 text-center">
+    <button type="button" class="col-5 btn btn-primary">Create</button>
+  <div>
+</div>
+
+
+
+<hr>
+
+<div class="list-group">
+  <a href="#" class="list-group-item list-group-item-action flex-column align-items-start active">
+    <div class="d-flex w-100 justify-content-between">
+      <h5 class="mb-1">List group item heading</h5>
+      <small>3 days ago</small>
     </div>
-  </div>
-
-  <div class="row">
-    <div class="col-12 text-center">
-
-        <table id="battleplan_load_table" class="datatable" style="width:100%">
-            <thead>
-                <tr>
-                    <th>Total Votes</th>
-                    <th>Functions</th>
-                    <th>ID</th>
-                    <th>Map</th>
-                    <th>Name</th>
-                    <th>Creator</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($battleplans as $battleplan)
-                <tr>
-
-                    <td id="vote-value-{{$battleplan->id}}">{{$battleplan->voteSum()}}</td>
-
-                     <td>
-                            @if(Auth::user())
-
-                      @if ($battleplan->voted(1))
-                        <i class="fas fa-arrow-circle-up cursor-click vote-green" id="vote-up-{{$battleplan->id}}" onclick="vote(1,{{$battleplan->id}}, this)" data-toggle="tooltip" data-placement="top" title="Up Vote"></i>
-                      @else
-                        <i class="fas fa-arrow-circle-up cursor-click" id="vote-up-{{$battleplan->id}}" onclick="vote(1,{{$battleplan->id}}, this)" data-toggle="tooltip" data-placement="top" title="Up Vote"></i>
-                      @endif
-
-                       |
-
-                      @if ($battleplan->voted(-1))
-                        <i class="fas fa-arrow-circle-down cursor-click vote-red" id="vote-down-{{$battleplan->id}}" onclick="vote(-1,{{$battleplan->id}}, this)" data-toggle="tooltip" data-placement="top" title="Down Vote"></i>
-                      @else
-                        <i class="fas fa-arrow-circle-down cursor-click" id="vote-down-{{$battleplan->id}}" onclick="vote(-1,{{$battleplan->id}}, this)" data-toggle="tooltip" data-placement="top" title="Down Vote"></i>
-                      @endif
-
-                      |
-
-                      <i class="fas fa-clone cursor-click" id="copy-{{$battleplan->id}}" data-toggle="tooltip" data-placement="top" title="Copy to my account" onclick="copyModal({{$battleplan->id}})"></i>
-
-                      |
-
-                      @endif
-                     <a href="/battleplan/{{$battleplan->id}}">View Plan</a>
-
-                    </td>
-
-                    <td>{{$battleplan->id}}</td>
-                    <td>{{ucwords($battleplan->map->name)}}</td>
-                    <td>{{$battleplan->name}}</td>
-                    <td>{{$battleplan->owner->username}}</td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
+    <p class="mb-1">Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit.</p>
+    <small>Donec id elit non mi porta.</small>
+  </a>
+  <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
+    <div class="d-flex w-100 justify-content-between">
+      <h5 class="mb-1">List group item heading</h5>
+      <small class="text-muted">3 days ago</small>
     </div>
-  </div>
+    <p class="mb-1">Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit.</p>
+    <small class="text-muted">Donec id elit non mi porta.</small>
+  </a>
+  <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
+    <div class="d-flex w-100 justify-content-between">
+      <h5 class="mb-1">List group item heading</h5>
+      <small class="text-muted">3 days ago</small>
+    </div>
+    <p class="mb-1">Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit.</p>
+    <small class="text-muted">Donec id elit non mi porta.</small>
+  </a>
+</div>
+
 @endsection
 
 @push('modals')

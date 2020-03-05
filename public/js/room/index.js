@@ -104,7 +104,7 @@
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! /home/vagrant/battleplanner/resources/js/room/index.js */"./resources/js/room/index.js");
+module.exports = __webpack_require__(/*! C:\Users\e_smi\Documents\Repositories\website-laravel-battleplanner-v2\resources\js\room\index.js */"./resources/js/room/index.js");
 
 
 /***/ })
