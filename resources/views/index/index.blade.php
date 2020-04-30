@@ -41,7 +41,7 @@
         <div class="col-md">
 
             <div class="card">
-                <img src="https://via.placeholder.com/150x70" class="card-img-top" alt="...">
+                <!-- <img src="https://via.placeholder.com/150x70" class="card-img-top" alt="..."> -->
                 <div class="card-body">
                     <p class="card-text text-center">Profile</p>
                 </div>
@@ -52,10 +52,12 @@
         <div class="col-md">
 
             <div class="card">
-                <img src="https://via.placeholder.com/150x70" class="card-img-top" alt="...">
-                <div class="card-body">
-                    <p class="card-text text-center">Start Creating</p>
-                </div>
+                <!-- <img src="https://via.placeholder.com/150x70" class="card-img-top" alt="..."> -->
+                <a href="/battleplan/new">
+                    <div class="card-body">
+                        <p class="card-text text-center">Start Planning</p>
+                    </div>
+                </a>
             </div>
 
         </div>
@@ -67,7 +69,7 @@
         <div class="col-md">
 
             <div class="card">
-                <img src="https://via.placeholder.com/150x70" class="card-img-top" alt="...">
+                <!-- <img src="https://via.placeholder.com/150x70" class="card-img-top" alt="..."> -->
                 <div class="card-body">
                     <p class="card-text text-center">Rooms</p>
                 </div>
@@ -78,7 +80,7 @@
         <div class="col-md">
 
             <div class="card">
-                <img src="https://via.placeholder.com/150x70" class="card-img-top" alt="...">
+                <!-- <img src="https://via.placeholder.com/150x70" class="card-img-top" alt="..."> -->
                 <div class="card-body">
                     <p class="card-text text-center">Public Plans</p>
                 </div>

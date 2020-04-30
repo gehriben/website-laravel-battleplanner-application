@@ -6,7 +6,6 @@
 
 @section('content')
 <div class="form">
-
   {{-- Login --}}
   <form class="login-form" method="POST" action="{{ route('login') }}" >
     @csrf

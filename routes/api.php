@@ -15,6 +15,11 @@ use Illuminate\Http\Request;
 
 Route::prefix('v1')->group(function () {
 
+    // Route::prefix('/map')->group(function () {
+    //     Route::post('/', 'MapController@create')->name("Map.create");
+    // });
+
+
     Route::prefix('battleplan')->group(function () {
         Route::post('/', 'BattleplanController@create')->name("Battleplan.create");
         Route::get('/{battleplan}', 'BattleplanController@read')->name("Battleplan.read");

@@ -16,14 +16,18 @@ class CreateFloorsTable extends Migration
         Schema::create('floors', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name');
-            $table->unsignedInteger('map_id')
-              ->nullable();
-              $table->foreign('map_id')
+            $table->integer('order');
+            $table->timestamps();
+            
+            $table->unsignedInteger('map_id');
+            $table->foreign('map_id')
                 ->references('id')
                 ->on('maps');
-            $table->text('src');
-            $table->integer('floorNum');
-            $table->timestamps();
+                
+            $table->unsignedInteger('media_id');
+            $table->foreign('media_id')
+                ->references('id')
+                ->on('medias');
         });
     }
 

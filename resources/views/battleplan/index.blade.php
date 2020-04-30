@@ -2,6 +2,15 @@
 
 @push('js')
   <script src="{{asset("js/battleplan/index.js")}}"></script>
+  <!-- <script>
+    $.ajax({
+      method: "POST",
+      url: "/battleplan/create",
+      data: {
+
+      }
+    })
+  </script> -->
   
 @endpush
 
@@ -24,7 +33,7 @@
 
 <div class="row">
   <div class="col-12 text-center">
-    <button type="button" class="col-5 btn btn-primary">Create</button>
+    <a type="button" href="/battleplan/new" class="col-5 btn btn-primary">Create</a>
   <div>
 </div>
 

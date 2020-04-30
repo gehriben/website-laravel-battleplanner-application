@@ -20,10 +20,29 @@ Route::get('/', function(){
     return View("index.index");
 })->name("index");
 
+Route::prefix('/map')->group(function () {
+    Route::get('/', 'MapController@index')->name("Map.index");
+    Route::get('new', 'MapController@new')->name("Map.new");
+    Route::get('{map}/edit', 'MapController@edit')->name("Map.edit");
+    
+    // API's
+    Route::post('/', 'MapController@create')->name("Map.create");
+    Route::post('/{map}', 'MapController@update')->name("Map.update");
+});
+
+Route::prefix('/admin')->group(function () {
+    Route::get('/', 'AdminController@index')->name("Battleplan.index");
+});
 
 Route::prefix('/battleplan')->group(function () {
     Route::get('/', 'BattleplanController@index')->name("Battleplan.index");
-    Route::get('/{battleplan/{battleplan}', 'BattleplanController@show')->name("Battleplan.show");
+    Route::get('new', 'BattleplanController@new')->name("Battleplan.new");
+    Route::get('{battleplan}', 'BattleplanController@show')->name("Battleplan.show");
+    Route::get('{battleplan}/edit', 'BattleplanController@edit')->name("Battleplan.edit");
+
+    // API's
+    Route::post('/', 'BattleplanController@create')->name("Battleplan.create");
+
 });
 
 Route::prefix('/room')->group(function () {

@@ -3,7 +3,7 @@
 namespace App\Http\Middleware;
 
 use Closure;
-
+use Auth;
 class IsAdmin
 {
     /**
@@ -13,9 +13,9 @@ class IsAdmin
      * @param  \Closure  $next
      * @return mixed
      */
-    public function handle($request, Closure $next, $role)
+    public function handle($request, Closure $next)
     {
-        if( get_class($request->user()->admin != true)){
+        if(!Auth::user() || !Auth::user()->isAdmin()){
             return response()->error("Unauthorized", [], 403);
         }
         return $next($request);

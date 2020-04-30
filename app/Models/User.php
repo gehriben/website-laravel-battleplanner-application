@@ -14,7 +14,7 @@ class User extends Authenticatable
      * The attributes that are mass assignable.
      */
     protected $fillable = [
-      'username','email', 'password', 'email_verified_at'
+      'username','email', 'password', 'email_verified_at', 'is_admin'
     ];
 
     /**
@@ -39,6 +39,6 @@ class User extends Authenticatable
      * Public Methods
      */
     public function isAdmin(){
-      return $this->id == 1;
+      return $this->is_admin == true;
     }
 }

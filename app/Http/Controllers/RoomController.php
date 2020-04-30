@@ -79,7 +79,10 @@ class RoomController extends Controller
     ]);
 
     // Respond with redirect
-    return response()->success($room);
+        if($request->wantsJson()){
+          return response()->success($room);
+      }
+      return redirect("room/$room->id");
   }
   
   public  function read(Request $request){

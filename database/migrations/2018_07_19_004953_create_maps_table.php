@@ -16,9 +16,14 @@ class CreateMapsTable extends Migration
         Schema::create('maps', function (Blueprint $table) {
             $table->increments('id');
             $table->text('name');
-            $table->text('thumbnail_path');
-            $table->boolean('comp');
+            $table->boolean('is_competitive');
             $table->timestamps();
+                
+            $table->unsignedInteger('media_id')->nullable();
+            $table->foreign('media_id')
+                ->onDelete("set null")
+                ->references('id')
+                ->on('medias');
         });
     }
 

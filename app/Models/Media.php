@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 use Aws\S3\S3Client;
 use Aws\S3\Exception\S3Exception;
 use Illuminate\Support\Facades\Storage;
-use App\Models\User\User;
 use Carbon\Carbon;
 
 // Events
@@ -42,7 +41,7 @@ class Media extends Model
      * @var array
      */
     protected $fillable = [
-        'name', 'path', 'user_id'
+        'name', 'path'
     ];
 
     /**
@@ -52,18 +51,13 @@ class Media extends Model
      */
     protected $hidden = [];
 
-    public function owner()
-    {
-        return $this->belongsTo(User::class, 'user_id');
-    }
-
     public function getTypeAttribute(){
         $exploded = explode(".", $this->path);
         return $exploded[count($exploded)-1];
     }
     /**
      * Create override function (Default Model create method)
-     * Required attributed ['content','name', 'type', 'visibility', 'user_id']
+     * Required attributed ['content','name', 'type', 'visibility']
      * @return Media|\Exception
      */
     public static function create(array $attributes = [])
@@ -75,7 +69,7 @@ class Media extends Model
 
         // Upload to S3
         try {
-            $path = self::upload(self::generateName(), $attributes["type"], $attributes["content"], $attributes["visibility"]);    
+            $path = self::upload(self::generateName(), $attributes["type"], $attributes["content"], $attributes["subfolder"], $attributes["visibility"]);    
         } 
         
         // There was an error uploading the file
@@ -86,8 +80,7 @@ class Media extends Model
         // Create our database record
         return static::query()->create([
             'name' => $attributes["name"],
-            'path'=> $path,
-            'user_id' => $attributes["user_id"]
+            'path'=> $path
         ]);
     }
 
@@ -109,7 +102,7 @@ class Media extends Model
      * Upload file to s3 bucket
      * @return \Exception|String
      */
-    public static function upload($name,$type,$content, $visibility = 'private'){
+    public static function upload($name,$type,$content, $subfolder ="", $visibility = 'private'){
         // Variable declarations
         $validVisibilities = ['private', 'public'];
 
@@ -120,7 +113,7 @@ class Media extends Model
 
         // Attempt to upload via S3 API
         try{
-            $filePath = self::S3_PATH . $name . "." . $type;
+            $filePath = self::S3_PATH . $subfolder. "/" . $name . "." . $type;
             $success = Storage::disk('s3')->put($filePath, $content, $visibility);
         }
 
@@ -211,15 +204,15 @@ class Media extends Model
     /**
      * Custom constructor from a file
      */
-    public static function fromFile($file, $userId, $visibility = 'private'){
+    public static function fromFile($file, $subfolder = "", $visibility = 'private'){
         $extention = $file->extension();
-        $name = preg_replace("/\.$extention$/","",$file->getClientOriginalName());
+        $name = preg_replace("/\.$extention$/","", $file->getClientOriginalName());
         return Media::create([
+            'subfolder' => $subfolder,
             'content' => file_get_contents($file),
             'name' => $name,
             'type' => $file->extension(),
-            'visibility' => $visibility,
-            'user_id' => $userId
+            'visibility' => $visibility
         ]);
 
     }

@@ -16,15 +16,6 @@
             <li class="nav-item">
                 <a class="nav-link js-scroll-trigger" href="/room">Rooms</a>
             </li>
-
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                  {{Auth::User()->username}}
-                </a>
-                <div class="dropdown-menu bg-dark" aria-labelledby="navbarDropdownMenuLink">
-                    <a class="dropdown-item" href='#' onclick='logout()'>Logout</a>
-                </div>
-            </li>
             @endauth
             
             @guest
@@ -37,11 +28,41 @@
             </li>
             @endguest
 
+            @admin
+            <li class="nav-item">
+                <a class="nav-link js-scroll-trigger" href="/admin">Admin</a>
+            </li>
+            @endif
+
         </ul>
 
-        <form class="form-inline my-2 my-md-0">
+        @auth
+        <!-- <form class="form-inline my-2 my-md-0">
             <input class="form-control" type="text" placeholder="Search">
-        </form>
+        </form> -->
+
+        <ul class="navbar-nav form-inline my-2 my-md-0">
+          <!-- <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  {{Auth::User()->username}}
+                </a>
+                <div class="dropdown-menu bg-dark" aria-labelledby="navbarDropdownMenuLink">
+                    <a class="dropdown-item" href='#' onclick='logout()'>Logout</a>
+                </div>
+          </li> -->
+          
+          
+
+          <li class="nav-item">
+              <a class="nav-link js-scroll-trigger" href="/account">Account</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link js-scroll-trigger" onclick='logout()'>Logout</a>
+          </li>
+
+        </ul>
+        @endauth
     </div>
 </nav>
 

@@ -16,8 +16,9 @@ class UserSeeder extends Seeder
         // admin user
         User::create([
             "username" => 'admin',
-            "email" => 'admin@tavernsidepodcast.com',
-            'password' => bcrypt('r6-tavs-admin'),
+            "email" => env('ADMIN_EMAIL'),
+            'password' => bcrypt(env('ADMIN_PASSWORD')),
+            'is_admin' => true,
         ]);
     }
 }

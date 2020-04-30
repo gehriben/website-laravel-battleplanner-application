@@ -49,20 +49,73 @@ class BattleplanController extends Controller
 
         // Return immediately if plan is public
         if ($battleplan->public) {
+
+            if ($request->expectsJson()) {
+                return $this->fullPlanData($battleplan);
+            }
+
             return view("battleplan.show", compact("battleplan"));
         }
-
+        
         // Owner of the private plan
-        if (Auth::user() && Auth::user()->id == $battleplan->owner) {
+        if (Auth::user() && Auth::user() == $battleplan->owner) {
+            
+            if ($request->expectsJson()) {
+                return $this->fullPlanData($battleplan);
+            }
+
             return view("battleplan.show", compact("battleplan"));
         }
 
         // Admin can always see the plan
         if(Auth::user() && Auth::user()->isAdmin()){
+            
+            if ($request->expectsJson()) {
+                return $this->fullPlanData($battleplan);
+            }
+
             return view("battleplan.show", compact("battleplan"));
         }
 
+        // Insufficient permissions
         abort(403);
+    }
+
+    /**
+     * Show a battleplan
+     */
+    public function edit(Request $request, Battleplan $battleplan){
+
+        // Owner of the private plan
+        if (Auth::user() && Auth::user() == $battleplan->owner) {
+            
+            if ($request->expectsJson()) {
+                return $this->fullPlanData($battleplan);
+            }
+
+            return view("battleplan.edit", compact("battleplan"));
+        }
+
+        // Admin can always see the plan
+        if(Auth::user() && Auth::user()->isAdmin()){
+            
+            if ($request->expectsJson()) {
+                return $this->fullPlanData($battleplan);
+            }
+
+            return view("battleplan.show", compact("battleplan"));
+        }
+
+        // Insufficient permissions
+        abort(403);
+    }
+
+    /**
+     * New battleplan form
+     */
+    public function new(Request $request){
+        $maps = Map::all();
+        return view("battleplan.new",compact('maps'));
     }
 
     /**
@@ -83,15 +136,19 @@ class BattleplanController extends Controller
 
         $data['owner_id'] = Auth::User()->id;
 
-        $bp = Battleplan::create($data);
+        $battleplan = Battleplan::create($data);
         
-        return response()->success(
-            $bp
-            ->slotData()
-            ->mapData()
-            ->BattlefloorData()
-            ->first()
-        );
+        if($request->wantsJson()){
+            return response()->success(
+                $bp
+                ->slotData()
+                ->mapData()
+                ->BattlefloorData()
+                ->first()
+            );
+        }
+        return redirect("battleplan/$battleplan->id/edit");
+
     }
 
     /**

@@ -99,6 +99,7 @@ class Battleplan extends Model
         $query
             ->with("battlefloors")
             ->with("battlefloors.floor")
+            ->with("battlefloors.floor.media")
             ->with(['battlefloors.draws' => function ($q) {
                     $q
                         ->notDeleted()

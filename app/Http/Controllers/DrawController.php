@@ -23,23 +23,23 @@ class DrawController extends Controller
       * Create a single draw
       */
     public function create(Request $request){
-        $draws;
+        // $draws;
 
         // Batch upload
-        if(isset($request->all()[0]) && is_array($request->all()[0])){
-            $draws = $this->batchCreate($request);
-        }
+        // if(isset($request->all()[0]) && is_array($request->all()[0])){
+        //     $draws = $this->batchCreate($request);
+        // }
 
         // single create
-        else{
-            $draws = $this->singleCreate($request);
-        }
+        // else{
+        //     $draws = $this->singleCreate($request);
+        // }
         
         // Fire event on listeners for socket.io
-        //event(new CreateDraws($draws, $request->conn_string, $request->userId));
+        event(new CreateDraws($draws, $request->conn_string, $request->userId));
         
         // Create the draw and return it with the response
-        return response()->success($draws);
+        return response()->success();
 
     }
 
@@ -49,42 +49,42 @@ class DrawController extends Controller
     public function delete(Request $request, Draw $draw){
 
         // set thhe deleted flag
-        $draw = $this->deleteDraw($draw->id);
+        // $draw = $this->deleteDraw($draw->id);
 
         // Fire event on listeners for socket.io
-        //event(new CreateDraws([$draw], $request->conn_string, $request->userId));
+        event(new CreateDraws([$draw], $request->conn_string, $request->userId));
 
         // Create the draw and return it with the response
-        return response()->success($draw);
+        return response()->success();
     }
      
     /**
      * Delete numerous draws from a single request
      * (This is optimized for async functions to minimize the number of requests made to the backend)
      */
-    public function batchDelete(Request $request){
-        $data = $request->validate([
-            'ids.*' =>[ "required", "exists:draws,id"]
-        ]);
+    // public function batchDelete(Request $request){
+    //     $data = $request->validate([
+    //         'ids.*' =>[ "required", "exists:draws,id"]
+    //     ]);
 
-        // Declarations
-        $deletedDraws = []; // used for event notification
+    //     // Declarations
+    //     $deletedDraws = []; // used for event notification
 
-        // delete the list
-        foreach ($data["ids"] as $key => $id) {
+    //     // delete the list
+    //     foreach ($data["ids"] as $key => $id) {
         
-            $deleted = $this->deleteDraw($id);
-            if($deleted){
-                $deletedDraws[] = $deleted;
-            }
-        }
+    //         $deleted = $this->deleteDraw($id);
+    //         if($deleted){
+    //             $deletedDraws[] = $deleted;
+    //         }
+    //     }
 
-        // Fire event on listeners for socket.io
-        //event(new DeleteDraws($deletedDraws, $request->conn_string, $request->userId));
+    //     // Fire event on listeners for socket.io
+    //     //event(new DeleteDraws($deletedDraws, $request->conn_string, $request->userId));
 
-        // Respond
-        return response()->json($deletedDraws);
-    }
+    //     // Respond
+    //     return response()->json($deletedDraws);
+    // }
 
     
 
