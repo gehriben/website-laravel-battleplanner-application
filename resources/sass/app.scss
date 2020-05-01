@@ -4,3 +4,34 @@
 
 // Variables
 @import "variables";
+
+.btn-success{
+  font-size: 20px;
+  background-color: $light-highlight-color;
+  border-color: $light-highlight-color;
+  color: $standard-text-color;
+}
+
+.btn-success:hover{
+  background-color: $light-highlight-hover-color;
+  border-color: $light-highlight-hover-color;
+}
+
+.btn-primary{
+  background-color: $highlight-color;
+  border-color: $highlight-color;
+  color: $standard-text-color;
+}
+
+.btn-primary:hover{
+  background-color: $dark-highlight-color;
+  border-color: $dark-highlight-color;
+}
+
+.navbar-dark .navbar-nav .nav-link{
+  color: $standard-text-color;
+}
+
+.fas{
+  color: $light-highlight-color;
+}
