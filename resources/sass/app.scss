@@ -12,6 +12,20 @@
   color: $standard-text-color;
 }
 
+.btn-success:focus, .btn-success:active {
+  outline: none !important;
+  box-shadow: none !important;
+  background-color: $light-highlight-hover-color !important;
+  border-color: $light-highlight-hover-color !important;
+}
+
+.btn-primary:focus, .btn-primary:active {
+  outline: none !important;
+  box-shadow: none !important;
+  background-color: $dark-highlight-color !important;
+  border-color: $dark-highlight-color !important;
+}
+
 .btn-success:hover{
   background-color: $light-highlight-hover-color;
   border-color: $light-highlight-hover-color;

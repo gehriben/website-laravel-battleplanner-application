@@ -5,6 +5,22 @@
   color: white;
 }
 
+.btn-success:focus,
+.btn-success:active {
+  outline: none !important;
+  box-shadow: none !important;
+  background-color: #b35b47 !important;
+  border-color: #b35b47 !important;
+}
+
+.btn-primary:focus,
+.btn-primary:active {
+  outline: none !important;
+  box-shadow: none !important;
+  background-color: #b34830 !important;
+  border-color: #b34830 !important;
+}
+
 .btn-success:hover {
   background-color: #b35b47;
   border-color: #b35b47;

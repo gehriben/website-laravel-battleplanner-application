@@ -5,30 +5,33 @@
 @endpush
 
 @section('content')
-<div class="form">
-  {{-- Login --}}
-  <form class="login-form" method="POST" action="{{ route('login') }}" >
-    @csrf
-    <input placeholder="username" id="username" type="username" class="form-control{{ $errors->has('username') ? ' is-invalid' : '' }}" name="username" value="{{ old('username') }}" required>
+<div class="row">
+  <div class="form card col-12 col-md-4 text-center">
+    <!-- <div class="container"> -->
+        {{-- Login --}}
+        <form class="login-form col-12" method="POST" action="{{ route('login') }}" >
+          @csrf
+          <input placeholder="Username" id="username" type="username" class="form-control{{ $errors->has('username') ? ' is-invalid' : '' }} padded" name="username" value="{{ old('username') }}" required>
 
-    @if ($errors->has('username'))
-      <span class="invalid-feedback" role="alert">
-          <strong>{{ $errors->first('username') }}</strong>
-      </span>
-    @endif
+          @if ($errors->has('username'))
+            <span class="invalid-feedback" role="alert">
+                <strong>{{ $errors->first('username') }}</strong>
+            </span>
+          @endif
 
-    <input  placeholder="password" id="password" type="password" class="form-control{{ $errors->has('password') ? ' is-invalid' : '' }}" name="password" required>
+          <input  placeholder="Password" id="password" type="password" class="form-control{{ $errors->has('password') ? ' is-invalid' : '' }} padded" name="password" required>
 
-    @if ($errors->has('password'))
-        <span class="invalid-feedback" role="alert">
-            <strong>{{ $errors->first('password') }}</strong>
-        </span>
-    @endif
+          @if ($errors->has('password'))
+              <span class="invalid-feedback" role="alert">
+                  <strong>{{ $errors->first('password') }}</strong>
+              </span>
+          @endif
 
-    <button>login</button>
-    <p class="message">Not registered? <a href="/register">Create an account</a></p>
-    <p class="message">Forgot password? <a href="/password/reset">reset password</a></p>
-  </form>
-
+          <button type="button" class="btn btn-success">Login</button>
+          <p class="message">Not registered? <a href="/register">Create an account</a></p>
+          <p class="message">Forgot password? <a href="/password/reset">Reset password</a></p>
+        </form>
+    <!-- </div> -->
+  </div>
 </div>
 @endsection
