@@ -1,0 +1,23 @@
+body {
+  background: black;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body h1 {
+  color: white;
+}
+
+.list-group {
+  padding: 0px;
+}
+
+.list-group-item {
+  background-color: rgba(255, 255, 255, 0.5);
+  color: black;
+}
+
+.list-group-item:hover {
+  background-color: rgba(255, 255, 255, 0.4);
+  color: black;
+}
