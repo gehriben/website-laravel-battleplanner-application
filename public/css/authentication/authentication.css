@@ -31,12 +31,6 @@ body {
   text-shadow: black 0px 0px 1px;
 }
 
-.container {
-  position: relative;
-  z-index: 1;
-  margin: 0 auto;
-}
-
 .padded {
   padding-top: 10px;
   padding-bottom: 10px;
@@ -44,13 +38,15 @@ body {
   margin-bottom: 2%;
 }
 
+.container {
+  max-width: 1300px;
+}
+
 .card {
   margin: auto;
-  position: relative;
   z-index: 1;
   box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
   transition: 0.3s;
-  max-width: 50%;
   width: 30%;
   border-radius: 25px;
   text-align: center;
