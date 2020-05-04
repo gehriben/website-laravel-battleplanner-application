@@ -1,13 +1,13 @@
 @extends('layouts.main')
 
 @push('css')
-  <link rel="stylesheet" href="{{asset("css/login/login.css")}}">
+  <link rel="stylesheet" href="{{asset("css/authentication/authentication.css")}}">
 @endpush
 
 @section('content')
-<div class="row">
-  <div class="form card col-12 col-md-4 text-center">
-    <!-- <div class="container"> -->
+<div class="container">
+  <div class="row">
+    <div class="form card col-12 col-md-4">
         {{-- Login --}}
         <form class="login-form col-12" method="POST" action="{{ route('login') }}" >
           @csrf
@@ -27,11 +27,11 @@
               </span>
           @endif
 
-          <button type="button" class="btn btn-success">Login</button>
+          <button type="submit" class="btn btn-success">Login</button>
           <p class="message">Not registered? <a href="/register">Create an account</a></p>
           <p class="message">Forgot password? <a href="/password/reset">Reset password</a></p>
         </form>
-    <!-- </div> -->
+    </div>
   </div>
 </div>
 @endsection
