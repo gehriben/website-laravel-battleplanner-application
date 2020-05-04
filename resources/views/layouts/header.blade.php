@@ -1,11 +1,4 @@
-<style>
-  .btn-primary{
-    font-size: 16px;
-    max-width: 75px;;
-  }
-</style>
-
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<nav class="navbar navbar-expand-md navbar-dark bg-dark">
     <a class="navbar-brand" href="/">Rainbow Six Battleplanner</a>
 
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">

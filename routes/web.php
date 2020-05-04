@@ -20,11 +20,16 @@ Route::get('/', function(){
     return View("index.index");
 })->name("index");
 
+// Account
+Route::prefix('/account')->group(function () {
+  Route::get('/', 'AccountController@index')->name("Account.index");
+});
+
 Route::prefix('/map')->group(function () {
     Route::get('/', 'MapController@index')->name("Map.index");
     Route::get('new', 'MapController@new')->name("Map.new");
     Route::get('{map}/edit', 'MapController@edit')->name("Map.edit");
-    
+
     // API's
     Route::post('/', 'MapController@create')->name("Map.create");
     Route::post('/{map}', 'MapController@update')->name("Map.update");
