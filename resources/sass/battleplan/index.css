@@ -1,9 +1,37 @@
 .vote-green{
-    color: green;
+    color: #66ff66;
 }
 .vote-red{
-    color: red;
+    color: #cc0000;
 }
 .cursor-click{
     cursor: pointer;
+}
+
+body {
+  background-color: black;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body h1 {
+  color: white;
+}
+
+.btn-success {
+  max-width: 150px;
+}
+
+.list-group {
+  padding: 0px;
+}
+
+.list-group-item {
+  background-color: rgba(255, 255, 255, 0.5);
+  color: black;
+}
+
+.list-group-item:hover {
+  background-color: rgba(255, 255, 255, 0.4);
+  color: black;
 }
