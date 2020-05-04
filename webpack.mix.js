@@ -25,11 +25,13 @@ mix.sass('resources/sass/app.scss', 'public/css')
     mix.js('resources/js/index/index.js', 'public/js/index')
         .copy('resources/sass/index/*', 'public/css/index');
 
+    //Admin
+    mix.copy('resources/sass/admin/*', 'public/css/admin');
+
+    mix.copy('resources/sass/account/*', 'public/css/account');
+
     // Auth
-    mix.copy('resources/js/login/*', 'public/js/login')
-        .copy('resources/sass/login/*', 'public/css/login')
-        .copy('resources/js/register/*', 'public/js/register')
-        .copy('resources/sass/register/*', 'public/css/register');
+    mix.copy('resources/sass/authentication/*', 'public/css/authentication');
 
     // Rooms
     mix.js('resources/js/room/join.js', 'public/js/room/join.js')
