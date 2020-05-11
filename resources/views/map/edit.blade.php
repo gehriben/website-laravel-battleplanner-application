@@ -29,14 +29,14 @@
         $("#floor-list").append(li);
     }
 
-    
+
   $( function() {
     $( ".sortable" ).sortable();
     $( ".sortable" ).disableSelection();
     $("#is_competitive").prop( "checked", {{$map->is_competitive}} );
   } );
 
-  
+
 </script>
 @endpush
 
@@ -78,7 +78,7 @@
             <input type="text" class="col-sm  form-control" id="add-floor-name" aria-describedby="emailHelp" placeholder="Floor Name" value="" required>
         </div>
     </div>
-    
+
     <div class="col-8">
         @if ($errors->any())
             @foreach ($errors->all() as $error)
@@ -96,16 +96,16 @@
                 <label for="exampleInputEmail1">Name</label>
                 <input type="text" class="form-control" id="exampleInputEmail1" name="name" aria-describedby="emailHelp" placeholder="Map Name" value="{{$map->name}}" required>
             </div>
-            
+
             <div class="form-group">
                 <label for="exampleInputEmail1">Thumbnail</label>
                 <input type="file" class="col-sm form-control" name="thumbnail">
-                
+
                 @if($map->thumbnail)
                     <img class="map-thumbnail-preview" src="{{$map->thumbnail->url()}}" alt="">
                 @endif
             </div>
-            
+
             <div class="form-check">
                 <input type="checkbox" class="form-check-input" name="is_competitive" id="is_competitive">
                 <label class="form-check-label" for="exampleCheck1">Competitive Playlisted</label>
@@ -117,27 +117,15 @@
             <small>1. Order Matters: Lowest floor at the top of list, highest at the bottom of list</small><br>
             <small>2. List can be organized by clicking and dragging elements</small>
             <br>
-            
+
             <button type="button" class="col-12 btn btn-success m-1" onclick="addFloor()">Add floor</button>
-            
+
             <ul class="list-group sortable" id="floor-list">
 
                 @foreach ($map->floors as $floor)
 
                 @include('map.floor-form', ["floorPreview" => $floor->media->url(), "floorName" => $floor->name, "floorId" => $floor->id])
                 
-
-                <!-- <li class="col-12 text-center row" id="floor-0">
-                    <i class="fas fa-bars"></i>
-                    <input type="file" class="col-sm form-control" id="add-floor-file" name="floor-files[]">
-                    <input type="hidden" class="col-sm form-control" value="{{$floor->id}}" name="floor-id[]">
-                    <input type="text" class="col-sm  form-control" id="add-floor-name" aria-describedby="emailHelp" value="{{$floor->name}}" placeholder="Floor Name" required="" name="floor-names[]">
-                    <i class="fas fa-trash-alt" onclick="del('floor-0')"></i>
-                    
-                    @if($floor->media)
-                        <img class="floor-thumbnail-preview" src="{{$floor->media->url()}}" alt="">
-                    @endif
-                </li> -->
 
                 @endforeach
             </ul>

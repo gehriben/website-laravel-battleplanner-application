@@ -29,6 +29,7 @@ Route::prefix('/map')->group(function () {
     Route::get('/', 'MapController@index')->name("Map.index");
     Route::get('new', 'MapController@new')->name("Map.new");
     Route::get('{map}/edit', 'MapController@edit')->name("Map.edit");
+    Route::get('{map}', 'MapController@show')->name("Map.show");
 
     // API's
     Route::post('/', 'MapController@create')->name("Map.create");

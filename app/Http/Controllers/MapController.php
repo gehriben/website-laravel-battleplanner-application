@@ -10,7 +10,7 @@ use Auth;
 
 class MapController extends Controller
 {
-    
+
     /**
      * Views
      */
@@ -21,7 +21,7 @@ class MapController extends Controller
     }
 
     public function new(Request $request){
-        return view("map.new", compact('map'));
+        return view("map.new");
     }
 
     public function edit(Request $request, Map $map){
@@ -30,10 +30,21 @@ class MapController extends Controller
             ->with('floors.media')
             ->with('thumbnail')
             ->find($map->id);
-        // dd($map->toArray());
         return view("map.edit", compact('map'));
     }
-    
+
+    public function show(Request $request, Map $map){
+      $map = $map
+          ->with('floors.media')
+          ->with('thumbnail')
+          ->with(array('floors' => function($query) {
+              $query->orderBy('order', 'ASC');
+          }))
+          ->find($map->id);
+
+      return view("map.show", compact('map'));
+    }
+
     /**
      * API's
      */
@@ -48,24 +59,25 @@ class MapController extends Controller
             'thumbnail' => ['required','file'],
             'floor-files.*' => ['file'],
             'floor-names' => [],
+            'floor-id' => [],
             'is_competitive' => [],
         ]);
-        
+
         // Create map
         $data['is_competitive'] = isset($data['is_competitive']);
         $data['floor-files'] = isset($data['floor-files']) ? $data['floor-files'] : [];
         $data['floor-names'] = isset($data['floor-names']) ? $data['floor-names'] : [];
         $data['user_id'] = Auth::user()->id;
         $map = Map::create($data);
-        
+
         // Create floors
         $floors = [];
-        $order = 0;
+        // $order = 0;
         $map_id = $map->id;
         foreach ($data['floor-files'] as $key => $file) {
             $name = $data['floor-names'][$key];
+            $order = $data['floor-id'][$key];
             $floors[] = Floor::create(compact('name','file','order','map_id'));
-            $order++;
         }
 
         if($request->wantsJson()){
@@ -83,10 +95,10 @@ class MapController extends Controller
             'floor-names' => [],
             'is_competitive' => [],
         ]);
-        
+
         // Update map
         $data['is_competitive'] = isset($data['is_competitive']);
-        
+
         // Update the thumbnail
         if(isset($data["thumbnail"])){
             if($map->thumbnail){
@@ -98,7 +110,7 @@ class MapController extends Controller
 
         $map->update($data);
         $map = $map->fresh();
-        
+
         // // Create floors
         $data['floor-files'] = isset($data['floor-files']) ? $data['floor-files'] : [];
         $data['floor-names'] = isset($data['floor-names']) ? $data['floor-names'] : [];

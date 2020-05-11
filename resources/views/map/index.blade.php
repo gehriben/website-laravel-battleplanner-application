@@ -5,28 +5,35 @@
 @endpush
 
 @push('css')
-
+  <link rel="stylesheet" href="{{asset("css/admin/admin.css")}}">
 @endpush
 
 @section('content')
 
-<h1 class="text-center">Maps</h1>
-<a type="button" href="/map/new" class="col-12 btn btn-primary m-1">Create</a>
+<div class="container">
+  <div class="row mt-3">
+    <div class="col-12 text-center">
+      <h1>Maps - Admin View</h1>
+    </div>
+  </div>
 
-<div class="list-group">
+  <div class="row mt-3 justify-content-center">
+    <div class="list-group col-12">
+        @foreach ($maps as $map)
+        <a href="/map/{{$map->id}}" class="list-group-item list-group-item-action flex-column align-items-start">
+            <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">{{$map->name}}</h5>
+                <small>{{count($map->battleplans)}} battleplans using</small>
+            </div>
+            <p class="mb-1">Click to view in detail</p>
+        </a>
+        @endforeach
+    </div>
+  </div>
 
-    @foreach ($maps as $map)
-    <a href="/map/{{$map->id}}" class="list-group-item list-group-item-action flex-column align-items-start">
-        <div class="d-flex w-100 justify-content-between">
-            <h5 class="mb-1">{{$map->name}}</h5>
-            <small>{{count($map->battleplans)}} battleplans using</small>
-        </div>
-        <p class="mb-1">Click to edit</p>
-        <!-- <small>Donec id elit non mi porta.</small> -->
-    </a>
-    @endforeach
-
+  <div class="row mt-3 justify-content-center">
+    <a type="button" href="/map/new" class="btn btn-success">Create new</a>
+  </div>
 </div>
-
 
 @endsection
