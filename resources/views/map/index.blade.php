@@ -31,7 +31,7 @@
     </div>
   </div>
 
-  <div class="row mt-3 justify-content-center">
+  <div class="row mt-3 mb-3 justify-content-center">
     <a type="button" href="/map/new" class="btn btn-success">Create new</a>
   </div>
 </div>

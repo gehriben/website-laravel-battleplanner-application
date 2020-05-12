@@ -10,6 +10,9 @@
     background-color: rgba(255, 255, 255, 0.5);
     color: black;
   }
+  label {
+    color: white;
+  }
   </style>
 @endpush
 
@@ -27,18 +30,23 @@
         <div class="list-group-item list-group-item-action flex-column align-items-start">
           <div class="d-flex w-100 justify-content-between">
             <h5 class="mb-1">{{$floor->name}}</h5>
-            <img class="thumb" src="{{$floor->media->url()}}"></img>
+            @if($floor->media)
+              <img class="thumb" src="{{$floor->media->url()}}"></img>
+            @endif
           </div>
         </div>
       @endforeach
     </div>
   </div>
 
-  @if ($map->is_competitive)
   <div class="row mt-3 justify-content-center">
-    <h5 style="color:white;">Competitive</h5>
+    <h5 style="color:white;">Competitive&nbsp;</h5>
+    @if ($map->is_competitive)
+    <i class="fa fa-check"></i>
+    @else
+    <i class="fas fa-times"></i>
+    @endif
   </div>
-  @endif
 
   <div class="row mt-3 justify-content-center">
     <a type="button" href="/map/{{$map->id}}/edit" class="btn btn-success">Edit Map</a>

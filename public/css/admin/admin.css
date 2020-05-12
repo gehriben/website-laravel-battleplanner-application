@@ -45,3 +45,8 @@ body h1 {
   height: 50%;
   width: 40%;
 }
+
+.floor-thumbnail-preview {
+  height: 50px;
+  width: 100px;
+}

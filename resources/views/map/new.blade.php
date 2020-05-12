@@ -3,7 +3,7 @@
 @push('js')
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script>
-var floorNum = 0;
+  var floorNum = 0;
 
   function del(button){
     $(button).parent("li").addClass("d-none");
@@ -28,7 +28,7 @@ var floorNum = 0;
 @endpush
 
 @section('content')
-@include('map.floor-form', ["floorPreview" => "", "floorName" => "", "floorId" => ""])
+@include('map.floor-form', ["floorPreview" => "", "floorName" => "", "floorId" => "", "floorOrder" => ""])
 
 
 <div class="container">
@@ -76,8 +76,9 @@ var floorNum = 0;
           <button type="button" class="col-12 btn btn-success m-1" onclick="addFloor()">Add floor</button>
           <ul class="list-group" id="floor-list"></ul>
         </div>
-
-        <button type="submit" class="col-12 btn btn-success">Save</button>
+        <div class="row justify-content-center mt-3 mb-3">
+          <button type="submit" class="col-3 btn btn-success">Save</button>
+        </div>
       </div>
     </div>
   </form>

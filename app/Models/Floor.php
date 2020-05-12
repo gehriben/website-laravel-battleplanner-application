@@ -8,7 +8,7 @@ use App\Models\Media;
 class Floor extends Model
 {
   public $timestamps = true;
-  
+
   protected $fillable = [
     'name', 'media_id', 'order', 'map_id',
   ];
@@ -31,12 +31,10 @@ class Floor extends Model
    /**
      * Create override function (Default Model create method)
      */
-    public static function create(array $attributes = [])
-    {
+    public static function create(array $attributes = []) {
         $map = Map::find($attributes["map_id"]);
-        $media = Media::fromFile($attributes['file'], "maps/" . $map->name, "public");
-        $attributes['media_id'] = $media->id;
+        $media = isset($attributes['file']) ? Media::fromFile($attributes['file'], "maps/" . $map->name, "public") : null;
+        $attributes['media_id'] = ($media) ? $media->id : null;
         return static::query()->create($attributes);
     }
-
 }
