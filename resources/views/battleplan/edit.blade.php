@@ -19,19 +19,17 @@
         width:  100%;
     }
     canvas{
-        
+        margin-top: 60px;
         z-index: -1;
-        /* position: absolute !important; */
         top: 0px;
         bottom: 0px;
-        /* height: 100%;
-        width: 100%; */
         position: fixed;
     }
 </style>
 @endpush
 
 @section('content')
+@include('battleplan.left-sidebar')
 <div class="wrapper">
     <canvas id="viewport"></canvas>
 </div>

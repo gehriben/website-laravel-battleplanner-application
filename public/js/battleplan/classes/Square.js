@@ -9,32 +9,60 @@ class Square extends Draw {
             Constructor
     **************************/
 
-    constructor() {
-        super();
+    constructor(origin, destination, color, size) {
+        super(origin);
+        this.destination = destination;
+        this.color = color;
+        this.size = size;
     }
 
-    init() {
+    draw(canvas) {
         
-    }
+        canvas.ctx.fillStyle = this.color;
+        canvas.ctx.globalAlpha = 0.35;
 
-    draw(draw, ctx, ui) {
-        var tmp = this;
-        ctx.fillStyle = draw.drawable.color;
-        ctx.globalAlpha = 0.35;
+        var offsetOrigin = {
+            "x": this.origin.x + canvas.offset.x,
+            "y": this.origin.y + canvas.offset.y
+        };
 
-        var oX = draw.originX * ui.ratio - ui.offsetX;
-        var oY = draw.originY * ui.ratio - ui.offsetY;
-        var dX = draw.destinationX * ui.ratio - ui.offsetX;
-        var dY = draw.destinationY * ui.ratio - ui.offsetY;
+        var offsetDestination = {
+            "x": this.destination.x + canvas.offset.x,
+            "y": this.destination.y + canvas.offset.y
+        }
 
-        ctx.fillRect(
-            oX,
-            oY,
-            dX - oX,
-            dY - oY
+        // origin must always be bigger the destination for drawing on canvas
+        this.checkSides(offsetOrigin,offsetDestination);
+
+
+        canvas.ctx.fillRect(
+            offsetOrigin.x,
+            offsetOrigin.y,
+            offsetDestination.x - offsetOrigin.x,
+            offsetDestination.y - offsetOrigin.y,
         );
 
-        ctx.globalAlpha = 1.0;
+        // reset alpha
+        canvas.ctx.globalAlpha = 1.0;
+
+    }
+
+    /**
+     * Private Helpers
+     */
+    checkSides(c1,c2){
+
+        if(parseInt(c1.x) > parseInt(c2.x)){ 
+            var swap = c1.x;
+            c1.x = c2.x
+            c2.x = swap;
+        }
+
+        if(parseInt(c1.y) > parseInt(c2.y)){
+            var swap = c1.y;
+            c1.y = c2.y
+            c2.y = swap;
+        }
 
     }
     

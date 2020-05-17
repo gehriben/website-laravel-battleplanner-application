@@ -9,22 +9,41 @@ class Line extends Draw {
             Constructor
     **************************/
 
-    constructor(origin,destination,color, battlefloorId) {
-        super();
+    constructor(origin, color, size) {
+        super(origin);
+        this.color = color;
+        this.size = size;
+        this.points = [];
     }
 
     init(){
 
     }
 
-    draw(draw,ctx,ui){
-        ctx.lineWidth=this.lineSize;
-        ctx.beginPath();
-        ctx.moveTo(draw.originX * ui.ratio - ui.offsetX, draw.originY * ui.ratio - ui.offsetY);
-        ctx.lineTo(draw.destinationX * ui.ratio - ui.offsetX + 1, draw.destinationY * ui.ratio - ui.offsetY + 1);
-        ctx.strokeStyle = draw.drawable.color;
-        ctx.closePath();
-        ctx.stroke();
+    draw(canvas){
+        
+        // Settings
+        canvas.ctx.lineWidth = this.size;
+        canvas.ctx.fillStyle = 'orange';
+        canvas.ctx.lineCap = 'round';
+        
+        canvas.ctx.beginPath();
+        
+        canvas.ctx.moveTo(
+            this.origin.x + canvas.offset.x,
+            this.origin.y + canvas.offset.y
+        );
+
+        // Itterate each point
+        for (let i = 0; i < this.points.length; i++) {
+            
+            canvas.ctx.lineTo(
+                this.points[i].x + canvas.offset.x,
+                this.points[i].y + canvas.offset.y
+            );
+            
+        }
+        canvas.ctx.stroke();
     }
     /**************************
         Helper functions

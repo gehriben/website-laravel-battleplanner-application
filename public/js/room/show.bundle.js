@@ -14327,7 +14327,7 @@ function (_Tool) {
 
     // Super Class constructor call
     _this = _possibleConstructorReturn(this, _getPrototypeOf(ToolIcon).call(this, app));
-    _this.Draw = __webpack_require__(/*! ./Draw.js */ "./resources/js/room/classes/Draw.js")["default"];
+    _this.Icon = __webpack_require__(/*! ./Icon.js */ "./resources/js/room/classes/Icon.js")["default"];
     return _this;
   }
 
@@ -14335,34 +14335,39 @@ function (_Tool) {
     key: "actionDrop",
     value: function actionDrop(coordinates, src) {
       if (src) {
-        this.app.battleplan.battlefloor.addDraw(this.icon(coordinates, src));
-        this.app.ui.overlayUpdate = true;
-        this.app.logPush();
+        var icon = new this.Icon(this.AddOffsetCoordinates(coordinates), "ffffff", this.size);
+        this.app.battleplan.floor.Draw(icon);
       }
-    }
+    } // icon(coordinates, src) {
+    //     var start = JSON.parse(JSON.stringify(coordinates));
+    //     var end = JSON.parse(JSON.stringify(coordinates));
+    //     start.x = coordinates.x - (this.app.iconSize/2);
+    //     start.y = coordinates.y - (this.app.iconSize/2);
+    //     end.x = coordinates.x + (this.app.iconSize/2);
+    //     end.y = coordinates.y + (this.app.iconSize/2);
+    //     var draw = {
+    //         "battlefloor_id": this.app.battleplan.battlefloor.id,
+    //         "destinationX": end.x,
+    //         "destinationY": end.y,
+    //         "drawable_type": "Icon",
+    //         "originX": start.x,
+    //         "originY": start.y,
+    //     };
+    //     draw.drawable = {
+    //         "src": src,
+    //     }
+    //     draw = Object.assign(new this.Draw, draw);
+    //     draw.init();
+    //     return draw;
+    // }
+
   }, {
-    key: "icon",
-    value: function icon(coordinates, src) {
-      var start = JSON.parse(JSON.stringify(coordinates));
-      var end = JSON.parse(JSON.stringify(coordinates));
-      start.x = coordinates.x - this.app.iconSize / 2;
-      start.y = coordinates.y - this.app.iconSize / 2;
-      end.x = coordinates.x + this.app.iconSize / 2;
-      end.y = coordinates.y + this.app.iconSize / 2;
-      var draw = {
-        "battlefloor_id": this.app.battleplan.battlefloor.id,
-        "destinationX": end.x,
-        "destinationY": end.y,
-        "drawable_type": "Icon",
-        "originX": start.x,
-        "originY": start.y
+    key: "AddOffsetCoordinates",
+    value: function AddOffsetCoordinates(coor) {
+      return {
+        "x": coor.x / this.app.canvas.scale - this.app.canvas.offset.x,
+        "y": coor.y / this.app.canvas.scale - this.app.canvas.offset.y
       };
-      draw.drawable = {
-        "src": src
-      };
-      draw = Object.assign(new this.Draw(), draw);
-      draw.init();
-      return draw;
     }
   }]);
 
@@ -14721,16 +14726,14 @@ function (_Tool) {
     // Super Class constructor call
     _this = _possibleConstructorReturn(this, _getPrototypeOf(ToolZoom).call(this, app));
     _this.origin;
-    _this.step = .1;
+    _this.scaleFactor = 1.1;
     return _this;
   }
 
   _createClass(ToolZoom, [{
     key: "actionScroll",
-    value: function actionScroll(direction, coordinates) {
-      this.app.ui.zoomCanvases(this.step * direction, coordinates.x, coordinates.y);
-      this.app.ui.backgroundUpdate = true;
-      this.app.ui.overlayUpdate = true;
+    value: function actionScroll(clicks, coordinates) {
+      this.app.canvas.zoom(coordinates, clicks, this.scaleFactor);
     }
   }]);
 

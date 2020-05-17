@@ -9,35 +9,48 @@ class Icon extends Draw {
             Constructor
     **************************/
 
-    constructor() {
-        super();
+    constructor(origin, size, src) {
+        super(origin);
+        this.src = src;
         this.img = null;
+        this.size = size;
     }
 
     init(){
         
     }
 
-    draw(draw,ctx,ui){
+    draw(canvas){
+
         if(!this.img){
             this.img = new Image;
             this.img.src = this.src;
 
             // Load the image in memory
             this.img.onload = function() {
-                this.draw(draw,ctx,ui);
+                this.draw(canvas);
             }.bind(this);
 
         } else{
             
-            ctx.drawImage(
+            // translate offset
+            canvas.ctx.translate(canvas.offset.x,canvas.offset.y);
+            
+            canvas.ctx.drawImage(
                 this.img,
-                draw.originX * ui.ratio - ui.offsetX,
-                draw.originY * ui.ratio - ui.offsetY,
-                (draw.destinationX -draw.originX) * ui.ratio,
-                (draw.destinationY - draw.originY)  * ui.ratio);
+               
+                this.origin.x - this.size/2,
+                this.origin.y - this.size/2,
+
+                this.size,
+                this.size
+            );    
+            
+            // Translate Back
+            canvas.ctx.translate(-canvas.offset.x,-canvas.offset.y);
         }
     }
+    
     /**************************
         Helper functions
     **************************/

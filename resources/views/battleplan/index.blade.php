@@ -69,30 +69,3 @@
 </div>
 
 @endsection
-
-@push('modals')
-
-<div class="modal" id="copy" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Copy Battleplan</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <input type="hidden" id="copy-id">
-                <h2>Save battleplan as</h2>
-                <input class="col-4 form-control inline col-12" id="battleplan_name" value="" type="text">
-
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" name="button" class="btn btn-success" onclick="copy()">Copy</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-@endpush

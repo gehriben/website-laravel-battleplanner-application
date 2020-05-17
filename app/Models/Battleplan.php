@@ -174,8 +174,8 @@ class Battleplan extends Model
     {
         // Error check map exists
         // TODO should probable delegate this to the validator in the controller
-        Map::findOrFail($attributes["map_id"]);
-
+        $map = Map::findOrFail($attributes["map_id"]);
+        
         // Defaults
         $attributes["name"] = isset($attributes["name"]) ? $attributes["name"] : self::DEFAULT_NAME;
         $attributes["description"] = isset($attributes["description"]) ? $attributes["description"] : self::DEFAULT_DESCRIPTION;

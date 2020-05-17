@@ -86,6 +86,8 @@ class BattleplanController extends Controller
      */
     public function edit(Request $request, Battleplan $battleplan){
 
+        // return $this->fullPlanData($battleplan);
+
         // Owner of the private plan
         if (Auth::user() && Auth::user() == $battleplan->owner) {
             
@@ -133,7 +135,7 @@ class BattleplanController extends Controller
             'description' => [],
             'notes' => []
         ]);
-
+        
         $data['owner_id'] = Auth::User()->id;
 
         $battleplan = Battleplan::create($data);
@@ -236,10 +238,10 @@ class BattleplanController extends Controller
      * Helper function
      */
     private function fullPlanData($battleplan){
-        return $battleplan
-            ->slotData()
+        return Battleplan::
+            slotData()
             ->mapData()
             ->BattlefloorData()
-            ->first();
+            ->find($battleplan->id);
     }
 }

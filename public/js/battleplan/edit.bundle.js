@@ -10714,11 +10714,12 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 var Battleplan = __webpack_require__(/*! ./Battleplan.js */ "./resources/js/battleplan/edit/classes/Battleplan.js")["default"];
 
-var Canvas = __webpack_require__(/*! ./Canvas.js */ "./resources/js/battleplan/edit/classes/Canvas.js")["default"]; // var ToolLine = require('./ToolLine.js').default;
+var Canvas = __webpack_require__(/*! ./Canvas.js */ "./resources/js/battleplan/edit/classes/Canvas.js")["default"];
+
+var Keybinds = __webpack_require__(/*! ./Keybinds.js */ "./resources/js/battleplan/edit/classes/Keybinds.js")["default"]; // var ToolLine = require('./ToolLine.js').default;
 // var ToolSquare = require('./ToolSquare.js').default;
-
-
-var ToolMove = __webpack_require__(/*! ./ToolMove.js */ "./resources/js/battleplan/edit/classes/ToolMove.js")["default"]; // var ToolZoom = require('./ToolZoom.js').default;
+// var ToolMove = require('./ToolMove.js').default;
+// var ToolZoom = require('./ToolZoom.js').default;
 // var ToolIcon = require('./ToolIcon.js').default;
 // var ToolErase = require('./ToolErase.js').default;
 
@@ -10739,17 +10740,13 @@ function () {
 
     this.battleplan; // Saved battleplan instance
 
-    this.floor = 0; // Active floor on canvas
+    this.keybinds; // Definition of keybind actions
+
+    this.viewport = viewport; // active canvas
     // Drawing settings
 
     this.lineSize = 3;
-    this.iconSize = 25; // Tools
-    // this.toolLine;
-    // this.toolSquare;
-
-    this.toolMove; // this.toolZoom;
-    // this.toolImage;
-    // Button statuses
+    this.iconSize = 25; // Button statuses
 
     this.buttonEvents = {
       "lmb": {
@@ -10769,6 +10766,7 @@ function () {
   }
   /**
    * Setup the battleplan data:
+   * - Initialize key eventlisteners
    * - Get Map data
    * - Initialize new battleplan
    */
@@ -10777,10 +10775,16 @@ function () {
   _createClass(App, [{
     key: "Start",
     value: function Start(id, viewport) {
-      // Initialize Battleplan hierarchy
+      this.keybinds = new Keybinds(this); // Initialize Battleplan hierarchy
+
       this.battleplan = new Battleplan(id, function () {
         this.canvas = new Canvas(this, viewport); // Initialize canvas
       }.bind(this));
+    }
+  }, {
+    key: "ChangeTool",
+    value: function ChangeTool(tool) {
+      this.keybinds.mousePressed.lmb.tool = tool;
     }
   }]);
 
@@ -10821,6 +10825,9 @@ function () {
     // Properties
     this.floors = []; // Floors of the battleplan
 
+    this.floor; // Current Active Floor
+
+    this.finishedCallback = callback;
     this.Initialize(id, callback);
   }
 
@@ -10829,12 +10836,30 @@ function () {
     value: function Initialize(id, callback) {
       this.Get(id, function (result) {
         for (var i = 0; i < result.battlefloors.length; i++) {
-          this.floors.push(new Floor(result.battlefloors[i]));
-        } // Initialization complete callback
+          var floor = new Floor(result.battlefloors[i], this.ReadyCheck.bind(this));
+          this.floors.push(floor); // First floor, set as default
 
-
-        callback();
+          if (i == 0) {
+            this.floor = floor;
+          }
+        }
       }.bind(this));
+    } // Check that all sub assets have loaded
+
+  }, {
+    key: "ReadyCheck",
+    value: function ReadyCheck() {
+      // are all the floors loaded?
+      for (var i = 0; i < this.floors.length; i++) {
+        var floor = this.floors[i];
+
+        if (!floor.load) {
+          return false;
+        }
+      } // all sub elements loaded correctly, signal finished callback
+
+
+      this.finishedCallback();
     } // Get Map
 
   }, {
@@ -10872,7 +10897,7 @@ function () {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Canvas; });
+/* WEBPACK VAR INJECTION */(function($) {/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Canvas; });
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
@@ -10897,6 +10922,26 @@ function () {
 
     this.app = app; // App reference
 
+    this.scale = 1; // canvas zoom scale
+
+    this.scaleStep = 0.05; // canvas zoom scale increments
+
+    this.scaleMax = 5; // maximum scale
+
+    this.scaleMin = 0.5; // minimum scale
+
+    this.ctx = this.viewport[0].getContext('2d'); // canvas context
+    // canvas drawing offset
+
+    this.offset = {
+      x: 0,
+      y: 0
+    }; // last known coordinates
+
+    this.coordinates = {
+      x: 0,
+      y: 0
+    };
     this.Start(); // Initialization
   } // First time setup
 
@@ -10906,14 +10951,12 @@ function () {
     value: function Start() {
       // Gather initial resolution details
       this.resolution = {
-        "height": window.innerHeight,
-        "width": window.innerWidth
+        "x": window.innerWidth,
+        "y": window.innerHeight
       }; // hardcode height and with in the event user resized the page
 
-      this.viewport.height(this.resolution.height);
-      this.viewport.width(this.resolution.height); // Bind event listeners
-
-      this.EventListeners(); // Update frame
+      $(this.viewport).attr("width", this.resolution.x);
+      $(this.viewport).attr("height", this.resolution.y); // Update frame
 
       this.Update();
     } // Frame update
@@ -10921,186 +10964,276 @@ function () {
   }, {
     key: "Update",
     value: function Update() {
-      this.DrawFloor(this.app.floor);
+      this.cls();
+      this.UpdateFloor(this.app.battleplan.floor); // Draw map
+
+      this.UpdateDraws(this.app.battleplan.floor.draws); // Draw drawings
+      // debug Line
+      // var center = {
+      //     'x' : (this.resolution.x  / this.scale) /2,
+      //     'y' : (this.resolution.y / this.scale) /2
+      // }
+      // this.debugLine({"x":center.x,"y":0}, {"x":center.x,"y":center.y});
+      // this.debugLine({"x":0,"y":center.y}, {"x":center.x,"y":center.y});
     }
   }, {
-    key: "DrawFloor",
-    value: function DrawFloor(id) {
-      // Variable declarations
-      var ctx = this.viewport[0].getContext('2d');
+    key: "UpdateFloor",
+    value: function UpdateFloor(floor) {
       var img = new Image(); // acquire image
 
-      img.src = this.app.battleplan.floors[id].background; // Fill background color
+      img.src = floor.background; // Fill background color
 
-      ctx.fillStyle = 'black';
-      ctx.fillRect(0, 0, this.resolution.width, this.resolution.height); // Load the image in memory
+      this.ctx.fillStyle = 'black';
+      this.ctx.fillRect(0, 0, this.resolution.x / this.scale, this.resolution.y / this.scale); // unsure what this does
 
-      img.onload = function () {
-        // Draw the image
-        ctx.drawImage(img, 0, 0, img.width, img.height);
-      }.bind(this);
+      this.ctx.imageSmoothingEnabled = true; // translate offset
+
+      this.ctx.translate(this.offset.x, this.offset.y);
+      this.ctx.drawImage(floor.load, 0, 0, floor.load.width, floor.load.height); // Translate Back
+
+      this.ctx.translate(-this.offset.x, -this.offset.y);
     }
   }, {
-    key: "DrawObjects",
-    value: function DrawObjects(id) {
-      // Variable declarations
-      var ctx = this.viewport[0].getContext('2d');
-      var img = new Image(); // acquire image
+    key: "UpdateDraws",
+    value: function UpdateDraws(draws) {
+      var _this = this;
 
-      img.src = this.app.battleplan.floors[id].background; // Fill background color
+      draws.forEach(function (draw) {
+        draw.draw(_this);
+      });
+    }
+    /**
+     * Public Methods
+     */
 
-      ctx.fillStyle = 'black';
-      ctx.fillRect(0, 0, this.resolution.width, this.resolution.height); // Load the image in memory
+  }, {
+    key: "move",
+    value: function move(dX, dY) {
+      this.offset.x += dX;
+      this.offset.y += dY;
+      this.Update();
+    }
+  }, {
+    key: "zoom",
+    value: function zoom(clicks, coordinates) {
+      // properties for calculations
+      var originCenter = {
+        'x': this.resolution.x / this.scale / 2,
+        'y': this.resolution.y / this.scale / 2
+      };
+      var sign = Math.sign(clicks);
+      var step = this.scaleStep * clicks; // reset scale matrix
 
-      img.onload = function () {
-        // Draw the image
-        ctx.drawImage(img, 0, 0, img.width, img.height);
-      }.bind(this);
+      this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+      this.scale += step;
+
+      if (sign >= 1) {
+        this.scale = this.scale + step > this.scaleMax ? this.scaleMax : this.scale + step;
+      } else {
+        this.scale = this.scale + step < this.scaleMin ? this.scaleMin : this.scale + step;
+      }
+
+      this.ctx.scale(this.scale, this.scale);
+      var newCenter = {
+        'x': this.resolution.x / this.scale / 2,
+        'y': this.resolution.y / this.scale / 2
+      };
+      this.move(newCenter.x - originCenter.x, newCenter.y - originCenter.y);
+      this.Update();
+    }
+  }, {
+    key: "cls",
+    value: function cls() {
+      this.ctx.clearRect(0, 0, this.resolution.x / this.scale, this.resolution.y / this.scale);
+    }
+  }, {
+    key: "debugLine",
+    value: function debugLine(c1, c2) {
+      this.ctx.lineWidth = 5;
+      this.ctx.fillStyle = 'orange';
+      this.ctx.beginPath();
+      this.ctx.moveTo(c1.x, c1.y);
+      this.ctx.lineTo(c2.x, c2.y);
+      this.ctx.stroke();
     }
     /**
      * EventListeners
      */
     // EventListeners(){
-    //     // Mouse Down
-    //     this.viewport[0].addEventListener('mousedown', function(event) {
-    //         lastX = event.offsetX || (event.pageX - canvas.offsetLeft);
-    //         lastY = event.offsetY || (event.pageY - canvas.offsetTop);
-    //         dragged = true;
-    //         if (dragStart){
-    //           var pt = ctx.transformedPoint(lastX,lastY);
-    //           ctx.translate(pt.x-dragStart.x,pt.y-dragStart.y);
-    //           redraw();
-    //               }
-    //     },false);
+    // viewport.addEventListener("mouseup", this.canvasUp);
+    // viewport.addEventListener("mousedown", this.canvasDown);
+    // viewport.addEventListener("mousewheel", this.canvasScroll);
+    // viewport.addEventListener("mousemove", this.canvasMove);
+    // viewport.addEventListener("mouseout", this.canvasLeave);
+    // Needs work
+    // viewport.addEventListener("dragenter", canvasEnter);
+    // viewport.addEventListener("dragover", canvasDrag);
+    // viewport.addEventListener("dragleave", canvasEnter);
+    // viewport.addEventListener("drop", canvasDrop);
     // }
 
     /**************************
         Canvas Methods
     **************************/
-    // @here
+    //    canvasUp(ev) {
+    //         // var coordinates = this._calculateOffset(ev.offsetX, ev.offsetY);
+    //         for (const key in this.buttonEvents) {
+    //             if (this.buttonEvents[key].active && this.buttonEvents[key].tool) this.buttonEvents[key].tool.actionUp(coordinates);
+    //         }
+    //         // this._clickDeactivateEventListen(ev);
+    //         // this.ui.update();
+    //     }
+    //     canvasDown(ev) {
+    //         // Get current coordinates
+    //         var coordinates = {x:ev.offsetX, y:ev.offsetY};
+    //         // this._clickActivateEventListen(ev)
+    //         for (const key in this.buttonEvents) {
+    //             if (this.buttonEvents[key].active && this.buttonEvents[key].tool) this.buttonEvents[key].tool.actionDown(coordinates);
+    //         }
+    //         // this.ui.update();
+    //     }
+    //     canvasMove(ev) {
+    //         // var coordinates = this._calculateOffset(ev.offsetX, ev.offsetY);
+    //         for (const key in this.buttonEvents) {
+    //             if (this.buttonEvents[key].active && this.buttonEvents[key].tool) this.buttonEvents[key].tool.actionMove(coordinates);
+    //         }
+    //         // this.ui.update();
+    //     }
+    //     canvasEnter(ev) {
+    //         // var coordinates = this._calculateOffset(ev.offsetX, ev.offsetY);
+    //         for (const key in this.buttonEvents) {
+    //             if (this.buttonEvents[key].active && this.buttonEvents[key].tool) this.buttonEvents[key].tool.actionEnter(coordinates);
+    //         }
+    //         // this._clickDeactivateEventListen(ev);
+    //         // Update UI
+    //         // this.ui.update();
+    //     }
+    //     canvasLeave(ev) {
+    //         // this._clickDeactivateEventListen(ev);
+    //         // var coordinates = this._calculateOffset(ev.offsetX, ev.offsetY);
+    //         for (const key in this.buttonEvents) {
+    //             if (this.buttonEvents[key].active && this.buttonEvents[key].tool && this.buttonEvents[key].tool) this.buttonEvents[key].tool.actionLeave(coordinates);
+    //         }
+    //         // Update UI
+    //         // this.ui.update();
+    //     }
+    //     canvasScroll(ev) {
+    //         // var coordinates = this._calculateOffset(ev.offsetX, ev.offsetY);
+    //         var direction = 1;
+    //         // if (ev.originalEvent.wheelDelta / 120 < 0) {
+    //         if (ev.originalEvent.deltaY) {
+    //             direction = -direction * Math.sign(ev.originalEvent.deltaY);
+    //         }
+    //         this.toolZoom.actionScroll(direction, coordinates);
+    //         for (const key in this.buttonEvents) {
+    //             if (this.buttonEvents[key].active && this.buttonEvents[key].tool) this.buttonEvents[key].tool.actionScroll();
+    //         }
+    //         // Update UI
+    //         // this.ui.update();
+    //     }
+    //     canvasDrop(ev) {
+    //         // var coordinates = this._calculateOffset(ev.offsetX, ev.offsetY);
+    //         ev.preventDefault();
+    //         var src = ev.dataTransfer.getData("src");
+    //         this.toolIcon.actionDrop(coordinates, src);
+    //         for (const key in this.buttonEvents) {
+    //             if (this.buttonEvents[key].active && this.buttonEvents[key].tool) this.buttonEvents[key].tool.actionDrop();
+    //         }
+    //         // Update UI
+    //         // this.ui.update();
+    //     }
+    //     canvasDrag(ev) {
+    //         var coordinates = this._calculateOffset(ev.offsetX, ev.offsetY);
+    //         // Update UI
+    //         // this.ui.update();
+    //     }
+    //     allowDrop(ev) {
+    //         ev.preventDefault();
+    //     }
+    //     drag(ev) {
+    //         ev.dataTransfer.setData("src", ev.target.src);
+    //     }
 
-  }, {
-    key: "canvasUp",
-    value: function canvasUp(ev) {
-      var coordinates = this._calculateOffset(ev.offsetX, ev.offsetY);
-
-      for (var key in this.buttonEvents) {
-        if (this.buttonEvents[key].active && this.buttonEvents[key].tool) this.buttonEvents[key].tool.actionUp(coordinates);
-      }
-
-      this._clickDeactivateEventListen(ev);
-
-      this.ui.update();
-    }
-  }, {
-    key: "canvasDown",
-    value: function canvasDown(ev) {
-      var coordinates = this._calculateOffset(ev.offsetX, ev.offsetY);
-
-      this._clickActivateEventListen(ev);
-
-      for (var key in this.buttonEvents) {
-        if (this.buttonEvents[key].active && this.buttonEvents[key].tool) this.buttonEvents[key].tool.actionDown(coordinates);
-      }
-
-      this.ui.update();
-    }
-  }, {
-    key: "canvasMove",
-    value: function canvasMove(ev) {
-      var coordinates = this._calculateOffset(ev.offsetX, ev.offsetY);
-
-      for (var key in this.buttonEvents) {
-        if (this.buttonEvents[key].active && this.buttonEvents[key].tool) this.buttonEvents[key].tool.actionMove(coordinates);
-      }
-
-      this.ui.update();
-    }
-  }, {
-    key: "canvasEnter",
-    value: function canvasEnter(ev) {
-      var coordinates = this._calculateOffset(ev.offsetX, ev.offsetY);
-
-      for (var key in this.buttonEvents) {
-        if (this.buttonEvents[key].active && this.buttonEvents[key].tool) this.buttonEvents[key].tool.actionEnter(coordinates);
-      }
-
-      this._deactivateClickEventListen(); // Update UI
-
-
-      this.ui.update();
-    }
-  }, {
-    key: "canvasLeave",
-    value: function canvasLeave(ev) {
-      this._deactivateClickEventListen();
-
-      var coordinates = this._calculateOffset(ev.offsetX, ev.offsetY);
-
-      for (var key in this.buttonEvents) {
-        if (this.buttonEvents[key].active && this.buttonEvents[key].tool && this.buttonEvents[key].tool) this.buttonEvents[key].tool.actionLeave(coordinates);
-      } // Update UI
-
-
-      this.ui.update();
-    }
-  }, {
-    key: "canvasScroll",
-    value: function canvasScroll(ev) {
-      var coordinates = this._calculateOffset(ev.offsetX, ev.offsetY);
-
-      var direction = 1; // if (ev.originalEvent.wheelDelta / 120 < 0) {
-
-      if (ev.originalEvent.deltaY) {
-        direction = -direction * Math.sign(ev.originalEvent.deltaY);
-      }
-
-      this.toolZoom.actionScroll(direction, coordinates);
-
-      for (var key in this.buttonEvents) {
-        if (this.buttonEvents[key].active && this.buttonEvents[key].tool) this.buttonEvents[key].tool.actionScroll();
-      } // Update UI
-
-
-      this.ui.update();
-    }
-  }, {
-    key: "canvasDrop",
-    value: function canvasDrop(ev) {
-      var coordinates = this._calculateOffset(ev.offsetX, ev.offsetY);
-
-      ev.preventDefault();
-      var src = ev.dataTransfer.getData("src");
-      this.toolIcon.actionDrop(coordinates, src);
-
-      for (var key in this.buttonEvents) {
-        if (this.buttonEvents[key].active && this.buttonEvents[key].tool) this.buttonEvents[key].tool.actionDrop();
-      } // Update UI
-
-
-      this.ui.update();
-    }
-  }, {
-    key: "canvasDrag",
-    value: function canvasDrag(ev) {
-      var coordinates = this._calculateOffset(ev.offsetX, ev.offsetY); // Update UI
-
-
-      this.ui.update();
-    }
-  }, {
-    key: "allowDrop",
-    value: function allowDrop(ev) {
-      ev.preventDefault();
-    }
-  }, {
-    key: "drag",
-    value: function drag(ev) {
-      ev.dataTransfer.setData("src", ev.target.src);
-    }
   }]);
 
   return Canvas;
+}();
+
+
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js")))
+
+/***/ }),
+
+/***/ "./resources/js/battleplan/edit/classes/Draw.js":
+/*!******************************************************!*\
+  !*** ./resources/js/battleplan/edit/classes/Draw.js ***!
+  \******************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Draw; });
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+var Draw =
+/*#__PURE__*/
+function () {
+  /**************************
+          Constructor
+  **************************/
+  function Draw(origin) {
+    _classCallCheck(this, Draw);
+
+    // this.Line = require('./Line.js').default;
+    // this.Square = require('./Square.js').default;
+    // this.Icon = require('./Icon.js').default;
+    this.origin = origin; // this.destination = destination;
+  }
+
+  _createClass(Draw, [{
+    key: "draw",
+    value: function draw(canvas) {
+      if (this.drawable instanceof this.Square) {
+        this.checkSides();
+      }
+
+      this.drawable.draw(canvas);
+    }
+    /**************************
+        Helper functions
+    **************************/
+
+  }, {
+    key: "getType",
+    value: function getType(draw) {
+      var exploded = draw.drawable_type.split("\\");
+      return exploded[exploded.length - 1];
+    }
+  }, {
+    key: "checkSides",
+    value: function checkSides() {
+      var tmp;
+
+      if (parseInt(this.originX) > parseInt(this.destinationX)) {
+        tmp = this.originX;
+        this.originX = this.destinationX;
+        this.destinationX = tmp;
+      }
+
+      if (parseInt(this.originY) > parseInt(this.destinationY)) {
+        tmp = this.originY;
+        this.originY = this.destinationY;
+        this.destinationY = tmp;
+      }
+    }
+  }]);
+
+  return Draw;
 }();
 
 
@@ -11129,12 +11262,15 @@ function () {
   /**************************
           Constructor
   **************************/
-  function Floor(data) {
+  function Floor(data, callback) {
     _classCallCheck(this, Floor);
 
     // Properties
     this.draws = [];
     this.background;
+    this.image = new Image();
+    this.load;
+    this.finishedCallback = callback;
     this.Initialize(data);
   }
 
@@ -11146,12 +11282,627 @@ function () {
       for (var i = 0; i < this.draws.length; i++) {
         this.draws[i] = Object.assign(new this.Draw(), this.draws[i]);
         this.draws[i].init();
-      }
+      } // acquire image
+
+
+      this.image.src = this.background; // Load the image in memory
+
+      this.image.onload = function () {
+        this.load = this.image;
+        this.finishedCallback(this);
+      }.bind(this);
+    }
+  }, {
+    key: "Draw",
+    value: function Draw(draw) {
+      this.draws.push(draw);
     }
   }]);
 
   return Floor;
 }();
+
+
+
+/***/ }),
+
+/***/ "./resources/js/battleplan/edit/classes/Icon.js":
+/*!******************************************************!*\
+  !*** ./resources/js/battleplan/edit/classes/Icon.js ***!
+  \******************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Icon; });
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+/**************************
+	Extention class type
+**************************/
+var Draw = __webpack_require__(/*! ./Draw.js */ "./resources/js/battleplan/edit/classes/Draw.js")["default"];
+
+var Icon =
+/*#__PURE__*/
+function (_Draw) {
+  _inherits(Icon, _Draw);
+
+  /**************************
+          Constructor
+  **************************/
+  function Icon(origin, size, src) {
+    var _this;
+
+    _classCallCheck(this, Icon);
+
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(Icon).call(this, origin));
+    _this.src = src;
+    _this.img = null;
+    _this.size = size;
+    return _this;
+  }
+
+  _createClass(Icon, [{
+    key: "init",
+    value: function init() {}
+  }, {
+    key: "draw",
+    value: function draw(canvas) {
+      if (!this.img) {
+        this.img = new Image();
+        this.img.src = this.src; // Load the image in memory
+
+        this.img.onload = function () {
+          this.draw(canvas);
+        }.bind(this);
+      } else {
+        // translate offset
+        canvas.ctx.translate(canvas.offset.x, canvas.offset.y);
+        canvas.ctx.drawImage(this.img, this.origin.x - this.size / 2, this.origin.y - this.size / 2, this.size, this.size); // Translate Back
+
+        canvas.ctx.translate(-canvas.offset.x, -canvas.offset.y);
+      }
+    }
+    /**************************
+        Helper functions
+    **************************/
+
+  }]);
+
+  return Icon;
+}(Draw);
+
+
+
+/***/ }),
+
+/***/ "./resources/js/battleplan/edit/classes/Keybinds.js":
+/*!**********************************************************!*\
+  !*** ./resources/js/battleplan/edit/classes/Keybinds.js ***!
+  \**********************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* WEBPACK VAR INJECTION */(function($) {/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Keybinds; });
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+// ToolErase = require('./classes/ToolErase.js').default; // useable tool
+var Keybinds =
+/*#__PURE__*/
+function () {
+  /**************************
+          Constructor
+  **************************/
+  function Keybinds(app) {
+    _classCallCheck(this, Keybinds);
+
+    // Class inclusions
+    this.ToolMove = __webpack_require__(/*! ./ToolMove.js */ "./resources/js/battleplan/edit/classes/ToolMove.js")["default"]; // useable tool
+
+    this.ToolZoom = __webpack_require__(/*! ./ToolZoom.js */ "./resources/js/battleplan/edit/classes/ToolZoom.js")["default"]; // useable tool
+
+    this.ToolLine = __webpack_require__(/*! ./ToolLine.js */ "./resources/js/battleplan/edit/classes/ToolLine.js")["default"]; // useable tool
+
+    this.ToolSquare = __webpack_require__(/*! ./ToolSquare.js */ "./resources/js/battleplan/edit/classes/ToolSquare.js")["default"]; // useable tool
+
+    this.ToolIcon = __webpack_require__(/*! ./ToolIcon.js */ "./resources/js/battleplan/edit/classes/ToolIcon.js")["default"]; // useable tool
+
+    this.keysPressed = []; // keys actively pressed
+
+    this.keyEvents = []; // Key binding to events
+
+    this.tools(app);
+    this.mousePressed = {
+      // keys pressed on mouse       
+      "lmb": {
+        "active": false,
+        "tool": this.toolLine
+      },
+      "rmb": {
+        "active": false,
+        "tool": null
+      },
+      "mmb": {
+        "active": false,
+        "tool": this.toolMove
+      }
+    }; // Define Possible Mouse
+    // Defining possible key Combinations & actions
+    // this.keyEvents.push({ "keys": [38], "event": this.floorUp }); // up arrow
+    // this.keyEvents.push({ "keys": [40], "event": this.floorDown }); // down arrow
+    // this.keyEvents.push({ "keys": [17,83], "event": this.save }); // down arrow
+    // this.keyEvents.push({ "keys": [17,68], "event": this.load }); // down arrow
+    // this.keyEvents.push({ "keys": [81], "event": this.toolPencil }); // down arrow
+    // this.keyEvents.push({ "keys": [87], "event": this.toolSquare }); // down arrow
+    // this.keyEvents.push({ "keys": [90], "event": this.toolEraser }); // down arrow
+
+    /**
+     * Event listeners
+     */
+    // Keyboard Listeners
+
+    $(document).on('keydown', this.pressKey.bind(this));
+    $(document).on('keyup', this.pressKey.bind(this)); // Canvas Listeners
+
+    app.viewport[0].addEventListener("mouseup", function (ev) {
+      this.unpressMouse(ev);
+      this.canvasUp(ev);
+    }.bind(this));
+    app.viewport[0].addEventListener("mousedown", function (ev) {
+      this.pressMouse(ev);
+      this.canvasDown(ev);
+    }.bind(this));
+    app.viewport[0].addEventListener("mousemove", function (ev) {
+      this.canvasMove(ev);
+    }.bind(this));
+    app.viewport[0].addEventListener("mousewheel", function (ev) {
+      this.canvasScroll(ev);
+    }.bind(this));
+    app.viewport[0].addEventListener("dragover", function (ev) {
+      this.allowDrop(ev);
+    }.bind(this));
+    app.viewport[0].addEventListener("drop", function (ev) {
+      this.canvasDrop(ev);
+    }.bind(this)); // app.viewport.addEventListener("mousedown", this.canvasDown);
+    // app.viewport.addEventListener("mousewheel", this.canvasScroll);
+    // viewport.addEventListener("mousemove", this.canvasMove);
+    // app.viewport.addEventListener("mouseout", this.canvasLeave);
+
+    /**
+     * Button Binds
+     */
+    // $("#lineTool").click(function(){
+    //     this.mousePressed.lmb.tool = this.toolLine;
+    // }.bind(this));
+    // $("#squareTool").click(function(){
+    //     this.mousePressed.lmb.tool = this.toolSquare;
+    // }.bind(this));
+  }
+
+  _createClass(Keybinds, [{
+    key: "tools",
+    value: function tools(app) {
+      this.toolZoom = new this.ToolZoom(app);
+      this.toolMove = new this.ToolMove(app);
+      this.toolLine = new this.ToolLine(app);
+      this.toolSquare = new this.ToolSquare(app);
+      this.toolIcon = new this.ToolIcon(app);
+    } // fire events id button combination pressed
+
+  }, {
+    key: "listen",
+    value: function listen() {
+      // keyboard check
+      this.keyEvents.forEach(function (element) {
+        var flag = true;
+
+        for (var index = 0; index < element["keys"].length && flag; index++) {
+          var aKey = element["keys"][index];
+
+          if (!this.keysPressed.includes(aKey)) {
+            flag = false;
+          }
+        }
+
+        if (flag) {
+          element["event"]();
+        }
+      }.bind(this));
+    }
+    /**
+     * Button press listeners
+     */
+
+  }, {
+    key: "pressMouse",
+    value: function pressMouse(ev) {
+      this.mousePressed.lmb.active = ev.button == 0 ? true : this.mousePressed.lmb.active;
+      this.mousePressed.mmb.active = ev.button == 1 ? true : this.mousePressed.mmb.active;
+      this.mousePressed.rmb.active = ev.button == 2 ? true : this.mousePressed.rmb.active;
+    }
+  }, {
+    key: "unpressMouse",
+    value: function unpressMouse(ev) {
+      this.mousePressed.lmb.active = ev.button == 0 ? false : this.mousePressed.lmb.active;
+      this.mousePressed.mmb.active = ev.button == 1 ? false : this.mousePressed.mmb.active;
+      this.mousePressed.rmb.active = ev.button == 2 ? false : this.mousePressed.rmb.active;
+    } // Button pressed - add to list
+
+  }, {
+    key: "pressKey",
+    value: function pressKey(event) {
+      this.setKey(event.which || event.keyCode);
+      this.preventDefaultBrowserActions();
+      this.listen();
+    } // Button unpressed - remove from list
+
+  }, {
+    key: "unpressKey",
+    value: function unpressKey(event) {
+      this.unsetKey(event.which || event.keyCode);
+    }
+    /**
+     * Private Helpers
+     */
+    // Prevent default browser actions on specific key combinations
+
+  }, {
+    key: "preventDefaultBrowserActions",
+    value: function preventDefaultBrowserActions() {
+      if (this.keysPressed.includes(17) && this.keysPressed.includes(83) || // Prevent ctrl + s default behavior
+      this.keysPressed.includes(17) && this.keysPressed.includes(68) // Prevent ctrl + d default behavior
+      ) {
+          event.preventDefault();
+        }
+    } // Set a key pressed
+
+  }, {
+    key: "setKey",
+    value: function setKey(code) {
+      if (!this.keysPressed.includes(code)) {
+        this.keysPressed.push(code);
+      }
+    } // Unset a key pressed
+
+  }, {
+    key: "unsetKey",
+    value: function unsetKey(code) {
+      this.keysPressed = this.keysPressed.filter(function (value, index, arr) {
+        return value != code;
+      });
+    }
+    /**
+     * Canvas Actions
+     */
+
+  }, {
+    key: "canvasUp",
+    value: function canvasUp(ev) {
+      // Get current coordinates
+      var coordinates = {
+        x: ev.offsetX,
+        y: ev.offsetY
+      };
+
+      for (var key in this.mousePressed) {
+        this.mousePressed[key].active && this.mousePressed[key].tool ? this.mousePressed[key].tool.actionUp(coordinates) : null;
+      }
+    }
+  }, {
+    key: "canvasDown",
+    value: function canvasDown(ev) {
+      // Get current coordinates
+      var coordinates = {
+        x: ev.offsetX,
+        y: ev.offsetY
+      }; // this._clickActivateEventListen(ev)
+
+      for (var key in this.mousePressed) {
+        if (this.mousePressed[key].active && this.mousePressed[key].tool) this.mousePressed[key].tool.actionDown(coordinates);
+      }
+    }
+  }, {
+    key: "canvasMove",
+    value: function canvasMove(ev) {
+      // Get current coordinates
+      var coordinates = {
+        x: ev.offsetX,
+        y: ev.offsetY
+      }; // this._clickActivateEventListen(ev)
+
+      for (var key in this.mousePressed) {
+        if (this.mousePressed[key].active && this.mousePressed[key].tool) this.mousePressed[key].tool.actionMove(coordinates);
+      }
+    }
+  }, {
+    key: "canvasScroll",
+    value: function canvasScroll(ev) {
+      // Get current coordinates
+      var coordinates = {
+        x: ev.offsetX,
+        y: ev.offsetY
+      };
+      var delta = ev.wheelDelta ? ev.wheelDelta / 40 : ev.detail ? -ev.detail : 0;
+
+      if (delta) {
+        this.toolZoom.actionScroll(delta, coordinates);
+      }
+
+      return ev.preventDefault() && false;
+    }
+  }, {
+    key: "canvasDrop",
+    value: function canvasDrop(ev) {
+      // Get current coordinates
+      var coordinates = {
+        x: ev.offsetX,
+        y: ev.offsetY
+      };
+      var src = ev.dataTransfer.getData("src");
+      this.toolIcon.actionDrop(coordinates, src);
+
+      for (var key in this.buttonEvents) {
+        if (this.buttonEvents[key].active && this.buttonEvents[key].tool) this.buttonEvents[key].tool.actionDrop();
+      }
+
+      return ev.preventDefault();
+    }
+  }, {
+    key: "allowDrop",
+    value: function allowDrop(ev) {
+      ev.preventDefault();
+    }
+  }, {
+    key: "drag",
+    value: function drag(ev) {
+      ev.dataTransfer.setData("src", ev.target.src);
+    }
+    /**
+     * Key Actions
+     */
+
+  }, {
+    key: "ChangeTool",
+    value: function ChangeTool(tool) {
+      this.mousePressed.lmb.tool = tool;
+    } // floorDown() {
+    //     app.engine.changeFloor(-1);
+    // }
+    // floorUp() {
+    //     app.engine.changeFloor(1);
+    // }
+    // save() {
+    //     $("#saveModalToggle").click();
+    // }
+    // load() {
+    //     $("#loadModalToggle").click();
+    // }
+    // toolPencil(){
+    //     toast("Pencil Selected", 2000);
+    //     $("#pencil").click();
+    // }
+    // toolSquare(){
+    //     toast("Square Selected", 2000);
+    //     $("#square").click();
+    // }
+    // toolEraser(){
+    //     toast("Eraser Selected", 2000);
+    //     $("#eraser").click();
+    // }
+
+  }]);
+
+  return Keybinds;
+}();
+
+
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js")))
+
+/***/ }),
+
+/***/ "./resources/js/battleplan/edit/classes/Line.js":
+/*!******************************************************!*\
+  !*** ./resources/js/battleplan/edit/classes/Line.js ***!
+  \******************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Line; });
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+/**************************
+	Extention class type
+**************************/
+var Draw = __webpack_require__(/*! ./Draw.js */ "./resources/js/battleplan/edit/classes/Draw.js")["default"];
+
+var Line =
+/*#__PURE__*/
+function (_Draw) {
+  _inherits(Line, _Draw);
+
+  /**************************
+          Constructor
+  **************************/
+  function Line(origin, color, size) {
+    var _this;
+
+    _classCallCheck(this, Line);
+
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(Line).call(this, origin));
+    _this.color = color;
+    _this.size = size;
+    _this.points = [];
+    return _this;
+  }
+
+  _createClass(Line, [{
+    key: "init",
+    value: function init() {}
+  }, {
+    key: "draw",
+    value: function draw(canvas) {
+      // Settings
+      canvas.ctx.lineWidth = this.size;
+      canvas.ctx.fillStyle = 'orange';
+      canvas.ctx.lineCap = 'round';
+      canvas.ctx.beginPath();
+      canvas.ctx.moveTo(this.origin.x + canvas.offset.x, this.origin.y + canvas.offset.y); // Itterate each point
+
+      for (var i = 0; i < this.points.length; i++) {
+        canvas.ctx.lineTo(this.points[i].x + canvas.offset.x, this.points[i].y + canvas.offset.y);
+      }
+
+      canvas.ctx.stroke();
+    }
+    /**************************
+        Helper functions
+    **************************/
+
+  }]);
+
+  return Line;
+}(Draw);
+
+
+
+/***/ }),
+
+/***/ "./resources/js/battleplan/edit/classes/Square.js":
+/*!********************************************************!*\
+  !*** ./resources/js/battleplan/edit/classes/Square.js ***!
+  \********************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Square; });
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+/**************************
+	Extention class type
+**************************/
+var Draw = __webpack_require__(/*! ./Draw.js */ "./resources/js/battleplan/edit/classes/Draw.js")["default"];
+
+var Square =
+/*#__PURE__*/
+function (_Draw) {
+  _inherits(Square, _Draw);
+
+  /**************************
+          Constructor
+  **************************/
+  function Square(origin, destination, color, size) {
+    var _this;
+
+    _classCallCheck(this, Square);
+
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(Square).call(this, origin));
+    _this.destination = destination;
+    _this.color = color;
+    _this.size = size;
+    return _this;
+  }
+
+  _createClass(Square, [{
+    key: "draw",
+    value: function draw(canvas) {
+      canvas.ctx.fillStyle = this.color;
+      canvas.ctx.globalAlpha = 0.35;
+      var offsetOrigin = {
+        "x": this.origin.x + canvas.offset.x,
+        "y": this.origin.y + canvas.offset.y
+      };
+      var offsetDestination = {
+        "x": this.destination.x + canvas.offset.x,
+        "y": this.destination.y + canvas.offset.y
+      }; // origin must always be bigger the destination for drawing on canvas
+
+      this.checkSides(offsetOrigin, offsetDestination);
+      canvas.ctx.fillRect(offsetOrigin.x, offsetOrigin.y, offsetDestination.x - offsetOrigin.x, offsetDestination.y - offsetOrigin.y); // reset alpha
+
+      canvas.ctx.globalAlpha = 1.0;
+    }
+    /**
+     * Private Helpers
+     */
+
+  }, {
+    key: "checkSides",
+    value: function checkSides(c1, c2) {
+      if (parseInt(c1.x) > parseInt(c2.x)) {
+        var swap = c1.x;
+        c1.x = c2.x;
+        c2.x = swap;
+      }
+
+      if (parseInt(c1.y) > parseInt(c2.y)) {
+        var swap = c1.y;
+        c1.y = c2.y;
+        c2.y = swap;
+      }
+    }
+  }]);
+
+  return Square;
+}(Draw);
 
 
 
@@ -11227,6 +11978,203 @@ function () {
 
 /***/ }),
 
+/***/ "./resources/js/battleplan/edit/classes/ToolIcon.js":
+/*!**********************************************************!*\
+  !*** ./resources/js/battleplan/edit/classes/ToolIcon.js ***!
+  \**********************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return ToolIcon; });
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+/**************************
+	Extention class type
+**************************/
+var Tool = __webpack_require__(/*! ./Tool.js */ "./resources/js/battleplan/edit/classes/Tool.js")["default"];
+
+var ToolIcon =
+/*#__PURE__*/
+function (_Tool) {
+  _inherits(ToolIcon, _Tool);
+
+  /**************************
+          Constructor
+  **************************/
+  function ToolIcon(app) {
+    var _this;
+
+    _classCallCheck(this, ToolIcon);
+
+    // Super Class constructor call
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(ToolIcon).call(this, app));
+    _this.Icon = __webpack_require__(/*! ./Icon.js */ "./resources/js/battleplan/edit/classes/Icon.js")["default"];
+    _this.size = 100;
+    return _this;
+  }
+
+  _createClass(ToolIcon, [{
+    key: "actionDrop",
+    value: function actionDrop(coordinates, src) {
+      if (src) {
+        var icon = new this.Icon(this.AddOffsetCoordinates(coordinates), this.size, src);
+        this.app.battleplan.floor.Draw(icon);
+        this.app.canvas.Update();
+      }
+    } // icon(coordinates, src) {
+    //     var start = JSON.parse(JSON.stringify(coordinates));
+    //     var end = JSON.parse(JSON.stringify(coordinates));
+    //     start.x = coordinates.x - (this.app.iconSize/2);
+    //     start.y = coordinates.y - (this.app.iconSize/2);
+    //     end.x = coordinates.x + (this.app.iconSize/2);
+    //     end.y = coordinates.y + (this.app.iconSize/2);
+    //     var draw = {
+    //         "battlefloor_id": this.app.battleplan.battlefloor.id,
+    //         "destinationX": end.x,
+    //         "destinationY": end.y,
+    //         "drawable_type": "Icon",
+    //         "originX": start.x,
+    //         "originY": start.y,
+    //     };
+    //     draw.drawable = {
+    //         "src": src,
+    //     }
+    //     draw = Object.assign(new this.Draw, draw);
+    //     draw.init();
+    //     return draw;
+    // }
+
+  }, {
+    key: "AddOffsetCoordinates",
+    value: function AddOffsetCoordinates(coor) {
+      return {
+        "x": coor.x / this.app.canvas.scale - this.app.canvas.offset.x,
+        "y": coor.y / this.app.canvas.scale - this.app.canvas.offset.y
+      };
+    }
+  }]);
+
+  return ToolIcon;
+}(Tool);
+
+
+
+/***/ }),
+
+/***/ "./resources/js/battleplan/edit/classes/ToolLine.js":
+/*!**********************************************************!*\
+  !*** ./resources/js/battleplan/edit/classes/ToolLine.js ***!
+  \**********************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return ToolLine; });
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+/**************************
+	Extention class type
+**************************/
+var Tool = __webpack_require__(/*! ./Tool.js */ "./resources/js/battleplan/edit/classes/Tool.js")["default"];
+
+var ToolLine =
+/*#__PURE__*/
+function (_Tool) {
+  _inherits(ToolLine, _Tool);
+
+  /**************************
+          Constructor
+  **************************/
+  function ToolLine(app) {
+    var _this;
+
+    _classCallCheck(this, ToolLine);
+
+    // Super Class constructor call
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(ToolLine).call(this, app));
+    _this.Line = __webpack_require__(/*! ./Line.js */ "./resources/js/battleplan/edit/classes/Line.js")["default"];
+    _this.activeLine;
+    _this.size = 1;
+    return _this;
+  }
+
+  _createClass(ToolLine, [{
+    key: "actionDown",
+    value: function actionDown(coordinates) {
+      this.activeLine = new this.Line(this.AddOffsetCoordinates(coordinates), "ffffff", this.size);
+      this.app.battleplan.floor.Draw(this.activeLine);
+    }
+  }, {
+    key: "actionUp",
+    value: function actionUp(coordinates) {
+      this.activeLine = null;
+      this.app.canvas.Update();
+    }
+  }, {
+    key: "actionLeave",
+    value: function actionLeave(coordinates) {
+      this.activeLine = null;
+    }
+  }, {
+    key: "actionMove",
+    value: function actionMove(coordinates) {
+      if (this.activeLine) {
+        this.activeLine.points.push(this.AddOffsetCoordinates(coordinates));
+        this.app.canvas.Update();
+      }
+    }
+  }, {
+    key: "AddOffsetCoordinates",
+    value: function AddOffsetCoordinates(coor) {
+      return {
+        "x": coor.x / this.app.canvas.scale - this.app.canvas.offset.x,
+        "y": coor.y / this.app.canvas.scale - this.app.canvas.offset.y
+      };
+    }
+  }]);
+
+  return ToolLine;
+}(Tool);
+
+
+
+/***/ }),
+
 /***/ "./resources/js/battleplan/edit/classes/ToolMove.js":
 /*!**********************************************************!*\
   !*** ./resources/js/battleplan/edit/classes/ToolMove.js ***!
@@ -11285,8 +12233,7 @@ function (_Tool) {
   _createClass(ToolMove, [{
     key: "actionDown",
     value: function actionDown(coordinates) {
-      this.origin.x = coordinates.x;
-      this.origin.y = coordinates.y;
+      this.origin = coordinates;
     }
   }, {
     key: "actionMove",
@@ -11294,12 +12241,174 @@ function (_Tool) {
       // this.app.ui.move(this.origin.x - coordinates.x, this.origin.y - coordinates.y);
       var mx = this.origin.x - coordinates.x;
       var my = this.origin.y - coordinates.y;
-      this.app.ui.move(mx, my);
-      this.app.ui.backgroundUpdate = true;
+      this.app.canvas.move(-mx / this.app.canvas.scale, -my / this.app.canvas.scale);
+      this.origin = coordinates; // this.app.canvas.backgroundUpdate = true;
     }
   }]);
 
   return ToolMove;
+}(Tool);
+
+
+
+/***/ }),
+
+/***/ "./resources/js/battleplan/edit/classes/ToolSquare.js":
+/*!************************************************************!*\
+  !*** ./resources/js/battleplan/edit/classes/ToolSquare.js ***!
+  \************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return ToolSquare; });
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+/**************************
+	Extention class type
+**************************/
+var Tool = __webpack_require__(/*! ./Tool.js */ "./resources/js/battleplan/edit/classes/Tool.js")["default"];
+
+var ToolSquare =
+/*#__PURE__*/
+function (_Tool) {
+  _inherits(ToolSquare, _Tool);
+
+  /**************************
+          Constructor
+  **************************/
+  function ToolSquare(app) {
+    var _this;
+
+    _classCallCheck(this, ToolSquare);
+
+    // Super Class constructor call
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(ToolSquare).call(this, app));
+    _this.Square = __webpack_require__(/*! ./Square.js */ "./resources/js/battleplan/edit/classes/Square.js")["default"];
+    _this.activeSquare;
+    _this.size = 1;
+    return _this;
+  }
+
+  _createClass(ToolSquare, [{
+    key: "actionDown",
+    value: function actionDown(coordinates) {
+      this.activeSquare = new this.Square(this.AddOffsetCoordinates(coordinates), this.AddOffsetCoordinates(coordinates), "ffffff", this.size);
+      this.app.battleplan.floor.Draw(this.activeSquare);
+    }
+  }, {
+    key: "actionUp",
+    value: function actionUp(coordinates) {
+      this.activeSquare = null;
+      this.app.canvas.Update();
+    }
+  }, {
+    key: "actionLeave",
+    value: function actionLeave(coordinates) {
+      this.activeSquare = null;
+    }
+  }, {
+    key: "actionMove",
+    value: function actionMove(coordinates) {
+      if (this.activeSquare) {
+        this.activeSquare.destination = this.AddOffsetCoordinates(coordinates);
+        this.app.canvas.Update();
+      }
+    }
+  }, {
+    key: "AddOffsetCoordinates",
+    value: function AddOffsetCoordinates(coor) {
+      return {
+        "x": coor.x / this.app.canvas.scale - this.app.canvas.offset.x,
+        "y": coor.y / this.app.canvas.scale - this.app.canvas.offset.y
+      };
+    }
+  }]);
+
+  return ToolSquare;
+}(Tool);
+
+
+
+/***/ }),
+
+/***/ "./resources/js/battleplan/edit/classes/ToolZoom.js":
+/*!**********************************************************!*\
+  !*** ./resources/js/battleplan/edit/classes/ToolZoom.js ***!
+  \**********************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return ToolZoom; });
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+/**************************
+	Extention class type
+**************************/
+var Tool = __webpack_require__(/*! ./Tool.js */ "./resources/js/battleplan/edit/classes/Tool.js")["default"];
+
+var ToolZoom =
+/*#__PURE__*/
+function (_Tool) {
+  _inherits(ToolZoom, _Tool);
+
+  /**************************
+          Constructor
+  **************************/
+  function ToolZoom(app) {
+    var _this;
+
+    _classCallCheck(this, ToolZoom);
+
+    // Super Class constructor call
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(ToolZoom).call(this, app));
+    _this.origin;
+    return _this;
+  }
+
+  _createClass(ToolZoom, [{
+    key: "actionScroll",
+    value: function actionScroll(clicks, coordinates) {
+      this.app.canvas.zoom(clicks, coordinates);
+    }
+  }]);
+
+  return ToolZoom;
 }(Tool);
 
 
@@ -11332,6 +12441,11 @@ $.ajaxSetup({
 **************************/
 
 var app = new App(BATTLEPLAN_ID, $('#viewport'));
+/**************************
+   Give access to app object in main windows
+**************************/
+
+window.app = app;
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js")))
 
 /***/ }),

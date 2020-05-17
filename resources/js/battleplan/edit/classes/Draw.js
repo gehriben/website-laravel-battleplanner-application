@@ -1,34 +1,27 @@
-Line = require('./Line.js').default;
-Square = require('./Square.js').default;
-Icon = require('./Icon.js').default;
+
         
 class Draw {
 
     /**************************
             Constructor
     **************************/
-    constructor() {
-        
+    constructor(origin) {
+        // this.Line = require('./Line.js').default;
+        // this.Square = require('./Square.js').default;
+        // this.Icon = require('./Icon.js').default;
+
+        this.origin = origin;
+        // this.destination = destination;
+
     }
 
-    init(){
-        // var type = this.getType(this);
-        this.drawable = Object.assign(new this[this.getType(this)], this.drawable);
-
-        if (this.drawable instanceof this.Square) {
-            this.checkSides()
-        }
-        
-        this.drawable.init();
-    }
-
-    draw(ctx,ui){
+    draw(canvas){
         
         if (this.drawable instanceof this.Square) {
             this.checkSides()
         }
 
-        this.drawable.draw(this,ctx,ui);//.bind(this.drawable);
+        this.drawable.draw(canvas);
     }
 
     /**************************

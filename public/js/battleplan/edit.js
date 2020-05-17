@@ -16,3 +16,8 @@ $.ajaxSetup({
     Constant declarations
 **************************/
 var app = new App(BATTLEPLAN_ID,$('#viewport'));
+
+/**************************
+   Give access to app object in main windows
+**************************/
+window.app = app;
