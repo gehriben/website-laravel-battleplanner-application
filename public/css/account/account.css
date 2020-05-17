@@ -1,15 +1,5 @@
-.vote-green{
-    color: #66ff66;
-}
-.vote-red{
-    color: #cc0000;
-}
-.cursor-click{
-    cursor: pointer;
-}
-
 body {
-  background-color: black;
+  background: black;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -18,12 +8,17 @@ body h1 {
   color: white;
 }
 
-.btn-success {
-  max-width: 150px;
+body h2 {
+  color: white;
+}
+
+.padded {
+  padding-top: 10px;
+  padding-bottom: 5px;
 }
 
 .list-group {
-  padding: 0px;
+  padding-right: 0px;
 }
 
 .list-group-item {

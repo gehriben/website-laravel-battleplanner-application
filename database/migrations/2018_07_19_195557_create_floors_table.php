@@ -18,15 +18,18 @@ class CreateFloorsTable extends Migration
             $table->string('name');
             $table->integer('order');
             $table->timestamps();
-            
+
             $table->unsignedInteger('map_id');
             $table->foreign('map_id')
                 ->references('id')
                 ->on('maps');
-                
-            $table->unsignedInteger('media_id');
+
+            $table->unsignedInteger('media_id')
+                  ->nullable();
+
             $table->foreign('media_id')
                 ->references('id')
+                ->onDelete("set null")
                 ->on('medias');
         });
     }

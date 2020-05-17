@@ -1,2 +1,82 @@
-@import url(https://fonts.googleapis.com/css?family=Raleway:300,400,600);
+@import url(https://fonts.googleapis.com/css?family=Raleway:300,400,600);.btn-primary {
+  background-color: #F05F40;
+  border-color: #F05F40;
+  color: white;
+  font-size: 16px;
+  max-width: 75px;
+}
+
+.btn-primary:hover {
+  background-color: #b34830;
+  border-color: #b34830;
+}
+
+.btn-primary:focus,
+.btn-primary:active {
+  outline: none !important;
+  box-shadow: none !important;
+  background-color: #b34830 !important;
+  border-color: #b34830 !important;
+}
+
+.btn-success {
+  font-size: 20px;
+  background-color: #e6755c;
+  border-color: #e6755c;
+  color: white;
+}
+
+.btn-success:hover {
+  background-color: #b35b47;
+  border-color: #b35b47;
+}
+
+.btn-success:focus,
+.btn-success:active {
+  outline: none !important;
+  box-shadow: none !important;
+  background-color: #b35b47 !important;
+  border-color: #b35b47 !important;
+}
+
+.btn-secondary {
+  background-color: #c34022;
+  border-color: #c34022;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: #98321b;
+  border-color: #98321b;
+}
+
+.btn-secondary:focus,
+.btn-secondary:active {
+  outline: none !important;
+  box-shadow: none !important;
+  background-color: #98321b !important;
+  border-color: #98321b !important;
+}
+
+.navbar-dark .navbar-nav .nav-link {
+  color: white;
+}
+
+.fa,
+.fas {
+  color: #e6755c;
+}
+
+.custom-switch .custom-control-input:checked ~ .custom-control-label::before {
+  background-color: #e6755c !important;
+  box-shadow: none !important;
+}
+
+.custom-switch .custom-control-input:focus ~ .custom-control-label::before {
+  box-shadow: none !important;
+}
+
+label {
+  color: black;
+}
 

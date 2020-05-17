@@ -5,40 +5,42 @@
 @endpush
 
 @push('css')
-
+  <link rel="stylesheet" href="{{asset("css/admin/admin.css")}}">
 @endpush
 
 @section('content')
-<h1 class="text-center">Admin Section</h1>
-<div class="list-group">
-
-  <a href="/map" class="list-group-item list-group-item-action flex-column align-items-start">
-    <div class="d-flex w-100 justify-content-between">
-      <h5 class="mb-1">Maps</h5>
-      <!-- <small>3 days ago</small> -->
+<div class="container">
+  <div class="row mt-3">
+    <div class="col-12 text-center">
+      <h1>Admin Section</h1>
     </div>
-    <p class="mb-1">Customize available Maps</p>
-    <!-- <small>Donec id elit non mi porta.</small> -->
-  </a>
+  </div>
+  
+  <div class="row mt-3">
+    <div class="list-group col-12">
+      <a href="/map" class="list-group-item list-group-item-action flex-column align-items-start">
+        <div class="d-flex w-100 justify-content-between">
+          <h5 class="mb-1">Maps</h5>
+        </div>
+        <p class="mb-1">Customize available Maps</p>
+      </a>
 
-  <a href="/admin/operator" class="list-group-item list-group-item-action flex-column align-items-start">
-    <div class="d-flex w-100 justify-content-between">
-      <h5 class="mb-1">Operators</h5>
-      <!-- <small>3 days ago</small> -->
+      <a href="/admin/operator" class="list-group-item list-group-item-action flex-column align-items-start">
+        <div class="d-flex w-100 justify-content-between">
+          <h5 class="mb-1">Operators</h5>
+        </div>
+        <p class="mb-1">Customize available Operators and their gadgets</p>
+      </a>
+
+        <a href="/admin/gadget" class="list-group-item list-group-item-action flex-column align-items-start">
+        <div class="d-flex w-100 justify-content-between">
+            <h5 class="mb-1">General Gadgets</h5>
+            <!-- <small>3 days ago</small> -->
+        </div>
+        <p class="mb-1">Customize available General Gadgets</p>
+        </a>
+
     </div>
-    <p class="mb-1">Customize available Operators and their gadgets</p>
-    <!-- <small>Donec id elit non mi porta.</small> -->
-  </a>
-
-    <a href="/admin/gadget" class="list-group-item list-group-item-action flex-column align-items-start">
-    <div class="d-flex w-100 justify-content-between">
-        <h5 class="mb-1">General Gadgets</h5>
-        <!-- <small>3 days ago</small> -->
-    </div>
-    <p class="mb-1">Customize available General Gadgets</p>
-    <!-- <small>Donec id elit non mi porta.</small> -->
-    </a>
-
+  </div>
 </div>
-
 @endsection

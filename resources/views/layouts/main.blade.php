@@ -8,7 +8,7 @@
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>Battle Planner</title>
+    <title>Rainbow Six Battle Planner</title>
     <link rel="icon" href="https://battleplanner-production.s3.ca-central-1.amazonaws.com/static/favicon.png">
 
     <!-- Fonts -->
@@ -33,8 +33,8 @@
     </div>
     @include('layouts.footer')
     @stack('modals')
-    
-    
+
+
     <script
       src="https://code.jquery.com/jquery-3.3.1.min.js"
       integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
