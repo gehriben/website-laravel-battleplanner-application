@@ -10718,7 +10718,7 @@ var Canvas = __webpack_require__(/*! ./Canvas.js */ "./resources/js/battleplan/e
 
 var Keybinds = __webpack_require__(/*! ./Keybinds.js */ "./resources/js/battleplan/edit/classes/Keybinds.js")["default"]; // var ToolLine = require('./ToolLine.js').default;
 // var ToolSquare = require('./ToolSquare.js').default;
-// var ToolMove = require('./ToolMove.js').default;
+// var ToolMoveCanvas = require('./ToolMoveCanvas.js').default;
 // var ToolZoom = require('./ToolZoom.js').default;
 // var ToolIcon = require('./ToolIcon.js').default;
 // var ToolErase = require('./ToolErase.js').default;
@@ -11230,6 +11230,25 @@ function () {
         this.originY = this.destinationY;
         this.destinationY = tmp;
       }
+    } // Method to see if object is inside a given bounding box.
+    // Used for the selection tool
+
+  }, {
+    key: "InBox",
+    value: function InBox(canvas, box) {
+      // Should be overriden in child
+      return false;
+    } // Highlights object
+
+  }, {
+    key: "Highlight",
+    value: function Highlight(canvas) {// Should be overriden in child
+    }
+  }, {
+    key: "Move",
+    value: function Move(dX, dY) {
+      this.origin.x += dX;
+      this.origin.y += dY;
     }
   }]);
 
@@ -11293,9 +11312,23 @@ function () {
       }.bind(this);
     }
   }, {
-    key: "Draw",
-    value: function Draw(draw) {
+    key: "AddDraw",
+    value: function AddDraw(draw) {
       this.draws.push(draw);
+    }
+  }, {
+    key: "RemoveDraw",
+    value: function RemoveDraw(draw) {
+      this.draws = this.draws.filter(function (item) {
+        return item !== draw;
+      });
+    }
+  }, {
+    key: "SelectedDraws",
+    value: function SelectedDraws() {
+      return this.draws.filter(function (draw) {
+        return draw.highlighted;
+      });
     }
   }]);
 
@@ -11328,6 +11361,10 @@ function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) ===
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
+function _get(target, property, receiver) { if (typeof Reflect !== "undefined" && Reflect.get) { _get = Reflect.get; } else { _get = function _get(target, property, receiver) { var base = _superPropBase(target, property); if (!base) return; var desc = Object.getOwnPropertyDescriptor(base, property); if (desc.get) { return desc.get.call(receiver); } return desc.value; }; } return _get(target, property, receiver || target); }
+
+function _superPropBase(object, property) { while (!Object.prototype.hasOwnProperty.call(object, property)) { object = _getPrototypeOf(object); if (object === null) break; } return object; }
+
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
@@ -11353,16 +11390,20 @@ function (_Draw) {
     _classCallCheck(this, Icon);
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(Icon).call(this, origin));
+    _this.size = size;
+    _this.origin.x = _this.origin.x - _this.size / 2;
+    _this.origin.y = _this.origin.y - _this.size / 2;
+    _this.destination = {
+      "x": _this.origin.x + _this.size,
+      "y": _this.origin.y + _this.size
+    };
+    _this.SelectBox = __webpack_require__(/*! ./SelectBox.js */ "./resources/js/battleplan/edit/classes/SelectBox.js")["default"];
     _this.src = src;
     _this.img = null;
-    _this.size = size;
     return _this;
   }
 
   _createClass(Icon, [{
-    key: "init",
-    value: function init() {}
-  }, {
     key: "draw",
     value: function draw(canvas) {
       if (!this.img) {
@@ -11375,10 +11416,95 @@ function (_Draw) {
       } else {
         // translate offset
         canvas.ctx.translate(canvas.offset.x, canvas.offset.y);
-        canvas.ctx.drawImage(this.img, this.origin.x - this.size / 2, this.origin.y - this.size / 2, this.size, this.size); // Translate Back
+        canvas.ctx.drawImage(this.img, this.origin.x, this.origin.y, this.size, this.size);
+
+        if (this.highlighted) {
+          this.Highlight(canvas);
+        } // Translate Back
+
 
         canvas.ctx.translate(-canvas.offset.x, -canvas.offset.y);
       }
+    }
+    /**
+     * Parent overrides
+     */
+
+  }, {
+    key: "inBox",
+    value: function inBox(canvas, box) {
+      // square inside box
+      var offsetOrigin = {
+        "x": this.origin.x + canvas.offset.x,
+        "y": this.origin.y + canvas.offset.y
+      };
+      var offsetDestination = {
+        "x": this.destination.x + canvas.offset.x,
+        "y": this.destination.y + canvas.offset.y
+      }; // origin must always be bigger the destination for drawing on canvas
+
+      this.SelectBox.checkSides(offsetOrigin, offsetDestination);
+
+      if (this.SelectBox.PointInBox(canvas, offsetOrigin, box) || this.SelectBox.PointInBox(canvas, {
+        "x": offsetOrigin.x,
+        "y": offsetDestination.y
+      }, box) || this.SelectBox.PointInBox(canvas, offsetDestination, box) || this.SelectBox.PointInBox(canvas, {
+        "x": offsetDestination.x,
+        "y": offsetOrigin.y
+      }, box)) {
+        return true;
+      } // square inside box
+
+
+      offsetOrigin = {
+        "x": box.origin.x + canvas.offset.x,
+        "y": box.origin.y + canvas.offset.y
+      };
+      offsetDestination = {
+        "x": box.destination.x + canvas.offset.x,
+        "y": box.destination.y + canvas.offset.y
+      }; // origin must always be bigger the destination for drawing on canvas
+
+      this.SelectBox.checkSides(offsetOrigin, offsetDestination);
+
+      if (this.SelectBox.PointInBox(canvas, offsetOrigin, this) || this.SelectBox.PointInBox(canvas, {
+        "x": offsetOrigin.x,
+        "y": offsetDestination.y
+      }, this) || this.SelectBox.PointInBox(canvas, offsetDestination, this) || this.SelectBox.PointInBox(canvas, {
+        "x": offsetDestination.x,
+        "y": offsetOrigin.y
+      }, this)) {
+        return true;
+      }
+
+      return false;
+    } // Highlights object
+
+  }, {
+    key: "Highlight",
+    value: function Highlight(canvas) {
+      var defaultColor = canvas.ctx.strokeStyle;
+      canvas.ctx.strokeStyle = "blue";
+      var offsetOrigin = {
+        "x": this.origin.x,
+        "y": this.origin.y
+      };
+      var offsetDestination = {
+        "x": this.destination.x,
+        "y": this.destination.y
+      };
+      canvas.ctx.beginPath();
+      canvas.ctx.rect(offsetOrigin.x, offsetOrigin.y, offsetDestination.x - offsetOrigin.x, offsetDestination.y - offsetOrigin.y);
+      canvas.ctx.stroke();
+      canvas.ctx.strokeStyle = defaultColor;
+    }
+  }, {
+    key: "Move",
+    value: function Move(dX, dY) {
+      _get(_getPrototypeOf(Icon.prototype), "Move", this).call(this, dX, dY);
+
+      this.destination.x += dX;
+      this.destination.y += dY;
     }
     /**************************
         Helper functions
@@ -11409,7 +11535,6 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-// ToolErase = require('./classes/ToolErase.js').default; // useable tool
 var Keybinds =
 /*#__PURE__*/
 function () {
@@ -11419,22 +11544,28 @@ function () {
   function Keybinds(app) {
     _classCallCheck(this, Keybinds);
 
-    // Class inclusions
-    this.ToolMove = __webpack_require__(/*! ./ToolMove.js */ "./resources/js/battleplan/edit/classes/ToolMove.js")["default"]; // useable tool
+    this.app; // Class inclusions
+    // this.ToolMoveCanvas = require('./ToolMoveCanvas.js').default; 
+    // this.ToolMoveDraws = require('./ToolMoveDraws.js').default; 
+    // this.ToolZoom = require('./ToolZoom.js').default; 
+    // this.ToolLine = require('./ToolLine.js').default; 
+    // this.ToolSquare = require('./ToolSquare.js').default; 
+    // this.ToolIcon = require('./ToolIcon.js').default; 
+    // this.ToolSelect = require('./ToolSelect.js').default; 
+    // this.ToolEraser = require('./ToolEraser.js').default; 
 
-    this.ToolZoom = __webpack_require__(/*! ./ToolZoom.js */ "./resources/js/battleplan/edit/classes/ToolZoom.js")["default"]; // useable tool
-
-    this.ToolLine = __webpack_require__(/*! ./ToolLine.js */ "./resources/js/battleplan/edit/classes/ToolLine.js")["default"]; // useable tool
-
-    this.ToolSquare = __webpack_require__(/*! ./ToolSquare.js */ "./resources/js/battleplan/edit/classes/ToolSquare.js")["default"]; // useable tool
-
-    this.ToolIcon = __webpack_require__(/*! ./ToolIcon.js */ "./resources/js/battleplan/edit/classes/ToolIcon.js")["default"]; // useable tool
-
+    this.toolMoveCanvas = new (__webpack_require__(/*! ./ToolMoveCanvas.js */ "./resources/js/battleplan/edit/classes/ToolMoveCanvas.js")["default"])(app);
+    this.toolMoveDraws = new (__webpack_require__(/*! ./ToolMoveDraws.js */ "./resources/js/battleplan/edit/classes/ToolMoveDraws.js")["default"])(app);
+    this.toolZoom = new (__webpack_require__(/*! ./ToolZoom.js */ "./resources/js/battleplan/edit/classes/ToolZoom.js")["default"])(app);
+    this.toolLine = new (__webpack_require__(/*! ./ToolLine.js */ "./resources/js/battleplan/edit/classes/ToolLine.js")["default"])(app);
+    this.toolSquare = new (__webpack_require__(/*! ./ToolSquare.js */ "./resources/js/battleplan/edit/classes/ToolSquare.js")["default"])(app);
+    this.toolIcon = new (__webpack_require__(/*! ./ToolIcon.js */ "./resources/js/battleplan/edit/classes/ToolIcon.js")["default"])(app);
+    this.toolSelect = new (__webpack_require__(/*! ./ToolSelect.js */ "./resources/js/battleplan/edit/classes/ToolSelect.js")["default"])(app);
+    this.toolEraser = new (__webpack_require__(/*! ./ToolEraser.js */ "./resources/js/battleplan/edit/classes/ToolEraser.js")["default"])(app);
     this.keysPressed = []; // keys actively pressed
 
     this.keyEvents = []; // Key binding to events
 
-    this.tools(app);
     this.mousePressed = {
       // keys pressed on mouse       
       "lmb": {
@@ -11447,10 +11578,15 @@ function () {
       },
       "mmb": {
         "active": false,
-        "tool": this.toolMove
+        "tool": this.toolMoveCanvas
       }
     }; // Define Possible Mouse
     // Defining possible key Combinations & actions
+
+    this.keyEvents.push({
+      "keys": [46],
+      "event": function event() {}
+    }); // up arrow
     // this.keyEvents.push({ "keys": [38], "event": this.floorUp }); // up arrow
     // this.keyEvents.push({ "keys": [40], "event": this.floorDown }); // down arrow
     // this.keyEvents.push({ "keys": [17,83], "event": this.save }); // down arrow
@@ -11468,8 +11604,8 @@ function () {
     $(document).on('keyup', this.pressKey.bind(this)); // Canvas Listeners
 
     app.viewport[0].addEventListener("mouseup", function (ev) {
-      this.unpressMouse(ev);
       this.canvasUp(ev);
+      this.unpressMouse(ev);
     }.bind(this));
     app.viewport[0].addEventListener("mousedown", function (ev) {
       this.pressMouse(ev);
@@ -11486,33 +11622,11 @@ function () {
     }.bind(this));
     app.viewport[0].addEventListener("drop", function (ev) {
       this.canvasDrop(ev);
-    }.bind(this)); // app.viewport.addEventListener("mousedown", this.canvasDown);
-    // app.viewport.addEventListener("mousewheel", this.canvasScroll);
-    // viewport.addEventListener("mousemove", this.canvasMove);
-    // app.viewport.addEventListener("mouseout", this.canvasLeave);
+    }.bind(this));
+  } // fire events id button combination pressed
 
-    /**
-     * Button Binds
-     */
-    // $("#lineTool").click(function(){
-    //     this.mousePressed.lmb.tool = this.toolLine;
-    // }.bind(this));
-    // $("#squareTool").click(function(){
-    //     this.mousePressed.lmb.tool = this.toolSquare;
-    // }.bind(this));
-  }
 
   _createClass(Keybinds, [{
-    key: "tools",
-    value: function tools(app) {
-      this.toolZoom = new this.ToolZoom(app);
-      this.toolMove = new this.ToolMove(app);
-      this.toolLine = new this.ToolLine(app);
-      this.toolSquare = new this.ToolSquare(app);
-      this.toolIcon = new this.ToolIcon(app);
-    } // fire events id button combination pressed
-
-  }, {
     key: "listen",
     value: function listen() {
       // keyboard check
@@ -11745,6 +11859,10 @@ function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) ===
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
+function _get(target, property, receiver) { if (typeof Reflect !== "undefined" && Reflect.get) { _get = Reflect.get; } else { _get = function _get(target, property, receiver) { var base = _superPropBase(target, property); if (!base) return; var desc = Object.getOwnPropertyDescriptor(base, property); if (desc.get) { return desc.get.call(receiver); } return desc.value; }; } return _get(target, property, receiver || target); }
+
+function _superPropBase(object, property) { while (!Object.prototype.hasOwnProperty.call(object, property)) { object = _getPrototypeOf(object); if (object === null) break; } return object; }
+
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
@@ -11770,6 +11888,7 @@ function (_Draw) {
     _classCallCheck(this, Line);
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(Line).call(this, origin));
+    _this.SelectBox = __webpack_require__(/*! ./SelectBox.js */ "./resources/js/battleplan/edit/classes/SelectBox.js")["default"];
     _this.color = color;
     _this.size = size;
     _this.points = [];
@@ -11782,7 +11901,13 @@ function (_Draw) {
   }, {
     key: "draw",
     value: function draw(canvas) {
-      // Settings
+      var defaultColor = canvas.ctx.strokeStyle;
+
+      if (this.highlighted) {
+        canvas.ctx.strokeStyle = "blue";
+      } // Settings
+
+
       canvas.ctx.lineWidth = this.size;
       canvas.ctx.fillStyle = 'orange';
       canvas.ctx.lineCap = 'round';
@@ -11794,6 +11919,42 @@ function (_Draw) {
       }
 
       canvas.ctx.stroke();
+      canvas.ctx.strokeStyle = defaultColor;
+    }
+    /**
+     * Parent overrides
+     */
+
+  }, {
+    key: "inBox",
+    value: function inBox(canvas, box) {
+      // merge origin into point list
+      var points = [this.origin].concat(this.points);
+
+      for (var i = 0; i < points.length; i++) {
+        var point = points[i];
+        var coors = {
+          "x": point.x + canvas.offset.x,
+          "y": point.y + canvas.offset.y
+        };
+
+        if (this.SelectBox.PointInBox(canvas, coors, box)) {
+          return true;
+        }
+      }
+
+      return false;
+    }
+  }, {
+    key: "Move",
+    value: function Move(dX, dY) {
+      _get(_getPrototypeOf(Line.prototype), "Move", this).call(this, dX, dY); // Itterate each point
+
+
+      for (var i = 0; i < this.points.length; i++) {
+        this.points[i].x += dX;
+        this.points[i].y += dY;
+      }
     }
     /**************************
         Helper functions
@@ -11802,6 +11963,152 @@ function (_Draw) {
   }]);
 
   return Line;
+}(Draw);
+
+
+
+/***/ }),
+
+/***/ "./resources/js/battleplan/edit/classes/SelectBox.js":
+/*!***********************************************************!*\
+  !*** ./resources/js/battleplan/edit/classes/SelectBox.js ***!
+  \***********************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return SelectBox; });
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+/**************************
+	Extention class type
+**************************/
+var Draw = __webpack_require__(/*! ./Draw.js */ "./resources/js/battleplan/edit/classes/Draw.js")["default"];
+
+var SelectBox =
+/*#__PURE__*/
+function (_Draw) {
+  _inherits(SelectBox, _Draw);
+
+  /**************************
+          Constructor
+  **************************/
+  function SelectBox(origin, destination, color, size) {
+    var _this;
+
+    _classCallCheck(this, SelectBox);
+
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(SelectBox).call(this, origin));
+    _this.destination = destination;
+    _this.color = color;
+    _this.size = size;
+    return _this;
+  }
+
+  _createClass(SelectBox, [{
+    key: "draw",
+    value: function draw(canvas) {
+      canvas.ctx.fillStyle = this.color;
+      var offsetOrigin = {
+        "x": this.origin.x + canvas.offset.x,
+        "y": this.origin.y + canvas.offset.y
+      };
+      var offsetDestination = {
+        "x": this.destination.x + canvas.offset.x,
+        "y": this.destination.y + canvas.offset.y
+      }; // origin must always be bigger the destination for drawing on canvas
+
+      this.checkSides(offsetOrigin, offsetDestination);
+      canvas.ctx.beginPath();
+      canvas.ctx.rect(offsetOrigin.x, offsetOrigin.y, offsetDestination.x - offsetOrigin.x, offsetDestination.y - offsetOrigin.y);
+      canvas.ctx.stroke();
+    }
+    /**
+     * Private Helpers
+     */
+
+  }, {
+    key: "checkSides",
+    value: function checkSides(c1, c2) {
+      if (parseInt(c1.x) > parseInt(c2.x)) {
+        var swap = c1.x;
+        c1.x = c2.x;
+        c2.x = swap;
+      }
+
+      if (parseInt(c1.y) > parseInt(c2.y)) {
+        var swap = c1.y;
+        c1.y = c2.y;
+        c2.y = swap;
+      }
+    } // Determine if a given point is inside box coordinates
+    // Assumption, box is Axis alignes with both x and y (AABB)
+    // point is searched point (2d)
+
+  }, {
+    key: "Select",
+    value: function Select(canvas, draws) {
+      var _this2 = this;
+
+      draws.forEach(function (draw) {
+        draw.highlighted = draw.inBox(canvas, _this2);
+      });
+    }
+  }], [{
+    key: "PointInBox",
+    value: function PointInBox(canvas, point, box) {
+      var offsetOrigin = {
+        "x": box.origin.x + canvas.offset.x,
+        "y": box.origin.y + canvas.offset.y
+      };
+      var offsetDestination = {
+        "x": box.destination.x + canvas.offset.x,
+        "y": box.destination.y + canvas.offset.y
+      }; // origin must always be bigger the destination for drawing on canvas
+
+      SelectBox.checkSides(offsetOrigin, offsetDestination);
+      return point.x >= offsetOrigin.x && point.x <= offsetDestination.x && // x coordinate check
+      point.y >= offsetOrigin.y && point.y <= offsetDestination.y; // y coordinate check
+    }
+    /**
+     * Private Helpers
+     */
+
+  }, {
+    key: "checkSides",
+    value: function checkSides(c1, c2) {
+      if (parseInt(c1.x) > parseInt(c2.x)) {
+        var swap = c1.x;
+        c1.x = c2.x;
+        c2.x = swap;
+      }
+
+      if (parseInt(c1.y) > parseInt(c2.y)) {
+        var swap = c1.y;
+        c1.y = c2.y;
+        c2.y = swap;
+      }
+    }
+  }]);
+
+  return SelectBox;
 }(Draw);
 
 
@@ -11830,6 +12137,10 @@ function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) ===
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
+function _get(target, property, receiver) { if (typeof Reflect !== "undefined" && Reflect.get) { _get = Reflect.get; } else { _get = function _get(target, property, receiver) { var base = _superPropBase(target, property); if (!base) return; var desc = Object.getOwnPropertyDescriptor(base, property); if (desc.get) { return desc.get.call(receiver); } return desc.value; }; } return _get(target, property, receiver || target); }
+
+function _superPropBase(object, property) { while (!Object.prototype.hasOwnProperty.call(object, property)) { object = _getPrototypeOf(object); if (object === null) break; } return object; }
+
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
@@ -11855,6 +12166,7 @@ function (_Draw) {
     _classCallCheck(this, Square);
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(Square).call(this, origin));
+    _this.SelectBox = __webpack_require__(/*! ./SelectBox.js */ "./resources/js/battleplan/edit/classes/SelectBox.js")["default"];
     _this.destination = destination;
     _this.color = color;
     _this.size = size;
@@ -11879,12 +12191,98 @@ function (_Draw) {
       canvas.ctx.fillRect(offsetOrigin.x, offsetOrigin.y, offsetDestination.x - offsetOrigin.x, offsetDestination.y - offsetOrigin.y); // reset alpha
 
       canvas.ctx.globalAlpha = 1.0;
+
+      if (this.highlighted) {
+        this.Highlight(canvas);
+      }
+    }
+    /**
+     * Parent overrides
+     */
+
+  }, {
+    key: "inBox",
+    value: function inBox(canvas, box) {
+      // square inside box
+      var offsetOrigin = {
+        "x": this.origin.x + canvas.offset.x,
+        "y": this.origin.y + canvas.offset.y
+      };
+      var offsetDestination = {
+        "x": this.destination.x + canvas.offset.x,
+        "y": this.destination.y + canvas.offset.y
+      }; // origin must always be bigger the destination for drawing on canvas
+
+      Square.checkSides(offsetOrigin, offsetDestination);
+
+      if (this.SelectBox.PointInBox(canvas, offsetOrigin, box) || this.SelectBox.PointInBox(canvas, {
+        "x": offsetOrigin.x,
+        "y": offsetDestination.y
+      }, box) || this.SelectBox.PointInBox(canvas, offsetDestination, box) || this.SelectBox.PointInBox(canvas, {
+        "x": offsetDestination.x,
+        "y": offsetOrigin.y
+      }, box)) {
+        return true;
+      } // square inside box
+
+
+      offsetOrigin = {
+        "x": box.origin.x + canvas.offset.x,
+        "y": box.origin.y + canvas.offset.y
+      };
+      offsetDestination = {
+        "x": box.destination.x + canvas.offset.x,
+        "y": box.destination.y + canvas.offset.y
+      }; // origin must always be bigger the destination for drawing on canvas
+
+      Square.checkSides(offsetOrigin, offsetDestination);
+
+      if (this.SelectBox.PointInBox(canvas, offsetOrigin, this) || this.SelectBox.PointInBox(canvas, {
+        "x": offsetOrigin.x,
+        "y": offsetDestination.y
+      }, this) || this.SelectBox.PointInBox(canvas, offsetDestination, this) || this.SelectBox.PointInBox(canvas, {
+        "x": offsetDestination.x,
+        "y": offsetOrigin.y
+      }, this)) {
+        return true;
+      }
+
+      return false;
+    } // Highlights object
+
+  }, {
+    key: "Highlight",
+    value: function Highlight(canvas) {
+      var defaultColor = canvas.ctx.strokeStyle;
+      canvas.ctx.strokeStyle = "blue";
+      var offsetOrigin = {
+        "x": this.origin.x + canvas.offset.x,
+        "y": this.origin.y + canvas.offset.y
+      };
+      var offsetDestination = {
+        "x": this.destination.x + canvas.offset.x,
+        "y": this.destination.y + canvas.offset.y
+      }; // origin must always be bigger the destination for drawing on canvas
+
+      this.checkSides(offsetOrigin, offsetDestination);
+      canvas.ctx.beginPath();
+      canvas.ctx.rect(offsetOrigin.x, offsetOrigin.y, offsetDestination.x - offsetOrigin.x, offsetDestination.y - offsetOrigin.y);
+      canvas.ctx.stroke();
+      canvas.ctx.strokeStyle = defaultColor;
     }
     /**
      * Private Helpers
      */
 
   }, {
+    key: "Move",
+    value: function Move(dX, dY) {
+      _get(_getPrototypeOf(Square.prototype), "Move", this).call(this, dX, dY);
+
+      this.destination.x += dX;
+      this.destination.y += dY;
+    }
+  }], [{
     key: "checkSides",
     value: function checkSides(c1, c2) {
       if (parseInt(c1.x) > parseInt(c2.x)) {
@@ -11978,6 +12376,118 @@ function () {
 
 /***/ }),
 
+/***/ "./resources/js/battleplan/edit/classes/ToolEraser.js":
+/*!************************************************************!*\
+  !*** ./resources/js/battleplan/edit/classes/ToolEraser.js ***!
+  \************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return ToolEraser; });
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+/**************************
+	Extention class type
+**************************/
+var Tool = __webpack_require__(/*! ./Tool.js */ "./resources/js/battleplan/edit/classes/Tool.js")["default"];
+
+var ToolEraser =
+/*#__PURE__*/
+function (_Tool) {
+  _inherits(ToolEraser, _Tool);
+
+  /**************************
+          Constructor
+  **************************/
+  function ToolEraser(app) {
+    var _this;
+
+    _classCallCheck(this, ToolEraser);
+
+    // Super Class constructor call
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(ToolEraser).call(this, app));
+    _this.origin = {
+      "x": 0,
+      "y": 0
+    };
+    _this.size = 30;
+    return _this;
+  }
+
+  _createClass(ToolEraser, [{
+    key: "actionDown",
+    value: function actionDown(coordinates) {
+      var _this2 = this;
+
+      this.origin = coordinates;
+      this.app.battleplan.floor.draws.forEach(function (draw) {
+        if (draw.inBox(app.canvas, _this2.getBox())) {
+          _this2.app.battleplan.floor.RemoveDraw(draw);
+        }
+      });
+      this.app.canvas.Update();
+      this.getBox();
+    }
+  }, {
+    key: "actionMove",
+    value: function actionMove(coordinates) {
+      var _this3 = this;
+
+      this.origin = coordinates;
+      this.app.battleplan.floor.draws.forEach(function (draw) {
+        if (draw.inBox(app.canvas, _this3.getBox())) {
+          _this3.app.battleplan.floor.RemoveDraw(draw);
+        }
+      });
+      this.app.canvas.Update();
+      this.getBox();
+    }
+    /**
+     * Private Helpers
+     */
+
+  }, {
+    key: "getBox",
+    value: function getBox() {
+      var x = {
+        "origin": {
+          "x": this.origin.x / this.app.canvas.scale - this.app.canvas.offset.x - this.size / 2,
+          "y": this.origin.y / this.app.canvas.scale - this.app.canvas.offset.y - this.size / 2
+        },
+        "destination": {
+          "x": this.origin.x / this.app.canvas.scale - this.app.canvas.offset.x + this.size / 2,
+          "y": this.origin.y / this.app.canvas.scale - this.app.canvas.offset.y + this.size / 2
+        }
+      };
+      return x;
+    }
+  }]);
+
+  return ToolEraser;
+}(Tool);
+
+
+
+/***/ }),
+
 /***/ "./resources/js/battleplan/edit/classes/ToolIcon.js":
 /*!**********************************************************!*\
   !*** ./resources/js/battleplan/edit/classes/ToolIcon.js ***!
@@ -12036,7 +12546,7 @@ function (_Tool) {
     value: function actionDrop(coordinates, src) {
       if (src) {
         var icon = new this.Icon(this.AddOffsetCoordinates(coordinates), this.size, src);
-        this.app.battleplan.floor.Draw(icon);
+        this.app.battleplan.floor.AddDraw(icon);
         this.app.canvas.Update();
       }
     } // icon(coordinates, src) {
@@ -12137,7 +12647,7 @@ function (_Tool) {
     key: "actionDown",
     value: function actionDown(coordinates) {
       this.activeLine = new this.Line(this.AddOffsetCoordinates(coordinates), "ffffff", this.size);
-      this.app.battleplan.floor.Draw(this.activeLine);
+      this.app.battleplan.floor.AddDraw(this.activeLine);
     }
   }, {
     key: "actionUp",
@@ -12175,16 +12685,16 @@ function (_Tool) {
 
 /***/ }),
 
-/***/ "./resources/js/battleplan/edit/classes/ToolMove.js":
-/*!**********************************************************!*\
-  !*** ./resources/js/battleplan/edit/classes/ToolMove.js ***!
-  \**********************************************************/
+/***/ "./resources/js/battleplan/edit/classes/ToolMoveCanvas.js":
+/*!****************************************************************!*\
+  !*** ./resources/js/battleplan/edit/classes/ToolMoveCanvas.js ***!
+  \****************************************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return ToolMove; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return ToolMoveCanvas; });
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -12208,21 +12718,21 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 **************************/
 var Tool = __webpack_require__(/*! ./Tool.js */ "./resources/js/battleplan/edit/classes/Tool.js")["default"];
 
-var ToolMove =
+var ToolMoveCanvas =
 /*#__PURE__*/
 function (_Tool) {
-  _inherits(ToolMove, _Tool);
+  _inherits(ToolMoveCanvas, _Tool);
 
   /**************************
           Constructor
   **************************/
-  function ToolMove(app) {
+  function ToolMoveCanvas(app) {
     var _this;
 
-    _classCallCheck(this, ToolMove);
+    _classCallCheck(this, ToolMoveCanvas);
 
     // Super Class constructor call
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(ToolMove).call(this, app));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(ToolMoveCanvas).call(this, app));
     _this.origin = {
       "x": 0,
       "y": 0
@@ -12230,7 +12740,7 @@ function (_Tool) {
     return _this;
   }
 
-  _createClass(ToolMove, [{
+  _createClass(ToolMoveCanvas, [{
     key: "actionDown",
     value: function actionDown(coordinates) {
       this.origin = coordinates;
@@ -12238,15 +12748,187 @@ function (_Tool) {
   }, {
     key: "actionMove",
     value: function actionMove(coordinates) {
-      // this.app.ui.move(this.origin.x - coordinates.x, this.origin.y - coordinates.y);
       var mx = this.origin.x - coordinates.x;
       var my = this.origin.y - coordinates.y;
       this.app.canvas.move(-mx / this.app.canvas.scale, -my / this.app.canvas.scale);
-      this.origin = coordinates; // this.app.canvas.backgroundUpdate = true;
+      this.origin = coordinates;
     }
   }]);
 
-  return ToolMove;
+  return ToolMoveCanvas;
+}(Tool);
+
+
+
+/***/ }),
+
+/***/ "./resources/js/battleplan/edit/classes/ToolMoveDraws.js":
+/*!***************************************************************!*\
+  !*** ./resources/js/battleplan/edit/classes/ToolMoveDraws.js ***!
+  \***************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return ToolMoveCanvas; });
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+/**************************
+	Extention class type
+**************************/
+var Tool = __webpack_require__(/*! ./Tool.js */ "./resources/js/battleplan/edit/classes/Tool.js")["default"];
+
+var ToolMoveCanvas =
+/*#__PURE__*/
+function (_Tool) {
+  _inherits(ToolMoveCanvas, _Tool);
+
+  /**************************
+          Constructor
+  **************************/
+  function ToolMoveCanvas(app) {
+    var _this;
+
+    _classCallCheck(this, ToolMoveCanvas);
+
+    // Super Class constructor call
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(ToolMoveCanvas).call(this, app));
+    _this.origin = {
+      "x": 0,
+      "y": 0
+    };
+    return _this;
+  }
+
+  _createClass(ToolMoveCanvas, [{
+    key: "actionDown",
+    value: function actionDown(coordinates) {
+      this.origin = coordinates;
+    }
+  }, {
+    key: "actionMove",
+    value: function actionMove(coordinates) {
+      var mx = (this.origin.x - coordinates.x) / this.app.canvas.scale;
+      var my = (this.origin.y - coordinates.y) / this.app.canvas.scale;
+      this.app.battleplan.floor.SelectedDraws().forEach(function (draw) {
+        draw.Move(-mx, -my);
+      });
+      this.origin = coordinates;
+      this.app.canvas.Update();
+    }
+  }]);
+
+  return ToolMoveCanvas;
+}(Tool);
+
+
+
+/***/ }),
+
+/***/ "./resources/js/battleplan/edit/classes/ToolSelect.js":
+/*!************************************************************!*\
+  !*** ./resources/js/battleplan/edit/classes/ToolSelect.js ***!
+  \************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return ToolSelect; });
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+/**************************
+	Extention class type
+**************************/
+var Tool = __webpack_require__(/*! ./Tool.js */ "./resources/js/battleplan/edit/classes/Tool.js")["default"];
+
+var ToolSelect =
+/*#__PURE__*/
+function (_Tool) {
+  _inherits(ToolSelect, _Tool);
+
+  /**************************
+          Constructor
+  **************************/
+  function ToolSelect(app) {
+    var _this;
+
+    _classCallCheck(this, ToolSelect);
+
+    // Super Class constructor call
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(ToolSelect).call(this, app));
+    _this.SelectBox = __webpack_require__(/*! ./SelectBox.js */ "./resources/js/battleplan/edit/classes/SelectBox.js")["default"];
+    _this.activeSelect;
+    _this.size = 1;
+    return _this;
+  }
+
+  _createClass(ToolSelect, [{
+    key: "actionDown",
+    value: function actionDown(coordinates) {
+      this.activeSelect = new this.SelectBox(this.AddOffsetCoordinates(coordinates), this.AddOffsetCoordinates(coordinates), "ffffff", this.size);
+      this.app.battleplan.floor.AddDraw(this.activeSelect);
+    }
+  }, {
+    key: "actionUp",
+    value: function actionUp(coordinates) {
+      this.app.battleplan.floor.RemoveDraw(this.activeSelect);
+      this.activeSelect.Select(this.app.canvas, this.app.battleplan.floor.draws);
+      this.activeSelect = null;
+      this.app.canvas.Update();
+    }
+  }, {
+    key: "actionMove",
+    value: function actionMove(coordinates) {
+      if (this.activeSelect) {
+        this.activeSelect.destination = this.AddOffsetCoordinates(coordinates);
+        this.app.canvas.Update();
+      }
+    }
+  }, {
+    key: "AddOffsetCoordinates",
+    value: function AddOffsetCoordinates(coor) {
+      return {
+        "x": coor.x / this.app.canvas.scale - this.app.canvas.offset.x,
+        "y": coor.y / this.app.canvas.scale - this.app.canvas.offset.y
+      };
+    }
+  }]);
+
+  return ToolSelect;
 }(Tool);
 
 
@@ -12311,7 +12993,7 @@ function (_Tool) {
     key: "actionDown",
     value: function actionDown(coordinates) {
       this.activeSquare = new this.Square(this.AddOffsetCoordinates(coordinates), this.AddOffsetCoordinates(coordinates), "ffffff", this.size);
-      this.app.battleplan.floor.Draw(this.activeSquare);
+      this.app.battleplan.floor.AddDraw(this.activeSquare);
     }
   }, {
     key: "actionUp",
@@ -12457,7 +13139,7 @@ window.app = app;
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! D:\Documents\GitHub\website-laravel-battleplanner-v2\resources\js\battleplan\edit\edit.js */"./resources/js/battleplan/edit/edit.js");
+module.exports = __webpack_require__(/*! D:\Repositories\website-laravel-battleplanner-v2\resources\js\battleplan\edit\edit.js */"./resources/js/battleplan/edit/edit.js");
 
 
 /***/ })

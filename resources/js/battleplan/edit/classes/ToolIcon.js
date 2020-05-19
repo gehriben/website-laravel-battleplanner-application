@@ -25,7 +25,7 @@ class ToolIcon extends Tool {
                 src
             );
 
-            this.app.battleplan.floor.Draw(icon);
+            this.app.battleplan.floor.AddDraw(icon);
 
             this.app.canvas.Update();
         }

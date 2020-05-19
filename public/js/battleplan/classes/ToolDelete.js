@@ -3,7 +3,7 @@
 **************************/
 const Tool = require('./Tool.js').default;
 
-class ToolLine extends Tool {
+class ToolDelete extends Tool {
 
     /**************************
             Constructor
@@ -12,39 +12,36 @@ class ToolLine extends Tool {
     constructor(app) {
         // Super Class constructor call
         super(app);
-        this.Line = require('./Line.js').default;
-        this.activeLine;
+        this.Square = require('./Square.js').default;
+        this.activeSquare;
         this.size = 1;
     }
     
     actionDown(coordinates){
-        this.activeLine = new this.Line(
+        this.activeSquare = new this.Square(
+            this.AddOffsetCoordinates(coordinates),
             this.AddOffsetCoordinates(coordinates),
             "ffffff",
             this.size 
         );
         
-        this.app.battleplan.floor.AddDraw(this.activeLine);
+        this.app.battleplan.floor.AddDraw(this.activeSquare);
     }
 
     actionUp(coordinates){
-        this.activeLine = null;
+        this.activeSquare = null;
         this.app.canvas.Update();
     }
 
     actionLeave(coordinates){
-        this.activeLine = null;
+        this.activeSquare = null;
     }
 
     actionMove(coordinates){
-        if(this.activeLine){
-
-            this.activeLine.points.push(
-                this.AddOffsetCoordinates(coordinates)
-            );
+        if(this.activeSquare){
+            this.activeSquare.destination = this.AddOffsetCoordinates(coordinates);
             this.app.canvas.Update();
         }
-        
     }
     
     AddOffsetCoordinates(coor){
@@ -55,6 +52,6 @@ class ToolLine extends Tool {
     }
 }
 export {
-    ToolLine as
+    ToolSquare as
     default
 }

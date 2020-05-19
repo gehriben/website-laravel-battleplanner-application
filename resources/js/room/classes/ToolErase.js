@@ -47,7 +47,6 @@ class ToolErase extends Tool {
         return Math.sqrt( a*a + b*b );
     }
 
-
     actionMove(coordinates){
         this.attemptDeletes(coordinates);
     }

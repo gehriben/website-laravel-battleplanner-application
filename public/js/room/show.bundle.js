@@ -13536,6 +13536,7 @@ function (_Helpers) {
     _this.Line = __webpack_require__(/*! ./Line.js */ "./resources/js/room/classes/Line.js")["default"];
     _this.Square = __webpack_require__(/*! ./Square.js */ "./resources/js/room/classes/Square.js")["default"];
     _this.Icon = __webpack_require__(/*! ./Icon.js */ "./resources/js/room/classes/Icon.js")["default"];
+    _this.highlighted = false;
     return _this;
   }
 
@@ -15168,7 +15169,7 @@ function init(LISTEN_SOCKET, ROOM_CONN_STRING, app) {
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! D:\Documents\GitHub\website-laravel-battleplanner-v2\resources\js\room\show.js */"./resources/js/room/show.js");
+module.exports = __webpack_require__(/*! D:\Repositories\website-laravel-battleplanner-v2\resources\js\room\show.js */"./resources/js/room/show.js");
 
 
 /***/ })

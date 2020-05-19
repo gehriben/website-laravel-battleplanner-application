@@ -24,7 +24,7 @@ class ToolLine extends Tool {
             this.size 
         );
         
-        this.app.battleplan.floor.Draw(this.activeLine);
+        this.app.battleplan.floor.AddDraw(this.activeLine);
     }
 
     actionUp(coordinates){

@@ -124,6 +124,15 @@
                 <div id="tool-box" class="row align-center">
 
                     <!-- Populate tools -->
+                    
+                    <div class="col-12">
+                        <button type="button" id="EraserTool" class="tool col-12 btn btn-primary" onclick="selectTool(this);app.keybinds.ChangeTool(app.keybinds.toolMoveDraws)">Move</button>
+                    </div>
+
+                    <div class="col-12">
+                        <button type="button" id="EraserTool" class="tool col-12 btn btn-primary" onclick="selectTool(this);app.keybinds.ChangeTool(app.keybinds.toolSelect)">Select</button>
+                    </div>
+
                     <div class="col-12">
                         <button type="button" id="lineTool" class="tool col-12 btn btn-primary active" onclick="selectTool(this);app.keybinds.ChangeTool(app.keybinds.toolLine)">Line</button>
                     </div>

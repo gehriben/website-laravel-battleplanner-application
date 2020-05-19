@@ -25,7 +25,7 @@ class ToolSquare extends Tool {
             this.size 
         );
         
-        this.app.battleplan.floor.Draw(this.activeSquare);
+        this.app.battleplan.floor.AddDraw(this.activeSquare);
     }
 
     actionUp(coordinates){

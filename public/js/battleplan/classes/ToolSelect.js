@@ -3,7 +3,7 @@
 **************************/
 const Tool = require('./Tool.js').default;
 
-class ToolLine extends Tool {
+class ToolSelect extends Tool {
 
     /**************************
             Constructor
@@ -12,39 +12,35 @@ class ToolLine extends Tool {
     constructor(app) {
         // Super Class constructor call
         super(app);
-        this.Line = require('./Line.js').default;
-        this.activeLine;
+        this.SelectBox = require('./SelectBox.js').default;
+        this.activeSelect;
         this.size = 1;
     }
     
     actionDown(coordinates){
-        this.activeLine = new this.Line(
+        
+        this.activeSelect = new this.SelectBox(
+            this.AddOffsetCoordinates(coordinates),
             this.AddOffsetCoordinates(coordinates),
             "ffffff",
             this.size 
         );
         
-        this.app.battleplan.floor.AddDraw(this.activeLine);
+        this.app.battleplan.floor.AddDraw(this.activeSelect);
     }
 
     actionUp(coordinates){
-        this.activeLine = null;
+        this.app.battleplan.floor.RemoveDraw(this.activeSelect);
+        this.activeSelect.Select(this.app.canvas,this.app.battleplan.floor.draws);
+        this.activeSelect = null;
         this.app.canvas.Update();
     }
 
-    actionLeave(coordinates){
-        this.activeLine = null;
-    }
-
     actionMove(coordinates){
-        if(this.activeLine){
-
-            this.activeLine.points.push(
-                this.AddOffsetCoordinates(coordinates)
-            );
+        if(this.activeSelect){
+            this.activeSelect.destination = this.AddOffsetCoordinates(coordinates);
             this.app.canvas.Update();
         }
-        
     }
     
     AddOffsetCoordinates(coor){
@@ -55,6 +51,6 @@ class ToolLine extends Tool {
     }
 }
 export {
-    ToolLine as
+    ToolSelect as
     default
 }

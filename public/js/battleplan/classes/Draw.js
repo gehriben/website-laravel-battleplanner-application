@@ -46,7 +46,23 @@ class Draw {
             this.originY = this.destinationY
             this.destinationY = tmp;
         }
+    }
 
+    // Method to see if object is inside a given bounding box.
+    // Used for the selection tool
+    InBox(canvas,box){
+        // Should be overriden in child
+        return false;
+    }
+
+    // Highlights object
+    Highlight(canvas){
+        // Should be overriden in child
+    }
+
+    Move(dX,dY){
+        this.origin.x += dX;
+        this.origin.y += dY;
     }
 }
 export {

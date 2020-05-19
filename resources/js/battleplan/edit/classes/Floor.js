@@ -31,8 +31,16 @@ class Floor {
         }.bind(this);
     }
 
-    Draw(draw){
+    AddDraw(draw){
 		this.draws.push(draw);
+    }
+
+    RemoveDraw(draw){
+		this.draws = this.draws.filter(item => item !== draw);
+    }
+
+    SelectedDraws(){
+        return this.draws.filter(draw => draw.highlighted);
     }
 }
 

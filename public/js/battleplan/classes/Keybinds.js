@@ -1,23 +1,32 @@
-
-// ToolErase = require('./classes/ToolErase.js').default; // useable tool
-
 class Keybinds {
 
     /**************************
             Constructor
     **************************/
     constructor(app) {
+        this.app;
+
         // Class inclusions
-        this.ToolMove = require('./ToolMove.js').default; // useable tool
-        this.ToolZoom = require('./ToolZoom.js').default; // useable tool
-        this.ToolLine = require('./ToolLine.js').default; // useable tool
-        this.ToolSquare = require('./ToolSquare.js').default; // useable tool
-        this.ToolIcon = require('./ToolIcon.js').default; // useable tool
+        // this.ToolMoveCanvas = require('./ToolMoveCanvas.js').default; 
+        // this.ToolMoveDraws = require('./ToolMoveDraws.js').default; 
+        // this.ToolZoom = require('./ToolZoom.js').default; 
+        // this.ToolLine = require('./ToolLine.js').default; 
+        // this.ToolSquare = require('./ToolSquare.js').default; 
+        // this.ToolIcon = require('./ToolIcon.js').default; 
+        // this.ToolSelect = require('./ToolSelect.js').default; 
+        // this.ToolEraser = require('./ToolEraser.js').default; 
+        
+        this.toolMoveCanvas = new (require('./ToolMoveCanvas.js').default)(app); 
+        this.toolMoveDraws = new (require('./ToolMoveDraws.js').default)(app); 
+        this.toolZoom = new (require('./ToolZoom.js').default)(app); 
+        this.toolLine = new (require('./ToolLine.js').default)(app); 
+        this.toolSquare = new (require('./ToolSquare.js').default)(app); 
+        this.toolIcon = new (require('./ToolIcon.js').default)(app); 
+        this.toolSelect = new (require('./ToolSelect.js').default)(app); 
+        this.toolEraser = new (require('./ToolEraser.js').default)(app); 
 
         this.keysPressed = [];              // keys actively pressed
         this.keyEvents = [];                // Key binding to events
-
-        this.tools(app);
 
         this.mousePressed = {               // keys pressed on mouse       
             "lmb": {
@@ -30,12 +39,15 @@ class Keybinds {
             },
             "mmb": {
                 "active": false,
-                "tool": this.toolMove
+                "tool": this.toolMoveCanvas
             },
         }
 
         // Define Possible Mouse
         // Defining possible key Combinations & actions
+        this.keyEvents.push({ "keys": [46], "event": function(){
+
+        } }); // up arrow
         // this.keyEvents.push({ "keys": [38], "event": this.floorUp }); // up arrow
         // this.keyEvents.push({ "keys": [40], "event": this.floorDown }); // down arrow
         // this.keyEvents.push({ "keys": [17,83], "event": this.save }); // down arrow
@@ -54,8 +66,8 @@ class Keybinds {
 
         // Canvas Listeners
         app.viewport[0].addEventListener("mouseup", function(ev){
-            this.unpressMouse(ev);
             this.canvasUp(ev);
+            this.unpressMouse(ev);
         }.bind(this));
 
         app.viewport[0].addEventListener("mousedown", function(ev){
@@ -67,7 +79,6 @@ class Keybinds {
             this.canvasMove(ev);
         }.bind(this));
 
-        
         app.viewport[0].addEventListener("mousewheel", function(ev){
             this.canvasScroll(ev);
         }.bind(this));
@@ -76,35 +87,10 @@ class Keybinds {
             this.allowDrop(ev);
         }.bind(this));
 
-        
         app.viewport[0].addEventListener("drop", function(ev){
             this.canvasDrop(ev);
         }.bind(this));
 
-        // app.viewport.addEventListener("mousedown", this.canvasDown);
-        // app.viewport.addEventListener("mousewheel", this.canvasScroll);
-        // viewport.addEventListener("mousemove", this.canvasMove);
-        // app.viewport.addEventListener("mouseout", this.canvasLeave);
-        
-        
-        /**
-         * Button Binds
-         */
-        // $("#lineTool").click(function(){
-        //     this.mousePressed.lmb.tool = this.toolLine;
-        // }.bind(this));
-        
-        // $("#squareTool").click(function(){
-        //     this.mousePressed.lmb.tool = this.toolSquare;
-        // }.bind(this));
-    }
-
-    tools(app){
-        this.toolZoom = new this.ToolZoom(app);
-        this.toolMove = new this.ToolMove(app);
-        this.toolLine = new this.ToolLine(app);
-        this.toolSquare = new this.ToolSquare(app);
-        this.toolIcon = new this.ToolIcon(app);
     }
 
     // fire events id button combination pressed
