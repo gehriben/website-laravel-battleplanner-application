@@ -37,7 +37,16 @@ Route::prefix('/map')->group(function () {
 });
 
 Route::prefix('/admin')->group(function () {
-    Route::get('/', 'AdminController@index')->name("Battleplan.index");
+    Route::get('/', 'AdminController@index')->name("Admin.index");
+});
+
+Route::prefix('/operators')->group(function () {
+    Route::get('/', 'OperatorController@index')->name("Operators.index");
+    Route::get('new', 'OperatorController@new')->name("Operators.new");
+    Route::get('{operator}', 'OperatorController@show')->name("Operators.show");
+
+    // APIs
+    Route::post('/', 'OperatorController@create')->name("Operators.create");
 });
 
 Route::prefix('/battleplan')->group(function () {

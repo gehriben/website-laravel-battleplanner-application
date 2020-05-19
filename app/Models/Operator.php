@@ -3,11 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Media;
 
 class Operator extends Model
 {
   protected $fillable = [
-    'name', 'icon', 'colour', 'atk'
+    'name', 'media_id', 'colour', 'atk'
   ];
 
   /**
@@ -23,6 +24,16 @@ class Operator extends Model
 
   public function slots() {
     return $this->belongsToMany('App\Models\OperatorSlot');
+  }
+
+  public function media() {
+    return $this->belongsTo(Media::class);
+  }
+
+  public static function create(array $attributes = []) {
+    $media = Media::fromFile($attributes['icon'], "operators/{$attributes['name']}", "public");
+    $attributes['media_id'] = $media->id;
+    return static::query()->create($attributes);
   }
 
   /**

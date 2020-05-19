@@ -99,7 +99,7 @@ class MapController extends Controller
             'floor-ids' => [],
             'is_competitive' => [],
         ]);
-        dd($data["floor-files"]);
+        
         // Update map
         $data['is_competitive'] = isset($data['is_competitive']);
 
@@ -130,9 +130,10 @@ class MapController extends Controller
 
         $floors = [];
         $map_id = $map->id;
+
         foreach ($data['floor-names'] as $key => $name) {
             $order = $data['floor-orders'][$key];
-            $file = isset($data['floor-files']) ? $data['floor-files'][$key] : null;
+            $file = isset($data['floor-files'][$key]) ? $data['floor-files'][$key] : null;
             if(!$data['floor-ids'][$key]){
               $floors[] = Floor::create(compact('name','file','order','map_id'));
             }

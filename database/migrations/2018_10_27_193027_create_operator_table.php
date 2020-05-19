@@ -16,10 +16,16 @@ class CreateOperatorTable extends Migration
         Schema::create('operators', function (Blueprint $table) {
             $table->increments('id');
             $table->text('name');
-            $table->text('icon');
             $table->text('colour');
-            $table->boolean('atk');
+            $table->boolean('atk')
+                ->default(false);
             $table->timestamps();
+
+            $table->unsignedInteger('media_id')->nullable();
+            $table->foreign('media_id')
+                ->onDelete("set null")
+                ->references('id')
+                ->on('medias');
         });
 
         Schema::create('operator_slots', function (Blueprint $table) {

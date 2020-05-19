@@ -50,3 +50,13 @@ body h1 {
   height: 50px;
   width: 100px;
 }
+
+.color {
+  height: 50px;
+  width: 50px;
+}
+
+.icon {
+  max-height: 40%;
+  max-width: 40%;
+}

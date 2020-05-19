@@ -15,7 +15,7 @@
       <h1>Admin Section</h1>
     </div>
   </div>
-  
+
   <div class="row mt-3">
     <div class="list-group col-12">
       <a href="/map" class="list-group-item list-group-item-action flex-column align-items-start">
@@ -25,7 +25,7 @@
         <p class="mb-1">Customize available Maps</p>
       </a>
 
-      <a href="/admin/operator" class="list-group-item list-group-item-action flex-column align-items-start">
+      <a href="/operators" class="list-group-item list-group-item-action flex-column align-items-start">
         <div class="d-flex w-100 justify-content-between">
           <h5 class="mb-1">Operators</h5>
         </div>
