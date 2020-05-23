@@ -104,7 +104,7 @@ throw new Error("Module build failed (from ./node_modules/babel-loader/lib/index
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! D:\Repositories\website-laravel-battleplanner-v2\resources\js\room\show.js */"./resources/js/room/show.js");
+module.exports = __webpack_require__(/*! D:\Documents\GitHub\website-laravel-battleplanner-v2\resources\js\room\show.js */"./resources/js/room/show.js");
 
 
 /***/ })
