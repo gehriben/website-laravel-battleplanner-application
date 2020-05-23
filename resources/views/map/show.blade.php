@@ -30,8 +30,8 @@
         <div class="list-group-item list-group-item-action flex-column align-items-start">
           <div class="d-flex w-100 justify-content-between">
             <h5 class="mb-1">{{$floor->name}}</h5>
-            @if($floor->media)
-              <img class="thumb" src="{{$floor->media->url()}}"></img>
+            @if($floor->source)
+              <img class="thumb" src="{{$floor->source->url()}}"></img>
             @endif
           </div>
         </div>
@@ -41,7 +41,7 @@
 
   <div class="row mt-3 justify-content-center">
     <h5 style="color:white;">Competitive&nbsp;</h5>
-    @if ($map->is_competitive)
+    @if ($map->competitive)
     <i class="fa fa-check"></i>
     @else
     <i class="fas fa-times"></i>

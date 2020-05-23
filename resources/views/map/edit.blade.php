@@ -67,11 +67,11 @@
           </div>
 
           <div class="custom-control custom-switch">
-            @if($map->is_competitive)
-            <input type="checkbox" checked class="custom-control-input" name="is_competitive" id="exampleCheck1">
+            @if($map->competitive)
+            <input type="checkbox" checked class="custom-control-input" name="competitive" id="exampleCheck1">
             <label class="custom-control-label" for="exampleCheck1">Competitive Playlist</label>
             @else
-            <input type="checkbox" class="custom-control-input" name="is_competitive" id="exampleCheck1">
+            <input type="checkbox" class="custom-control-input" name="competitive" id="exampleCheck1">
             <label class="custom-control-label" for="exampleCheck1">Competitive Playlist</label>
             @endif
           </div>
@@ -83,7 +83,7 @@
           <ul class="list-group" id="floor-list">
             @foreach ($map->floors as $floor)
               @php
-                $preview = ($floor->media) ? $floor->media->url() : "https://via.placeholder.com/150";
+                $preview = ($floor->source) ? $floor->source->url() : "https://via.placeholder.com/150";
               @endphp
               @include('map.floor-form', ["floorPreview" => $preview, "floorName" => $floor->name, "floorOrder" => $floor->order, "floorId" => $floor->id])
             @endforeach

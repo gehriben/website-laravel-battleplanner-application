@@ -130,10 +130,11 @@ class BattleplanController extends Controller
     public function create(Request $request){
 
         $data = $request->validate([
-            'map_id' => ['required'],
-            'name' => [],
-            'description' => [],
-            'notes' => []
+            'name' => ['required'],
+            'description' => ['required'],
+            'notes' => ['required'],
+            'public' => ['required'],
+            'map_id' => ['required', 'exist:maps,id'],
         ]);
         
         $data['owner_id'] = Auth::User()->id;
@@ -141,40 +142,34 @@ class BattleplanController extends Controller
         $battleplan = Battleplan::create($data);
         
         if($request->wantsJson()){
-            return response()->success(
-                $bp
-                ->slotData()
-                ->mapData()
-                ->BattlefloorData()
-                ->first()
-            );
+            return response()->success($battleplan);
         }
-        return redirect("battleplan/$battleplan->id/edit");
 
+        return redirect("battleplan/$battleplan->id/edit");
     }
 
     /**
      * Retrieve a battleplan
      */
-    public function read(Request $request, Battleplan $battleplan){
+    // public function read(Request $request, Battleplan $battleplan){
 
-        // Return immediately if plan is public
-        if ($battleplan->public) {
-            return response()->success($this->fullPlanData($battleplan));
-        }
+    //     // Return immediately if plan is public
+    //     if ($battleplan->public) {
+    //         return response()->success($this->fullPlanData($battleplan));
+    //     }
 
-        // Owner of the private plan
-        if (Auth::user() && Auth::user()->id == $battleplan->owner) {
-            return response()->success($this->fullPlanData($battleplan));
-        }
+    //     // Owner of the private plan
+    //     if (Auth::user() && Auth::user()->id == $battleplan->owner) {
+    //         return response()->success($this->fullPlanData($battleplan));
+    //     }
 
-        // Admin can always see the plan
-        if(Auth::user() && Auth::user()->admin){
-            return response()->success($this->fullPlanData($battleplan));
-        }
+    //     // Admin can always see the plan
+    //     if(Auth::user() && Auth::user()->admin){
+    //         return response()->success($this->fullPlanData($battleplan));
+    //     }
 
-        return response()->error("Unauthorized", [], 403);
-    }
+    //     return response()->error("Unauthorized", [], 403);
+    // }
     
     /**
      * Update a battleplan values
@@ -188,9 +183,11 @@ class BattleplanController extends Controller
 
         // validate request object contains all needed data
         $data = $request->validate([
-            'name' => 'required',
-            'notes' => 'required',
-            'public' => 'required',
+            // Battleplan data
+            'name' => ['required'],
+            'description' => ['required'],
+            'notes' => ['required'],
+            'public' => ['required'],
         ]);
 
         $battleplan->update($data);
@@ -237,11 +234,11 @@ class BattleplanController extends Controller
     /**
      * Helper function
      */
-    private function fullPlanData($battleplan){
-        return Battleplan::
-            slotData()
-            ->mapData()
-            ->BattlefloorData()
-            ->find($battleplan->id);
-    }
+    // private function fullPlanData($battleplan){
+    //     return Battleplan::
+    //         slotData()
+    //         ->mapData()
+    //         ->BattlefloorData()
+    //         ->find($battleplan->id);
+    // }
 }

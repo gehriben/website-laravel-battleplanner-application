@@ -16,10 +16,10 @@ class Floor extends Model
 
   protected $fillable = [
     // Properties
-    'name', 'source_id', 'order',
+    'name', 'order',
 
     // Fkeys
-    'map_id',
+    'map_id', 'source_id'
   ];
 
   /**

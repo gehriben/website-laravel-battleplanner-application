@@ -17,6 +17,12 @@ class Map extends Model
     'name', 'thumbnail_id', 'competitive',
   ];
 
+  public Static $printWith = [
+    'floors',
+    'floors.source',
+    'thumbnail'
+  ];
+
   /**
    * Relationships
    */
