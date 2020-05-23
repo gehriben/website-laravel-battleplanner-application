@@ -1,6 +1,7 @@
 var Floor = require('./Floor.js').default;
+var Databaseable = require('./Databaseable.js').default;
 
-class Battleplan {
+class Battleplan extends Databaseable{
 
     /**************************
             Constructor
@@ -8,6 +9,7 @@ class Battleplan {
 
     constructor(id, callback) {
         // Properties
+        super(id);
         this.floors = [];        // Floors of the battleplan
         this.floor;              // Current Active Floor
         this.finishedCallback = callback;
@@ -64,6 +66,19 @@ class Battleplan {
         });
     }
 
+    ToJson(){
+        var floorsJson = [];
+        for (let i = 0; i < this.floors.length; i++) {
+            const floor = this.floors[i];
+            floorsJson.push(floor.ToJson());
+        }
+
+        return {
+            'id' : this.id,
+            'localId' : this.localId,
+            'floors' : floorsJson
+        }
+    }
 }
 export {
     Battleplan as

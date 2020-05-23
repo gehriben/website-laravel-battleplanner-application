@@ -16,10 +16,30 @@ class CreateGadgetTable extends Migration
         Schema::create('gadgets', function (Blueprint $table) {
             $table->increments('id');
             $table->text('name');
-            $table->text('icon');
-            $table->boolean('prime');
-            $table->boolean('general');
             $table->timestamps();
+
+            $table->unsignedInteger('icon_id')->nullable();
+            $table->foreign('icon_id')
+                ->references('id')
+                ->onDelete('set null')
+                ->on('medias');
+        });
+        
+        Schema::create('operator_gadget', function (Blueprint $table) {
+            $table->increments('id');
+            $table->timestamps();
+
+            $table->unsignedInteger('operator_id');
+            $table->foreign('operator_id')
+                ->references('id')
+                ->on('operators')
+                ->onDelete("cascade");
+
+            $table->unsignedInteger('gadget_id');
+            $table->foreign('gadget_id')
+                ->references('id')
+                ->on('gadgets')
+                ->onDelete("cascade");
         });
     }
 

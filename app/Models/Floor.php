@@ -3,29 +3,38 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+
+// Models
+use App\Models\Map;
 use App\Models\Media;
+use App\Models\Floor;
+use App\Models\Battlefloor;
 
 class Floor extends Model
 {
   public $timestamps = true;
 
   protected $fillable = [
-    'name', 'media_id', 'order', 'map_id',
+    // Properties
+    'name', 'source_id', 'order',
+
+    // Fkeys
+    'map_id',
   ];
 
   /**
    * Relationships
    */
   public function map() {
-    return $this->belongsTo('App\Models\Map', 'map_id', 'id');
+    return $this->belongsTo(Map::class);
   }
 
-  public function media() {
+  public function source() {
     return $this->belongsTo(Media::class);
   }
 
   public function battlefloors() {
-    return $this->hasMany('App\Models\Battlefloor');
+    return $this->hasMany(Battlefloor::class);
   }
 
    /**
@@ -33,8 +42,8 @@ class Floor extends Model
      */
     public static function create(array $attributes = []) {
         $map = Map::find($attributes["map_id"]);
-        $media = isset($attributes['file']) ? Media::fromFile($attributes['file'], "maps/" . $map->name, "public") : null;
-        $attributes['media_id'] = ($media) ? $media->id : null;
+        $media = isset($attributes['source']) ? Media::fromFile($attributes['source'], "maps/" . $map->name, "public") : null;
+        $attributes['source_id'] = ($media) ? $media->id : null;
         return static::query()->create($attributes);
     }
 }

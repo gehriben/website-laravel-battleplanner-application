@@ -16,11 +16,11 @@ class CreateMapsTable extends Migration
         Schema::create('maps', function (Blueprint $table) {
             $table->increments('id');
             $table->text('name');
-            $table->boolean('is_competitive');
+            $table->boolean('competitive');
             $table->timestamps();
                 
-            $table->unsignedInteger('media_id')->nullable();
-            $table->foreign('media_id')
+            $table->unsignedInteger('thumbnail_id')->nullable();
+            $table->foreign('thumbnail_id')
                 ->onDelete("set null")
                 ->references('id')
                 ->on('medias');

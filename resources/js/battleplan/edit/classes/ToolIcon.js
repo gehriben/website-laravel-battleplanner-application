@@ -20,6 +20,7 @@ class ToolIcon extends Tool {
         if(src){
 
             var icon = new this.Icon(
+                null,
                 this.AddOffsetCoordinates(coordinates),
                 this.size,
                 src
@@ -30,34 +31,6 @@ class ToolIcon extends Tool {
             this.app.canvas.Update();
         }
     }
-
-    // icon(coordinates, src) {
-    //     var start = JSON.parse(JSON.stringify(coordinates));
-    //     var end = JSON.parse(JSON.stringify(coordinates));
-
-    //     start.x = coordinates.x - (this.app.iconSize/2);
-    //     start.y = coordinates.y - (this.app.iconSize/2);
-
-    //     end.x = coordinates.x + (this.app.iconSize/2);
-    //     end.y = coordinates.y + (this.app.iconSize/2);
-
-    //     var draw = {
-    //         "battlefloor_id": this.app.battleplan.battlefloor.id,
-    //         "destinationX": end.x,
-    //         "destinationY": end.y,
-    //         "drawable_type": "Icon",
-    //         "originX": start.x,
-    //         "originY": start.y,
-    //     };
-
-    //     draw.drawable = {
-    //         "src": src,
-    //     }
-
-    //     draw = Object.assign(new this.Draw, draw);
-    //     draw.init();
-    //     return draw;
-    // }
     
     AddOffsetCoordinates(coor){
         return {

@@ -15,20 +15,19 @@ class CreateBattlefloorsTable extends Migration
     {
         Schema::create('battlefloors', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedInteger('floor_id')
-              ->nullable();
-              $table->foreign('floor_id')
+            $table->timestamps();
+            
+            $table->unsignedInteger('floor_id')->nullable();
+            $table->foreign('floor_id')
                 ->references('id')
                 ->onDelete('set null')
                 ->on('floors');
 
-            $table->unsignedInteger('battleplan_id')
-              ->nullable();
+            $table->unsignedInteger('battleplan_id')->nullable();
             $table->foreign('battleplan_id')
                 ->references('id')
                 ->onDelete('cascade')
                 ->on('battleplans');
-            $table->timestamps();
         });
     }
 

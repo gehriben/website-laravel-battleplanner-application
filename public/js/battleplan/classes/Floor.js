@@ -1,10 +1,13 @@
-class Floor {
+
+var Databaseable = require('./Databaseable.js').default;
+class Floor extends Databaseable{
 
     /**************************
             Constructor
     **************************/
     constructor(data,callback) {
         // Properties
+        super(data.id);
         this.draws = [];
         this.background;
         this.image = new Image();
@@ -42,6 +45,22 @@ class Floor {
     SelectedDraws(){
         return this.draws.filter(draw => draw.highlighted);
     }
+
+    ToJson(){
+        var drawsJson = [];
+
+        for (let i = 0; i < this.draws.length; i++) {
+            const draw = this.draws[i];
+            drawsJson.push(draw.ToJson());
+        }
+
+        return {
+            'id' : this.id,
+            'localId' : this.localId,
+            'draws' : drawsJson
+        }
+    }
+
 }
 
 export {

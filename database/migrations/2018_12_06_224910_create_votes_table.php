@@ -16,25 +16,19 @@ class CreateVotesTable extends Migration
         Schema::create('votes', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('value');
+            $table->timestamps();
 
-            $table->unsignedInteger('battleplan_id')
-            ->nullable();
+            $table->unsignedInteger('battleplan_id');
             $table->foreign('battleplan_id')
               ->references('id')
               ->on('battleplans')
-              ->onDelete('cascade')
-              ->onUpdate('cascade');
+              ->onDelete('cascade');
 
-            $table->unsignedInteger('user_id')
-                ->nullable();
+            $table->unsignedInteger('user_id');
             $table->foreign('user_id')
                 ->references('id')
                 ->on('users')
-                ->onDelete('cascade')
-                ->onUpdate('cascade');
-  
-
-            $table->timestamps();
+                ->onDelete('cascade');
         });
     }
 

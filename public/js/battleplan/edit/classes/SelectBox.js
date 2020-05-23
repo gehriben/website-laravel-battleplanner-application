@@ -1,17 +1,16 @@
 /**************************
 	Extention class type
 **************************/
-const Draw = require('./Draw.js').default;
+const Rectangleable = require('./Rectangleable.js').default;
 
-class SelectBox extends Draw {
+class SelectBox extends Rectangleable {
 
     /**************************
             Constructor
     **************************/
 
-    constructor(origin, destination, color, size) {
-        super(origin);
-        this.destination = destination;
+    constructor(origin, color, size) {
+        super(null,origin,origin);
         this.color = color;
         this.size = size;
     }
@@ -31,7 +30,7 @@ class SelectBox extends Draw {
         }
 
         // origin must always be bigger the destination for drawing on canvas
-        this.checkSides(offsetOrigin,offsetDestination);
+        SelectBox.checkSides(offsetOrigin,offsetDestination);
 
         canvas.ctx.beginPath();
         canvas.ctx.rect(
@@ -41,25 +40,6 @@ class SelectBox extends Draw {
             offsetDestination.y - offsetOrigin.y,
         );
         canvas.ctx.stroke();
-    }
-
-    /**
-     * Private Helpers
-     */
-    checkSides(c1,c2){
-
-        if(parseInt(c1.x) > parseInt(c2.x)){ 
-            var swap = c1.x;
-            c1.x = c2.x
-            c2.x = swap;
-        }
-
-        if(parseInt(c1.y) > parseInt(c2.y)){
-            var swap = c1.y;
-            c1.y = c2.y
-            c2.y = swap;
-        }
-
     }
 
     // Determine if a given point is inside box coordinates
@@ -84,25 +64,6 @@ class SelectBox extends Draw {
             (point.y >= offsetOrigin.y && point.y <= offsetDestination.y);       // y coordinate check
     }
 
-    /**
-     * Private Helpers
-     */
-    static checkSides(c1,c2){
-
-        if(parseInt(c1.x) > parseInt(c2.x)){ 
-            var swap = c1.x;
-            c1.x = c2.x
-            c2.x = swap;
-        }
-
-        if(parseInt(c1.y) > parseInt(c2.y)){
-            var swap = c1.y;
-            c1.y = c2.y
-            c2.y = swap;
-        }
-
-    }
-    
     Select(canvas,draws){
         draws.forEach(draw => {
             draw.highlighted = draw.inBox(canvas,this);

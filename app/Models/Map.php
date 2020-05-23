@@ -4,11 +4,17 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+// Models
+use App\Models\Battleplan;
+use App\Models\Floor;
+use App\Models\Media;
+
 class Map extends Model
 {
   
   protected $fillable = [
-    'name', 'media_id', 'is_competitive',
+    // Properties
+    'name', 'thumbnail_id', 'competitive',
   ];
 
   /**
@@ -16,22 +22,15 @@ class Map extends Model
    */
   
   public function thumbnail() {
-    return $this->belongsTo(Media::class, 'media_id');
-  }
-
-  public function floors() {
-    return $this->hasMany('App\Models\Floor', 'map_id');
+    return $this->belongsTo(Media::class);
   }
 
   public function battleplans() {
     return $this->hasMany('App\Models\Battleplan');
   }
 
-  /**
-   * Searches
-   */
-  public static function byName($name){
-      return Map::where("name", $name)->first();
+  public function floors() {
+    return $this->hasMany('App\Models\Floor', 'map_id');
   }
 
   /**
@@ -40,7 +39,7 @@ class Map extends Model
   public static function create(array $attributes = [])
   {
       $media = Media::fromFile($attributes['thumbnail'], "maps/{$attributes['name']}", "public");
-      $attributes['media_id'] = $media->id;
+      $attributes['thumbnail_id'] = $media->id;
       return static::query()->create($attributes);
   }
 }

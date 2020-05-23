@@ -30,7 +30,7 @@ class BattleplanController extends Controller
         $battleplans;
 
         // Admin see's all plans
-        if(Auth::user() && Auth::user()->isAdmin()){
+        if(Auth::user() && Auth::user()->admin){
             $battleplans = Battleplan::all();
         } 
         
@@ -68,7 +68,7 @@ class BattleplanController extends Controller
         }
 
         // Admin can always see the plan
-        if(Auth::user() && Auth::user()->isAdmin()){
+        if(Auth::user() && Auth::user()->admin){
             
             if ($request->expectsJson()) {
                 return $this->fullPlanData($battleplan);
@@ -99,7 +99,7 @@ class BattleplanController extends Controller
         }
 
         // Admin can always see the plan
-        if(Auth::user() && Auth::user()->isAdmin()){
+        if(Auth::user() && Auth::user()->admin){
             
             if ($request->expectsJson()) {
                 return $this->fullPlanData($battleplan);
@@ -169,7 +169,7 @@ class BattleplanController extends Controller
         }
 
         // Admin can always see the plan
-        if(Auth::user() && Auth::user()->isAdmin()){
+        if(Auth::user() && Auth::user()->admin){
             return response()->success($this->fullPlanData($battleplan));
         }
 

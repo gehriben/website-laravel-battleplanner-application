@@ -24,10 +24,8 @@ class CreateFloorsTable extends Migration
                 ->references('id')
                 ->on('maps');
 
-            $table->unsignedInteger('media_id')
-                  ->nullable();
-
-            $table->foreign('media_id')
+            $table->unsignedInteger('source_id')->nullable();
+            $table->foreign('source_id')
                 ->references('id')
                 ->onDelete("set null")
                 ->on('medias');

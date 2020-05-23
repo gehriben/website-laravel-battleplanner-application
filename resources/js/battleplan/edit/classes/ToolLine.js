@@ -15,15 +15,20 @@ class ToolLine extends Tool {
         this.Line = require('./Line.js').default;
         this.activeLine;
         this.size = 1;
+        this.color = "ffffff";
     }
     
     actionDown(coordinates){
         this.activeLine = new this.Line(
-            this.AddOffsetCoordinates(coordinates),
-            "ffffff",
+            null,
+            this.color,
             this.size 
         );
-        
+
+        this.activeLine.points.push(
+            this.AddOffsetCoordinates(coordinates)
+        );
+
         this.app.battleplan.floor.AddDraw(this.activeLine);
     }
 

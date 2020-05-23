@@ -15,25 +15,14 @@ class CreateDrawsTable extends Migration
     {
         Schema::create('draws', function (Blueprint $table) {
             $table->increments('id');
-            $table->float("originX", 10, 5);
-            $table->float("originY", 10, 5);
-            $table->float("destinationX", 10, 5);
-            $table->float("destinationY", 10, 5);
             $table->morphs('drawable');
-            $table->boolean("saved")->default(false);
-            $table->unsignedInteger('battlefloor_id')->nullable();
-            $table->unsignedInteger('user_id')->nullable();
+            $table->timestamps();
 
-            $table->foreign('user_id')
-              ->references('id')
-              ->on('users');
-
+            $table->unsignedInteger('battlefloor_id');
             $table->foreign('battlefloor_id')
               ->references('id')
               ->onDelete('cascade')
               ->on('battlefloors');
-
-            $table->timestamps();
         });
     }
 

@@ -1,29 +1,35 @@
 <?php
 
 namespace App\Models;
+use Illuminate\Database\Eloquent\Model;
 
+// Models
+use App\Models\User;
 use App\Models\OperatorSlot;
 use App\Models\Map;
 use App\Models\Vote;
-use Auth;
-use Illuminate\Database\Eloquent\Model;
+use App\Models\Battlefloor;
 
 class Battleplan extends Model
 {
     /**
      * Model Settings
      */
+    public $timestamps = true;
     const OPERATOR_SLOTS = 5;
     const DEFAULT_NAME = 'Untitled';
     const DEFAULT_DESCRIPTION = '';
     const DEFAULT_NOTES = '';
-    public $timestamps = true;
 
     /**
      * Editable variables
      */
     protected $fillable = [
-        'name', 'description', 'owner_id', 'gametype_id', 'map_id', 'saved', 'notes', "public"
+        // Properties
+        'name', 'description', 'saved', 'notes', 'public',
+
+        // Fkeys
+        'owner_id', 'map_id', 
     ];
     
     /**
@@ -31,151 +37,35 @@ class Battleplan extends Model
      */
     public function owner()
     {
-        return $this->belongsTo('App\Models\User');
+        return $this->belongsTo(User::class);
     }
 
     public function map()
     {
-        return $this->belongsTo('App\Models\Map');
+        return $this->belongsTo(Map::class);
     }
 
     public function battlefloors()
     {
-        return $this->hasMany('App\Models\Battlefloor');
-    }
-
-    public function gametype()
-    {
-        return $this->belongsTo('App\Models\Gametype');
+        return $this->hasMany(Battlefloor::class);
     }
 
     public function operatorSlots()
     {
-        return $this->hasMany('App\Models\OperatorSlot');
+        return $this->hasMany(OperatorSlot::class);
     }
 
     public function votes()
     {
-        return $this->hasMany('App\Models\Vote');
+        return $this->hasMany(Vote::class);
     }
-
-    /**
-     * TODO: Optimize with sql instead of for loop
-     * Tally the sum of votes for the battleplan
-     */
-    public function voteTally(){
-        $sum = 0;
-        foreach ($this->votes as $key => $vote) {
-            $sum += $vote->value;
-        }
-        return $sum;
-    }
-
-    /**
-     * Scopes
-     */
-
-     /**
-      * Find publicly available plans
-      */
-    public function scopePublic($query)
-    {
-        return $query->where('saved', true);
-    }
-
-    public function scopeSlotData($query){
-        $query
-            ->with("operatorSlots")
-            ->with("operatorSlots.operator");
-    }
-
-    public function scopeMapData($query){
-        $query
-            ->with("map")
-            ->with("map.floors");
-    }
-
-    public function scopeBattlefloorData($query){
-        $query
-            ->with("battlefloors")
-            ->with("battlefloors.floor")
-            ->with("battlefloors.floor.media")
-            ->with(['battlefloors.draws' => function ($q) {
-                    $q
-                        ->notDeleted()
-                        ->with("drawable");
-                }]);
-    }
-    
-    /**
-     * Copy Constructor
-     * TODO: Refactor
-     */
-    public static function copy($battleplan, $user, $name){
-        // replicate battleplan
-        $newBattleplan = Battleplan::create([
-            'map_id' => $battleplan->map->id,
-            'owner' => $user->id,
-            'name' => $name,
-            'description' => $battleplan->description,
-            'notes' => $battleplan->notes,
-            'saved' => "1"
-        ]);
-        
-        // replicate floors
-        foreach ($newBattleplan->battlefloors as $key => $newFloor) {
-            $oldFloor = $battleplan->battlefloors[$key];
-            $newFloor->copy($oldFloor);
-        }
-
-        // replicate Slots
-        foreach ($newBattleplan->slots as $key => $newSlot) {
-            $oldSlot = $battleplan->slots[$key];
-            $newSlot->copy($oldSlot);
-        }
-    }
-
-    /**
-     * Public methods
-     */
-
-     /**
-      * Save any changes to the battleplan for public viewing
-      * Required ["name","notes","public"]
-      */
-    public function savePublicChanges($attributes = [])
-    {
-        $this->update($attributes);
-        $this->saved = true;
-
-        // Propagate battlefloor saving
-        foreach ($this->battlefloors as $key => $battlefloor) {
-            $battlefloor->savePublicChanges();
-        }
-    }
-
-    public function deleteUnsavedChanges()
-    {
-        // Undo every battlefloor
-        foreach ($this->battlefloors as $key => $battlefloor) {
-            $battlefloor->deleteUnsavedChanges();
-        }
-    }
-
-    /**
-     * Model Overrides
-     */
 
     /**
      * Create new plan
      * Required ["map_id","notes","public"]  
      */
     public static function create(array $attributes = [])
-    {
-        // Error check map exists
-        // TODO should probable delegate this to the validator in the controller
-        $map = Map::findOrFail($attributes["map_id"]);
-        
+    {        
         // Defaults
         $attributes["name"] = isset($attributes["name"]) ? $attributes["name"] : self::DEFAULT_NAME;
         $attributes["description"] = isset($attributes["description"]) ? $attributes["description"] : self::DEFAULT_DESCRIPTION;
@@ -184,7 +74,8 @@ class Battleplan extends Model
         // Parent Create method
         $battleplan = static::query()->create($attributes);
 
-        $battleplan->init();
+        $battleplan->createSlots(self::OPERATOR_SLOTS);
+        $battleplan->createFloors();
 
         return $battleplan;
     }
@@ -212,12 +103,5 @@ class Battleplan extends Model
             ]);
         }
         return $compiled;
-    }
-
-    // Initializes floors and slots
-    // usefull for test cases
-    public function init(){
-        $this->createSlots(self::OPERATOR_SLOTS);
-        $this->createFloors();
     }
 }

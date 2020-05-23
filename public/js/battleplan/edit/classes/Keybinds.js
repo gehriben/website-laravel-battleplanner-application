@@ -1,21 +1,11 @@
+import 'bootstrap';
+
 class Keybinds {
 
     /**************************
             Constructor
     **************************/
     constructor(app) {
-        this.app;
-
-        // Class inclusions
-        // this.ToolMoveCanvas = require('./ToolMoveCanvas.js').default; 
-        // this.ToolMoveDraws = require('./ToolMoveDraws.js').default; 
-        // this.ToolZoom = require('./ToolZoom.js').default; 
-        // this.ToolLine = require('./ToolLine.js').default; 
-        // this.ToolSquare = require('./ToolSquare.js').default; 
-        // this.ToolIcon = require('./ToolIcon.js').default; 
-        // this.ToolSelect = require('./ToolSelect.js').default; 
-        // this.ToolEraser = require('./ToolEraser.js').default; 
-        
         this.toolMoveCanvas = new (require('./ToolMoveCanvas.js').default)(app); 
         this.toolMoveDraws = new (require('./ToolMoveDraws.js').default)(app); 
         this.toolZoom = new (require('./ToolZoom.js').default)(app); 
@@ -43,12 +33,19 @@ class Keybinds {
             },
         }
 
-        // Define Possible Mouse
         // Defining possible key Combinations & actions
-        this.keyEvents.push({ "keys": [46], "event": function(){
 
-        } }); // up arrow
-        // this.keyEvents.push({ "keys": [38], "event": this.floorUp }); // up arrow
+        // up arrow
+        // this.keyEvents.push({ "keys": [46], "event": function(){
+
+        // } });
+
+        // Save
+        this.keyEvents.push({ "keys": [17,83], "event": function(ev){
+            $('#test-modal').modal();
+            ev.preventDefault();
+        } });
+
         // this.keyEvents.push({ "keys": [40], "event": this.floorDown }); // down arrow
         // this.keyEvents.push({ "keys": [17,83], "event": this.save }); // down arrow
         // this.keyEvents.push({ "keys": [17,68], "event": this.load }); // down arrow
@@ -62,7 +59,7 @@ class Keybinds {
 
         // Keyboard Listeners
         $(document).on('keydown', this.pressKey.bind(this));
-        $(document).on('keyup',this.pressKey.bind(this));
+        $(document).on('keyup',this.unpressKey.bind(this));
 
         // Canvas Listeners
         app.viewport[0].addEventListener("mouseup", function(ev){
@@ -94,9 +91,10 @@ class Keybinds {
     }
 
     // fire events id button combination pressed
-    listen() {
+    listen(ev) {
         // keyboard check
         this.keyEvents.forEach(function (element) {
+
             var flag = true;
             for (let index = 0; index < element["keys"].length && flag; index++) {
                 const aKey = element["keys"][index]
@@ -105,9 +103,12 @@ class Keybinds {
                 }
             }
             if (flag) {
-                element["event"]();
+                element["event"](ev);
+                return true;
             }
+
         }.bind(this));
+        return false;
     }
 
     /**
@@ -128,8 +129,10 @@ class Keybinds {
     // Button pressed - add to list
     pressKey(event){
         this.setKey(event.which || event.keyCode);
-        this.preventDefaultBrowserActions();
-        this.listen();
+        // this.preventDefaultBrowserActions();
+        if(this.listen(event)){
+            event.preventDefault();
+        };
     }
 
     // Button unpressed - remove from list

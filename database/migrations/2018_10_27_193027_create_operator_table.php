@@ -16,29 +16,32 @@ class CreateOperatorTable extends Migration
         Schema::create('operators', function (Blueprint $table) {
             $table->increments('id');
             $table->text('name');
-            $table->text('icon');
             $table->text('colour');
-            $table->boolean('atk');
+            $table->boolean('attacker');
             $table->timestamps();
+            
+            $table->unsignedInteger('icon_id')->nullable();
+            $table->foreign('icon_id')
+                ->references('id')
+                ->onDelete('set null')
+                ->on('medias');
         });
 
         Schema::create('operator_slots', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedInteger('operator_id')->nullable();
-            $table->unsignedInteger('battleplan_id');
             $table->timestamps();
 
+            $table->unsignedInteger('operator_id')->nullable();
             $table->foreign('operator_id')
                 ->references('id')
                 ->on('operators')
-                ->onDelete("cascade")
-                ->onUpdate("cascade");
+                ->onDelete("set null");
 
+            $table->unsignedInteger('battleplan_id');
             $table->foreign('battleplan_id')
                 ->references('id')
                 ->on('battleplans')
-                ->onDelete("cascade")
-                ->onUpdate("cascade");
+                ->onDelete("cascade");
         });
     }
 

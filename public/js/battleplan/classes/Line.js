@@ -9,8 +9,8 @@ class Line extends Draw {
             Constructor
     **************************/
 
-    constructor(origin, color, size) {
-        super(origin);
+    constructor(id, color, size) {
+        super(id);
         this.SelectBox = require('./SelectBox.js').default;
         this.color = color;
         this.size = size;
@@ -30,14 +30,14 @@ class Line extends Draw {
 
         // Settings
         canvas.ctx.lineWidth = this.size;
-        canvas.ctx.fillStyle = 'orange';
+        canvas.ctx.fillStyle = this.color;
         canvas.ctx.lineCap = 'round';
         
         canvas.ctx.beginPath();
         
         canvas.ctx.moveTo(
-            this.origin.x + canvas.offset.x,
-            this.origin.y + canvas.offset.y
+            this.points[0].x + canvas.offset.x,
+            this.points[0].y + canvas.offset.y
         );
 
         // Itterate each point
@@ -58,11 +58,8 @@ class Line extends Draw {
      * Parent overrides
      */
     inBox(canvas,box){
-        // merge origin into point list
-        var points = [this.origin].concat(this.points);
-
-        for (let i = 0; i < points.length; i++) {
-            const point = points[i];
+        for (let i = 0; i < this.points.length; i++) {
+            const point = this.points[i];
             
             var coors = {
                 "x": point.x + canvas.offset.x,
@@ -80,7 +77,6 @@ class Line extends Draw {
     }
 
     Move(dX,dY){
-        super.Move(dX,dY);
         // Itterate each point
         for (let i = 0; i < this.points.length; i++) {
             this.points[i].x += dX;
@@ -91,6 +87,17 @@ class Line extends Draw {
     /**************************
         Helper functions
     **************************/
+   ToJson(){
+        return {
+            'localId' : this.localId,
+            'type': 'Line',
+            'id' : this.id,
+            'origin' : this.origin,
+            'color' : this.color,
+            'size' : this.size,
+            'points' : this.points
+        }
+    }
 
 }
 export {

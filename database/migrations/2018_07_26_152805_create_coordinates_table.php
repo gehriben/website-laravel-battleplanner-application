@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddDeletedToDrawsTable extends Migration
+class CreateCoordinatesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,11 @@ class AddDeletedToDrawsTable extends Migration
      */
     public function up()
     {
-        Schema::table('draws', function (Blueprint $table) {
-            $table->boolean('deleted')->default(false);
+        Schema::create('coordinates', function (Blueprint $table) {
+            $table->increments('id');
+            $table->float("x", 10, 5);
+            $table->float("y", 10, 5);
+            $table->timestamps();
         });
     }
 
@@ -25,8 +28,6 @@ class AddDeletedToDrawsTable extends Migration
      */
     public function down()
     {
-        Schema::table('draws', function($table) {
-            $table->dropColumn('deleted');
-        });
+        Schema::dropIfExists('coordinates');
     }
 }

@@ -6,6 +6,9 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Passport\HasApiTokens;
 
+// Models
+use App\Models\Battleplan;
+
 class User extends Authenticatable
 {
     use HasApiTokens, Notifiable;
@@ -14,7 +17,12 @@ class User extends Authenticatable
      * The attributes that are mass assignable.
      */
     protected $fillable = [
-      'username','email', 'password', 'email_verified_at', 'is_admin'
+      // Properties
+      'username',
+      'email',
+      'password',
+      'email_verified_at',
+      'admin'
     ];
 
     /**
@@ -28,17 +36,11 @@ class User extends Authenticatable
      * Relationships
      */
     public function battleplans() {
-      return $this->hasMany('App\Models\Battleplan', 'user_id');
+      return $this->hasMany(Battleplan::class);
     }
 
-    public function room() {
-      return $this->hasMany('App\Models\Room', 'owner');
+    public function votes() {
+      return $this->hasMany(Vote::class);
     }
 
-    /**
-     * Public Methods
-     */
-    public function isAdmin(){
-      return $this->is_admin == true;
-    }
 }

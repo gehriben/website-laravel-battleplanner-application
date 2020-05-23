@@ -4,8 +4,6 @@
     "/css/app.css": "/css/app.css",
     "/js/room/index.js": "/js/room/index.js",
     "/js/room/join.js": "/js/room/join.js",
-    "/js/room/show.bundle.js": "/js/room/show.bundle.js",
-    "/js/room/sidebar.js": "/js/room/sidebar.js",
     "/js/global/global.js": "/js/global/global.js",
     "/css/global/global.css": "/css/global/global.css",
     "/css/index/index.css": "/css/index/index.css",

@@ -4,17 +4,29 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+// Models
+use App\Models\Coordinate;
+
 class Line extends Model
 {
     protected $fillable = [
-        "color", "lineSize"
+        // Properties
+        "color", "size"
     ];
 
     /**
      * Morph Drawable
      */
-    public function Drawable()
+    public function drawable()
     {
-        return $this->morphOne('App\Models\Draw', 'drawable');
+        return $this->morphOne(Draw::class, 'drawable');
+    }
+    
+    /**
+     * Relationships
+     */
+    public function coordinates()
+    {
+        return $this->hasMany(Coordinate::class);
     }
 }
