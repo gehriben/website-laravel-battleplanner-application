@@ -99,7 +99,7 @@ class MapController extends Controller
             'floor-ids' => [],
             'is_competitive' => [],
         ]);
-        
+
         // Update map
         $data['is_competitive'] = isset($data['is_competitive']);
 
@@ -146,6 +146,16 @@ class MapController extends Controller
             return response()->success($map);
         }
         return redirect("map/$map->id");
+    }
+
+    public function delete(Map $map) {
+      $map = Map::find($map->id)->delete();
+
+      if($request->wantsJson()){
+          return response()->success($map);
+      }
+
+      return redirect("map/");
     }
 
     private function updateFloor(Floor $floor, $data, $file, $mapName) {

@@ -29,6 +29,7 @@ Route::prefix('/map')->group(function () {
     Route::get('/', 'MapController@index')->name("Map.index");
     Route::get('new', 'MapController@new')->name("Map.new");
     Route::get('{map}/edit', 'MapController@edit')->name("Map.edit");
+    Route::delete('{map}/edit', 'MapController@delete')->name("Map.delete");
     Route::get('{map}', 'MapController@show')->name("Map.show");
 
     // API's
@@ -44,9 +45,11 @@ Route::prefix('/operators')->group(function () {
     Route::get('/', 'OperatorController@index')->name("Operators.index");
     Route::get('new', 'OperatorController@new')->name("Operators.new");
     Route::get('{operator}', 'OperatorController@show')->name("Operators.show");
+    Route::get('{operator}/edit', 'OperatorController@edit')->name("Operators.edit");
 
     // APIs
     Route::post('/', 'OperatorController@create')->name("Operators.create");
+    Route::post('/{operator}', 'OperatorController@update')->name("Operators.update");
 });
 
 Route::prefix('/battleplan')->group(function () {

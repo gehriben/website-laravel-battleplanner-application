@@ -21,11 +21,11 @@
       @endforeach
   @endif
 
-  <form action="/operators" method="post"  enctype="multipart/form-data">
+  <form action="/operators/{{$op->id}}" method="post"  enctype="multipart/form-data">
     @csrf
     <div class="row mt-3">
       <div class="col-12 text-center">
-        <h1>New Operator</h1>
+        <h1>Edit Operator</h1>
       </div>
     </div>
 
@@ -35,22 +35,27 @@
           <h2>Properties</h2>
           <div class="form-group">
               <label for="exampleInputEmail1">Name</label>
-              <input type="text" class="form-control" id="exampleInputEmail1" name="name" placeholder="Operator Name" required>
+              <input type="text" class="form-control" id="exampleInputEmail1" name="name" value="{{$op->name}}">
           </div>
 
           <div class="form-group">
               <label for="exampleInputEmail1">Icon</label>
-              <input type="file" class="col-sm form-control" name="icon" required>
+              <input type="file" class="col-sm form-control" name="icon">
           </div>
 
           <div class="row mt-3" style="padding-left: 15px;">
             <div class="custom-control custom-switch col-4 col-md-6">
+              @if($op->atk)
+              <input type="checkbox" checked class="custom-control-input" name="atk" id="exampleCheck1">
+              <label class="custom-control-label" for="exampleCheck1">Attacker</label>
+              @else
               <input type="checkbox" class="custom-control-input" name="atk" id="exampleCheck1">
               <label class="custom-control-label" for="exampleCheck1">Attacker</label>
+              @endif
             </div>
 
             <div class="colour-pick col-8 col-md-6">
-              <input type="color" name="colour" id="operator-color">
+              <input type="color" name="colour" id="operator-color" value="{{$op->colour}}">
               <label for "operator-color">Operator Color</label>
             </div>
           </div>

@@ -20,7 +20,7 @@
   <div class="row mt-3 justify-content-center">
     <div class="list-group col-12">
         @foreach ($ops as $op)
-        <a href="{{$op->id}}" class="list-group-item list-group-item-action flex-column align-items-start">
+        <a href="operators/{{$op->id}}" class="list-group-item list-group-item-action flex-column align-items-start">
             <div class="d-flex w-100 justify-content-between">
                 <h5 class="mb-1">{{$op->name}}</h5>
             </div>

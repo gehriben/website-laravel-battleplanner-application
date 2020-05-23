@@ -27,7 +27,7 @@ class Operator extends Model
   }
 
   public function media() {
-    return $this->belongsTo(Media::class);
+    return $this->belongsTo(Media::class, 'media_id');
   }
 
   public static function create(array $attributes = []) {
