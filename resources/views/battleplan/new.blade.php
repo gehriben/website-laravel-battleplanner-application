@@ -3,7 +3,6 @@
 @push('js')
 <script>
 
-    
     $( function() {
         $("#search").on("keyup", function() {
             var value = $(this).val().toLowerCase();

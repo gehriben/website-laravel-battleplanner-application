@@ -3,11 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+
+// Models
 use App\Models\Operator;
+use App\Models\Battleplan;
 
 class OperatorSlot extends Model
 {
    protected $fillable = [
+     // Fkeys
      'operator_id', 'battleplan_id'
    ];
 
@@ -15,37 +19,10 @@ class OperatorSlot extends Model
    * Relationships
    */
   public function battleplan() {
-    return $this->belongsTo('App\Models\Battleplan');
+    return $this->belongsTo(Battleplan::class);
   }
 
   public function operator() {
-    return $this->belongsTo('App\Models\Operator');
-  }
-
-  /**
-   * Public Methods
-   */
-
-  /**
-   * Set the operator in the slot
-   */
-  public function setOperator($operatorId){
-      $this->update(["operator_id" => $operatorId]);
-  }
-
-  /**
-   * Copy the object
-   * TODO: Refactor according to Battleplan logic refactor
-   */
-  public function copy($slot){
-    $fields = $slot->toArray();
-
-    unset($fields["id"]);
-    unset($fields["battleplan_id"]);
-    
-    // replicate slot
-    $this->fill($fields);
-    $this->save();
-
+    return $this->belongsTo(Operator::class);
   }
 }

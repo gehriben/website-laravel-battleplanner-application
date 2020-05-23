@@ -1,47 +1,82 @@
 /**************************
 	Extention class type
 **************************/
-const Draw = require('./Draw.js').default;
+const Rectangleable = require('./Rectangleable.js').default;
 
-class Icon extends Draw {
+class Icon extends Rectangleable {
 
     /**************************
             Constructor
     **************************/
 
-    constructor() {
-        super();
+    constructor(id, origin, size, src) {
+        super(id,origin,origin);
+        this.size = size;
+
+        this.origin.x = this.origin.x - this.size/2;
+        this.origin.y = this.origin.y - this.size/2;
+
+        this.destination = {
+            "x": this.origin.x  + this.size,
+            "y": this.origin.y  + this.size
+        }
+
+        this.SelectBox = require('./SelectBox.js').default;
+        this.src = src;
         this.img = null;
     }
 
-    init(){
-        
-    }
+    draw(canvas){
 
-    draw(draw,ctx,ui){
         if(!this.img){
             this.img = new Image;
             this.img.src = this.src;
 
             // Load the image in memory
             this.img.onload = function() {
-                this.draw(draw,ctx,ui);
+                this.draw(canvas);
             }.bind(this);
 
         } else{
             
-            ctx.drawImage(
+            // translate offset
+            canvas.ctx.translate(canvas.offset.x,canvas.offset.y);
+            
+            canvas.ctx.drawImage(
                 this.img,
-                draw.originX * ui.ratio - ui.offsetX,
-                draw.originY * ui.ratio - ui.offsetY,
-                (draw.destinationX -draw.originX) * ui.ratio,
-                (draw.destinationY - draw.originY)  * ui.ratio);
+               
+                this.origin.x,
+                this.origin.y,
+
+                this.size,
+                this.size
+            );    
+            
+            if(this.highlighted){
+                this.Highlight(canvas);
+            }
+            
+            // Translate Back
+            canvas.ctx.translate(-canvas.offset.x,-canvas.offset.y);
+            
         }
     }
+
     /**************************
         Helper functions
     **************************/
 
+   ToJson(){
+        return {
+            'localId' : this.localId,
+            'type': 'Icon',
+            'id' : this.id,
+            'origin' : this.origin,
+            'src' : this.src,
+            'size' : this.size,
+            'destination' : this.destination
+        }
+    }
 }
 export {
     Icon as

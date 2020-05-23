@@ -1,43 +1,74 @@
 /**************************
 	Extention class type
 **************************/
-const Draw = require('./Draw.js').default;
+const Rectangleable = require('./Rectangleable.js').default;
 
-class Square extends Draw {
+class Square extends Rectangleable {
 
     /**************************
             Constructor
     **************************/
 
-    constructor() {
-        super();
+    constructor(id, origin, color, size, opacity) {
+        super(id, origin, origin);
+        this.SelectBox = require('./SelectBox.js').default;
+        this.color = color;
+        this.size = size;
+        this.opacity = opacity;
     }
 
-    init() {
+    draw(canvas) {
         
-    }
+        canvas.ctx.fillStyle = this.color;
+        canvas.ctx.globalAlpha = this.opacity;
 
-    draw(draw, ctx, ui) {
-        var tmp = this;
-        ctx.fillStyle = draw.drawable.color;
-        ctx.globalAlpha = 0.35;
+        var offsetOrigin = {
+            "x": this.origin.x + canvas.offset.x,
+            "y": this.origin.y + canvas.offset.y
+        };
 
-        var oX = draw.originX * ui.ratio - ui.offsetX;
-        var oY = draw.originY * ui.ratio - ui.offsetY;
-        var dX = draw.destinationX * ui.ratio - ui.offsetX;
-        var dY = draw.destinationY * ui.ratio - ui.offsetY;
+        var offsetDestination = {
+            "x": this.destination.x + canvas.offset.x,
+            "y": this.destination.y + canvas.offset.y
+        }
 
-        ctx.fillRect(
-            oX,
-            oY,
-            dX - oX,
-            dY - oY
+        // origin must always be bigger the destination for drawing on canvas
+        Square.checkSides(offsetOrigin,offsetDestination);
+
+        canvas.ctx.fillRect(
+            offsetOrigin.x,
+            offsetOrigin.y,
+            offsetDestination.x - offsetOrigin.x,
+            offsetDestination.y - offsetOrigin.y,
         );
 
-        ctx.globalAlpha = 1.0;
+        // reset alpha
+        canvas.ctx.globalAlpha = 1.0;
 
+        // translate offset
+        canvas.ctx.translate(canvas.offset.x,canvas.offset.y);
+            
+        if(this.highlighted){
+            this.Highlight(canvas);
+        }
+
+        // Translate Back
+        canvas.ctx.translate(-canvas.offset.x,-canvas.offset.y);
+        
     }
     
+   ToJson(){
+        return {
+            'localId' : this.localId,
+            'type': 'Square',
+            'id' : this.id,
+            'origin' : this.origin,
+            'color' : this.color,
+            'size' : this.size,
+            'destination' : this.destination,
+            'opacity' : this.opacity
+        }
+    }
 }
 export {
     Square as

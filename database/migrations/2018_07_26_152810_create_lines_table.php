@@ -13,11 +13,28 @@ class CreateSquaresTable extends Migration
      */
     public function up()
     {
-        Schema::create('squares', function (Blueprint $table) {
+        Schema::create('lines', function (Blueprint $table) {
             $table->increments('id');
             $table->string("color");
-            $table->integer("lineSize");
+            $table->float("size");
             $table->timestamps();
+        });
+
+        Schema::create('line_coordinate', function (Blueprint $table) {
+            $table->increments('id');
+            $table->timestamps();
+            
+            $table->unsignedInteger('coordinate_id');
+            $table->foreign('coordinate_id')
+                ->references('id')
+                ->on('coordinates');
+            
+            $table->unsignedInteger('line_id');
+            $table->foreign('line_id')
+                ->references('id')
+                ->onDelete('cascade')
+                ->on('lines');
+
         });
     }
 
@@ -28,6 +45,7 @@ class CreateSquaresTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('squares');
+        Schema::dropIfExists('line_coordinate');
+        Schema::dropIfExists('lines');
     }
 }

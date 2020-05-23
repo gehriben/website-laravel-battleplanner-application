@@ -1,16 +1,20 @@
 <?php
 
 namespace App\Models;
-
-use App\Models\OperatorSlot;
-use App\Models\Map;
-
 use Illuminate\Database\Eloquent\Model;
+
+// Models
+use App\Models\User;
+use App\Models\Battleplan;
 
 class Vote extends Model
 {
     protected $fillable = [
-        'value', 'user_id', "battleplan_id"
+        // Properties
+        'value', 
+        
+        // Fkeys
+        'user_id', "battleplan_id"
     ];
 
     /**
@@ -18,19 +22,19 @@ class Vote extends Model
      */
     public function user()
     {
-        return $this->belongsTo('App\Models\User');
+        return $this->belongsTo(User::class);
     }
 
     public function battleplan()
     {
-        return $this->belongsTo('App\Models\Battleplan');
+        return $this->belongsTo(Battleplan::class);
     }
 
     /**
-     * Searches
+     * Scopes
      */
-    public static function search($userId,$battleplanId){
-        return Vote::where("user_id", $userId)
+    public static function ScopeAlreadyVoted($query, $userId,$battleplanId){
+        return $query->where("user_id", $userId)
             ->where("battleplan_id", $battleplanId)
             ->first();
     }
@@ -51,10 +55,10 @@ class Vote extends Model
         }
 
         // Find pre-existing vote
-        $vote = Vote::search($attributes['user_id'],$attributes['battleplan_id']);
+        $vote = Vote::AlreadyVoted($attributes['user_id'],$attributes['battleplan_id']);
 
         // Modify existing vote
-        if( $vote){
+        if($vote){
             $vote->value = $attributes['value'];
             $vote->save();
             return $vote;

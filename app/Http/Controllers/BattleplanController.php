@@ -30,7 +30,7 @@ class BattleplanController extends Controller
         $battleplans;
 
         // Admin see's all plans
-        if(Auth::user() && Auth::user()->isAdmin()){
+        if(Auth::user() && Auth::user()->admin){
             $battleplans = Battleplan::all();
         } 
         
@@ -68,7 +68,7 @@ class BattleplanController extends Controller
         }
 
         // Admin can always see the plan
-        if(Auth::user() && Auth::user()->isAdmin()){
+        if(Auth::user() && Auth::user()->admin){
             
             if ($request->expectsJson()) {
                 return $this->fullPlanData($battleplan);
@@ -86,6 +86,8 @@ class BattleplanController extends Controller
      */
     public function edit(Request $request, Battleplan $battleplan){
 
+        // return $this->fullPlanData($battleplan);
+
         // Owner of the private plan
         if (Auth::user() && Auth::user() == $battleplan->owner) {
             
@@ -97,7 +99,7 @@ class BattleplanController extends Controller
         }
 
         // Admin can always see the plan
-        if(Auth::user() && Auth::user()->isAdmin()){
+        if(Auth::user() && Auth::user()->admin){
             
             if ($request->expectsJson()) {
                 return $this->fullPlanData($battleplan);
@@ -133,7 +135,7 @@ class BattleplanController extends Controller
             'description' => [],
             'notes' => []
         ]);
-
+        
         $data['owner_id'] = Auth::User()->id;
 
         $battleplan = Battleplan::create($data);
@@ -167,7 +169,7 @@ class BattleplanController extends Controller
         }
 
         // Admin can always see the plan
-        if(Auth::user() && Auth::user()->isAdmin()){
+        if(Auth::user() && Auth::user()->admin){
             return response()->success($this->fullPlanData($battleplan));
         }
 
@@ -236,10 +238,10 @@ class BattleplanController extends Controller
      * Helper function
      */
     private function fullPlanData($battleplan){
-        return $battleplan
-            ->slotData()
+        return Battleplan::
+            slotData()
             ->mapData()
             ->BattlefloorData()
-            ->first();
+            ->find($battleplan->id);
     }
 }

@@ -1,11 +1,7 @@
 var Battleplan = require('./Battleplan.js').default;
 var Canvas = require('./Canvas.js').default;
-// var ToolLine = require('./ToolLine.js').default;
-// var ToolSquare = require('./ToolSquare.js').default;
-var ToolMove = require('./ToolMove.js').default;
-// var ToolZoom = require('./ToolZoom.js').default;
-// var ToolIcon = require('./ToolIcon.js').default;
-// var ToolErase = require('./ToolErase.js').default;
+var Keybinds = require('./Keybinds.js').default;
+var Operator = require('./Operator.js').default;
 
 class App {
 
@@ -13,23 +9,15 @@ class App {
             Constructor
     **************************/
 
-    constructor(id, viewport) {
+    constructor(id, viewport, slots) {
         // Properties
         this.canvas;                    // Canvas data and logic
         this.map;                       // Saved Map Data (map & floors)
         this.battleplan;                // Saved battleplan instance
-        this.floor = 0;                 // Active floor on canvas
-        
-        // Drawing settings
-        this.lineSize = 3;
-        this.iconSize = 25;
-
-        // Tools
-        // this.toolLine;
-        // this.toolSquare;
-        this.toolMove;
-        // this.toolZoom;
-        // this.toolImage;
+        this.keybinds;                  // Definition of keybind actions
+        this.viewport = viewport        // Active canvas
+        this.operators = []             // Operators
+        this.operator;                  // Operator slot being edited
 
         // Button statuses
         this.buttonEvents = {
@@ -47,21 +35,87 @@ class App {
             },
         }
 
-        this.Start(id, viewport);
+        this.Start(id, viewport, slots);
     }
 
     /**
      * Setup the battleplan data:
+     * - Initialize key eventlisteners
      * - Get Map data
      * - Initialize new battleplan
      */
-    Start(id,viewport){
+    Start(id,viewport, slots){
+        // Make Keybind Listener class
+        this.keybinds = new Keybinds(this);
+
         // Initialize Battleplan hierarchy
         this.battleplan = new Battleplan(id, function(){
             this.canvas = new Canvas(this,viewport);       // Initialize canvas
         }.bind(this));
+
+        // Create operator slots object
+        for (let i = 0; i < slots.length; i++) {
+            this.operators.push({
+                "operator" : new Operator(null,"https://via.placeholder.com/50"),
+                "slot" : slots[i]
+            });
+        }
+
+        this.DisplayOperators();
     }
 
+    ChangeTool(tool){
+        this.keybinds.mousePressed.lmb.tool = tool;
+    }
+
+    /**
+     * Operator Logic
+     */
+    DisplayOperators(){
+        this.operators.forEach(operator => {
+            operator.slot.attr( "src", operator.operator.src );
+        });
+    }
+
+    ChangeOperator(operatorId,src){
+        this.operator.operator.operatorId = operatorId;
+        this.operator.operator.src = src;
+        this.DisplayOperators();
+    }
+
+    /**
+     * Save
+     */
+    SaveAs(){
+        var operatorsJson = [];
+        
+        for (let i = 0; i < this.operators.length; i++) {
+            const operator = this.operators[i].operator;
+            operatorsJson.push(operator.ToJson());
+        }
+
+        var json = {
+            'battleplan' : this.battleplan.ToJson(),
+            'operators' : operatorsJson,
+        }
+
+        $.ajax({
+            method: "POST",
+            contentType: "application/json",
+            url: `/battleplan`,
+            dataType: "json",
+
+            success: function (result) {
+                // callback(result);
+                alert("success");
+            },
+            
+            error: function (result) {
+                console.log(result);
+            }
+
+        });
+    }
 }
 export {
     App as

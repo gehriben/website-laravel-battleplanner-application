@@ -16,31 +16,21 @@ class CreateBattleplansTable extends Migration
         Schema::create('battleplans', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name');
-            $table->text('description')->nullable();
-            $table->boolean("saved")->default(false);
-
-            $table->unsignedInteger('owner_id')
-              ->nullable();
-              $table->foreign('owner_id')
-                ->references('id')
-                ->on('users');
-
-            $table->unsignedInteger('gametype_id')
-              ->nullable();
-              $table->foreign('gametype_id')
-                ->references('id')
-                ->onDelete('set null')
-                ->on('gametypes');
-
-            $table->unsignedInteger('map_id')
-              ->nullable();
-              $table->foreign('map_id')
-                ->references('id')
-                ->onDelete('set null')
-                ->on('maps');
-
-            $table->text('notes')->nullable();
+            $table->longtext('description');
+            $table->longtext('notes');
+            $table->boolean('public')->default(false);
             $table->timestamps();
+
+            $table->unsignedInteger('owner_id')->nullable();
+            $table->foreign('owner_id')
+              ->references('id')
+              ->on('users');
+
+            $table->unsignedInteger('map_id')->nullable();
+            $table->foreign('map_id')
+              ->references('id')
+              ->onDelete('set null')
+              ->on('maps');
         });
     }
 

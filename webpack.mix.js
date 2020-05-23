@@ -36,8 +36,6 @@ mix.sass('resources/sass/app.scss', 'public/css')
     // Rooms
     mix.js('resources/js/room/join.js', 'public/js/room/join.js')
         .js('resources/js/room/index.js', 'public/js/room/index.js')
-        .js('resources/js/room/sidebar.js', 'public/js/room/sidebar.js')
-        .js('resources/js/room/show.js', 'public/js/room/show.bundle.js')
         .copy('resources/sass/room/*', 'public/css/room');
 
     // Battleplan

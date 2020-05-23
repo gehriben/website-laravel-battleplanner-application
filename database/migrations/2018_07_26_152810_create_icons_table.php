@@ -15,8 +15,23 @@ class CreateIconsTable extends Migration
     {
         Schema::create('icons', function (Blueprint $table) {
             $table->increments('id');
-            $table->string("src");
             $table->timestamps();
+
+            $table->unsignedInteger('source_id')->nullable();
+            $table->foreign('source_id')
+                ->references('id')
+                ->onDelete('set null')
+                ->on('medias');
+
+            $table->unsignedInteger('origin_id');
+            $table->foreign('origin_id')
+                ->references('id')
+                ->on('coordinates');
+
+            $table->unsignedInteger('destination_id');
+            $table->foreign('destination_id')
+                ->references('id')
+                ->on('coordinates');
         });
     }
 

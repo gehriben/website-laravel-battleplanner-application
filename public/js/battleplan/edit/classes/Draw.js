@@ -1,60 +1,46 @@
-Line = require('./Line.js').default;
-Square = require('./Square.js').default;
-Icon = require('./Icon.js').default;
-        
-class Draw {
+var Databaseable = require('./Databaseable.js').default;
+
+class Draw extends Databaseable{
 
     /**************************
             Constructor
     **************************/
-    constructor() {
-        
+    constructor(id) {
+        // Properties
+        super(id);
     }
 
-    init(){
-        // var type = this.getType(this);
-        this.drawable = Object.assign(new this[this.getType(this)], this.drawable);
-
-        if (this.drawable instanceof this.Square) {
-            this.checkSides()
-        }
-        
-        this.drawable.init();
-    }
-
-    draw(ctx,ui){
-        
-        if (this.drawable instanceof this.Square) {
-            this.checkSides()
-        }
-
-        this.drawable.draw(this,ctx,ui);//.bind(this.drawable);
+    draw(canvas){
+        // Should be overriden in child
     }
 
     /**************************
         Helper functions
     **************************/
-    getType(draw){
-        var exploded = draw.drawable_type.split("\\");
-        return exploded[exploded.length -1];
+   
+    
+
+    // getType(draw){
+    //     var exploded = draw.drawable_type.split("\\");
+    //     return exploded[exploded.length -1];
+    // }
+
+    // Method to see if object is inside a given bounding box.
+    // Used for the selection tool
+    InBox(canvas,box){
+        // Should be overriden in child
+        return false;
     }
 
-    checkSides(){
-        var tmp;
-
-        if(parseInt(this.originX) > parseInt(this.destinationX)){
-            tmp = this.originX;
-            this.originX = this.destinationX
-            this.destinationX = tmp;
-        }
-
-        if(parseInt(this.originY) > parseInt(this.destinationY)){
-            tmp = this.originY;
-            this.originY = this.destinationY
-            this.destinationY = tmp;
-        }
-
+    // Highlights object
+    Highlight(canvas){
+        // Should be overriden in child
     }
+
+    Move(dX,dY){
+        // Should be overriden in child
+    }
+
 }
 export {
     Draw as

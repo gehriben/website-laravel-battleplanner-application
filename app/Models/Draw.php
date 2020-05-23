@@ -4,53 +4,25 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+// Models
+use App\Models\Battlefloor;
+
 class Draw extends Model
 {
     protected $fillable = [
+        // Fkeys
         "battlefloor_id", 
-        "originX",
-        "originY", 
-        "destinationX",
-        "destinationY", 
-        "user_id", 
-        "saved",
         "drawable_id", 
-        "drawable_type", 
-        "deleted"
+        "drawable_type"
     ];
 
     /**
      * Relationships
      */
-    public function user()
-    {
-        return $this->belongsTo('App\Models\User');
-    }
-
     public function battlefloor()
     {
-        return $this->belongsTo('App\Models\Battlefloor');
+        return $this->belongsTo(Battlefloor::class);
     }
-
-    /**
-     * public Methods
-     */
-    
-     /**
-      * TODO: Refactor to use laravel softDelete trait
-      */
-     public function restore(){
-        $this->deleted = false;
-        $this->save();
-     }
-
-     /**
-      * TODO: Refactor to use laravel softDelete trait
-      */
-     public function setDeleted(){
-        $this->deleted = true;
-        $this->save();
-     }
 
     /**
      * Morphs
@@ -59,19 +31,4 @@ class Draw extends Model
     {
         return $this->morphTo();
     }
-
-    /**
-     * Scopes
-     */
-    public function scopeCopiable($query){
-        return $query
-            ->where('deleted', false)
-            ->where('saved', true);
-    }
-    
-    public function scopeNotDeleted($query)
-    {
-        return $query->where('deleted', '=', false);
-    }
-
 }

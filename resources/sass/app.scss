@@ -5,32 +5,7 @@
 // Variables
 @import "variables";
 
-.btn-success{
-  font-size: 20px;
-  background-color: $light-highlight-color;
-  border-color: $light-highlight-color;
-  color: $standard-text-color;
-}
-
-.btn-success:focus, .btn-success:active {
-  outline: none !important;
-  box-shadow: none !important;
-  background-color: $light-highlight-hover-color !important;
-  border-color: $light-highlight-hover-color !important;
-}
-
-.btn-primary:focus, .btn-primary:active {
-  outline: none !important;
-  box-shadow: none !important;
-  background-color: $dark-highlight-color !important;
-  border-color: $dark-highlight-color !important;
-}
-
-.btn-success:hover{
-  background-color: $light-highlight-hover-color;
-  border-color: $light-highlight-hover-color;
-}
-
+//Buttons///////////////////
 .btn-primary{
   background-color: $highlight-color;
   border-color: $highlight-color;
@@ -40,14 +15,75 @@
 }
 
 .btn-primary:hover{
+  background-color: $highlight-hover-color;
+  border-color: $highlight-hover-color;
+}
+
+.btn-primary:focus, .btn-primary:active {
+  outline: none !important;
+  box-shadow: none !important;
+  background-color: $highlight-hover-color !important;
+  border-color: $highlight-hover-color !important;
+}
+
+.btn-success{
+  font-size: 20px;
+  background-color: $light-highlight-color;
+  border-color: $light-highlight-color;
+  color: $standard-text-color;
+}
+
+.btn-success:hover{
+  background-color: $light-highlight-hover-color;
+  border-color: $light-highlight-hover-color;
+}
+
+.btn-success:focus, .btn-success:active {
+  outline: none !important;
+  box-shadow: none !important;
+  background-color: $light-highlight-hover-color !important;
+  border-color: $light-highlight-hover-color !important;
+}
+
+.btn-secondary{
   background-color: $dark-highlight-color;
   border-color: $dark-highlight-color;
+  color: $standard-text-color;
 }
+
+.btn-secondary:hover{
+  background-color: $dark-highlight-hover-color;
+  border-color: $dark-highlight-hover-color;
+}
+
+.btn-secondary:focus, .btn-secondary:active {
+  outline: none !important;
+  box-shadow: none !important;
+  background-color: $dark-highlight-hover-color !important;
+  border-color: $dark-highlight-hover-color !important;
+}
+
+
+////////////////////////
 
 .navbar-dark .navbar-nav .nav-link{
   color: $standard-text-color;
 }
 
-.fas{
+.fa, .fas{
   color: $light-highlight-color;
+}
+
+.custom-switch .custom-control-input:checked ~ .custom-control-label::before{
+  background-color: $light-highlight-color !important;
+  box-shadow: none !important;
+}
+
+.custom-switch .custom-control-input:focus ~ .custom-control-label::before{
+  box-shadow: none !important;
+}
+
+
+label {
+  color: black;
 }

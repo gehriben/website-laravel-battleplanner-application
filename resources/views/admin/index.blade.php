@@ -15,10 +15,8 @@
       <h1>Admin Section</h1>
     </div>
   </div>
-
-  <hr>
-
-  <div class="row">
+  
+  <div class="row mt-3">
     <div class="list-group col-12">
       <a href="/map" class="list-group-item list-group-item-action flex-column align-items-start">
         <div class="d-flex w-100 justify-content-between">

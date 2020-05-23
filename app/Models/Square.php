@@ -4,17 +4,38 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+// Models
+use App\Models\Coordinates;
+use App\Models\Draw;
+
 class Square extends Model
 {
     protected $fillable = [
-        "color", "lineSize"
+        // Properties
+        "color", "size",
+        
+        // Fkeys
+        "origin_id", "destination_id"
     ];
+    
+    /**
+     * Relationships
+     */
+    public function origin()
+    {
+        return $this->belongsTo(Coordinates::class);
+    }
+
+    public function destination()
+    {
+        return $this->belongsTo(Coordinates::class);
+    }
 
     /**
      * Morph Drawable
      */
     public function Drawable()
     {
-        return $this->morphOne('App\Models\Draw', 'drawable');
+        return $this->morphOne(Draw::class, 'drawable');
     }
 }

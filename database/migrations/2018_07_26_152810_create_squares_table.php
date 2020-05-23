@@ -13,11 +13,21 @@ class CreateLinesTable extends Migration
      */
     public function up()
     {
-        Schema::create('lines', function (Blueprint $table) {
+        Schema::create('squares', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer("lineSize");
+            $table->integer("size");
             $table->string("color");
             $table->timestamps();
+
+            $table->unsignedInteger('origin_id');
+            $table->foreign('origin_id')
+                ->references('id')
+                ->on('coordinates');
+
+            $table->unsignedInteger('destination_id');
+            $table->foreign('destination_id')
+                ->references('id')
+                ->on('coordinates');
         });
     }
 
@@ -28,6 +38,6 @@ class CreateLinesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('lines');
+        Schema::dropIfExists('squares');
     }
 }

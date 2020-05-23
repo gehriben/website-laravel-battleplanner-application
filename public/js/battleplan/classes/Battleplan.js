@@ -1,6 +1,7 @@
 var Floor = require('./Floor.js').default;
+var Databaseable = require('./Databaseable.js').default;
 
-class Battleplan {
+class Battleplan extends Databaseable{
 
     /**************************
             Constructor
@@ -8,8 +9,10 @@ class Battleplan {
 
     constructor(id, callback) {
         // Properties
+        super(id);
         this.floors = [];        // Floors of the battleplan
-
+        this.floor;              // Current Active Floor
+        this.finishedCallback = callback;
         this.Initialize(id,callback);
     }
     
@@ -17,15 +20,33 @@ class Battleplan {
         this.Get(id,function(result){
 
             for(var i = 0; i < result.battlefloors.length; i++){
-                this.floors.push(new Floor(result.battlefloors[i]))
+                var floor = new Floor(result.battlefloors[i], this.ReadyCheck.bind(this))
+                this.floors.push(floor);
+
+                // First floor, set as default
+                if(i == 0){
+                    this.floor = floor;
+                }
             }
-            
-            // Initialization complete callback
-            callback();
 
         }.bind(this));
     }
     
+    // Check that all sub assets have loaded
+    ReadyCheck(){
+
+        // are all the floors loaded?
+        for (let i = 0; i < this.floors.length; i++) {
+            const floor = this.floors[i];
+            if(!floor.load){
+                return false;
+            }
+        }
+        
+        // all sub elements loaded correctly, signal finished callback
+        this.finishedCallback();
+    }
+
     // Get Map
     Get(id,callback) {
         $.ajax({
@@ -45,6 +66,19 @@ class Battleplan {
         });
     }
 
+    ToJson(){
+        var floorsJson = [];
+        for (let i = 0; i < this.floors.length; i++) {
+            const floor = this.floors[i];
+            floorsJson.push(floor.ToJson());
+        }
+
+        return {
+            'id' : this.id,
+            'localId' : this.localId,
+            'floors' : floorsJson
+        }
+    }
 }
 export {
     Battleplan as
