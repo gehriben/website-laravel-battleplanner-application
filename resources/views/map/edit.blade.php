@@ -95,5 +95,8 @@
       </div>
     </div>
   </form>
+  <div class="row justify-content-center mt-3 mb-3">
+    <a type="button" href="/map/{{$map->id}}" method="DELETE" class="col-3 btn btn-secondary">Delete Map</a>
+  </div>
 </div>
 @endsection

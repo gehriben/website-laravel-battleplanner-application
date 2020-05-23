@@ -126,9 +126,10 @@ class MapController extends Controller
 
         $floors = [];
         $map_id = $map->id;
+
         foreach ($data['floor-names'] as $key => $name) {
             $order = $data['floor-orders'][$key];
-            $file = isset($data['floor-files']) ? $data['floor-files'][$key] : null;
+            $file = isset($data['floor-files'][$key]) ? $data['floor-files'][$key] : null;
             if(!$data['floor-ids'][$key]){
               $floors[] = Floor::create(compact('name','file','order','map_id'));
             }
@@ -141,6 +142,16 @@ class MapController extends Controller
             return response()->success($map);
         }
         return redirect("map/$map->id");
+    }
+
+    public function delete(Map $map) {
+      $map = Map::find($map->id)->delete();
+
+      if($request->wantsJson()){
+          return response()->success($map);
+      }
+
+      return redirect("map/");
     }
 
     private function updateFloor(Floor $floor, $data, $file, $mapName) {

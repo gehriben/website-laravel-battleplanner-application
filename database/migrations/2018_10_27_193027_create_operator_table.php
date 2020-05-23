@@ -17,13 +17,14 @@ class CreateOperatorTable extends Migration
             $table->increments('id');
             $table->text('name');
             $table->text('colour');
-            $table->boolean('attacker');
+            $table->boolean('atk')
+                ->default(false);
             $table->timestamps();
-            
-            $table->unsignedInteger('icon_id')->nullable();
-            $table->foreign('icon_id')
+
+            $table->unsignedInteger('media_id')->nullable();
+            $table->foreign('media_id')
+                ->onDelete("set null")
                 ->references('id')
-                ->onDelete('set null')
                 ->on('medias');
         });
 
