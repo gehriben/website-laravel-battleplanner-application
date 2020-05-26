@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Media;
 
 // Models
 use App\Models\Gadget;
@@ -35,14 +34,10 @@ class Operator extends Model
   public function slots() {
     return $this->belongsToMany(OperatorSlot::class);
   }
-
-  public function media() {
-    return $this->belongsTo(Media::class, 'media_id');
-  }
-
+  
   public static function create(array $attributes = []) {
     $media = Media::fromFile($attributes['icon'], "operators/{$attributes['name']}", "public");
-    $attributes['media_id'] = $media->id;
+    $attributes['icon_id'] = $media->id;
     return static::query()->create($attributes);
   }
 

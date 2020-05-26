@@ -11,26 +11,19 @@ use App\Models\Coordinates;
 class Icon extends Model
 {
     protected $fillable = [
+        // Properties
+        "source", "size",
+
         // Fkeys
-        "source_id", "origin_id", "destination_id"
+        "origin_id"
     ];
     
     /**
      * Relationships
      */
-    
-    public function source() {
-        return $this->belongsTo(Media::class);
-    }
-
     public function origin()
     {
-        return $this->belongsTo(Coordinates::class);
-    }
-
-    public function destination()
-    {
-        return $this->belongsTo(Coordinates::class);
+        return $this->belongsTo(Coordinate::class);
     }
 
     /**
@@ -39,5 +32,23 @@ class Icon extends Model
     public function Drawable()
     {
         return $this->morphOne(Draw::class, 'drawable');
+    }
+
+    public static function create(array $attributes = [])
+    {
+        $attributes['origin_id'] = Coordinate::create($attributes["origin"])->id;
+
+        $model = static::query()->create($attributes);
+
+        return $model;
+    }
+    
+    public function toArray()
+    {
+        // dd($this->origin);
+        $array = parent::toArray();
+        $array['source'] = $this->source;
+        $array['origin'] = $this->origin;
+        return $array;
     }
 }

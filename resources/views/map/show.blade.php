@@ -25,14 +25,16 @@
   </div>
 
   <div class="row mt-3 justify-content-center">
+    <img class="thumb" src="{{($map->thumbnail) ? $map->thumbnail->url() : 'https://via.placeholder.com/150'}}"></img>
+  </div>
+
+  <div class="row mt-3 justify-content-center">
     <div class="list-group col-12 col-md-5">
       @foreach ($map->floors as $floor)
         <div class="list-group-item list-group-item-action flex-column align-items-start">
           <div class="d-flex w-100 justify-content-between">
             <h5 class="mb-1">{{$floor->name}}</h5>
-            @if($floor->source)
-              <img class="thumb" src="{{$floor->source->url()}}"></img>
-            @endif
+            <img class="thumb" src="{{ ($floor->source) ? $floor->source->url() : 'https://via.placeholder.com/150'}}"></img>
           </div>
         </div>
       @endforeach

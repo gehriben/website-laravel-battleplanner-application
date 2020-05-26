@@ -44,8 +44,8 @@ class Map extends Model
    */
   public static function create(array $attributes = [])
   {
-      $media = Media::fromFile($attributes['thumbnail'], "maps/{$attributes['name']}", "public");
-      $attributes['thumbnail_id'] = $media->id;
-      return static::query()->create($attributes);
+    $media = Media::fromFile($attributes['thumbnail'], "maps/{$attributes['name']}", "public");
+    $attributes['thumbnail_id'] = $media->id;
+    return static::query()->create($attributes);
   }
 }

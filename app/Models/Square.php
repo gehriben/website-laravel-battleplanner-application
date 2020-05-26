@@ -12,7 +12,7 @@ class Square extends Model
 {
     protected $fillable = [
         // Properties
-        "color", "size",
+        "color", "size", 'opacity',
         
         // Fkeys
         "origin_id", "destination_id"
@@ -23,12 +23,12 @@ class Square extends Model
      */
     public function origin()
     {
-        return $this->belongsTo(Coordinates::class);
+        return $this->belongsTo(Coordinate::class);
     }
 
     public function destination()
     {
-        return $this->belongsTo(Coordinates::class);
+        return $this->belongsTo(Coordinate::class);
     }
 
     /**
@@ -37,5 +37,23 @@ class Square extends Model
     public function Drawable()
     {
         return $this->morphOne(Draw::class, 'drawable');
+    }
+
+    public static function create(array $attributes = [])
+    {
+        $attributes['origin_id'] = Coordinate::create($attributes["origin"])->id;
+        $attributes['destination_id'] = Coordinate::create($attributes["destination"])->id;
+
+        $model = static::query()->create($attributes);
+
+        return $model;
+    }
+    
+    public function toArray()
+    {
+        $array = parent::toArray();
+        $array['origin'] = $this->origin;
+        $array['destination'] = $this->destination;
+        return $array;
     }
 }

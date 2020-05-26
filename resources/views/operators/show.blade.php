@@ -18,7 +18,7 @@
       <div class="row mt-3 text-center">
         <div class="col-12">
           <h5 style="color:white;">Icon&nbsp;</h5>
-          <img class="icon" src="{{$op->media->url()}}"></img>
+          <img class="icon" src="{{($op->icon) ? $op->icon->url() : 'https://via.placeholder.com/150'}}"></img>
         </div>
       </div>
 
@@ -30,7 +30,7 @@
 
         <div class="col-4">
           <h5 style="color:white;">Attacker&nbsp;</h5>
-          @if ($op->atk)
+          @if ($op->attacker)
           <i class="fa fa-check"></i>
           @else
           <i class="fas fa-times"></i>

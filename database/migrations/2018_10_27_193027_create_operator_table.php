@@ -17,8 +17,7 @@ class CreateOperatorTable extends Migration
             $table->increments('id');
             $table->text('name');
             $table->text('colour');
-            $table->boolean('atk')
-                ->default(false);
+            $table->boolean('attacker')->default(false);
             $table->timestamps();
 
             $table->unsignedInteger('media_id')->nullable();

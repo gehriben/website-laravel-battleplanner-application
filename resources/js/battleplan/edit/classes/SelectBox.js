@@ -1,18 +1,20 @@
 /**************************
 	Extention class type
 **************************/
-const Rectangleable = require('./Rectangleable.js').default;
+const Draw = require('./Draw.js').default;
 
-class SelectBox extends Rectangleable {
+class SelectBox extends Draw {
 
     /**************************
             Constructor
     **************************/
 
-    constructor(origin, color, size) {
-        super(null,origin,origin);
+    constructor(origin,destination, color, size) {
+        super(null);
         this.color = color;
         this.size = size;
+        this.origin = origin;
+        this.destination = destination;
     }
 
     draw(canvas) {
@@ -40,6 +42,23 @@ class SelectBox extends Rectangleable {
             offsetDestination.y - offsetOrigin.y,
         );
         canvas.ctx.stroke();
+    }
+
+    
+    static checkSides(origin,destination){
+        var tmp;
+
+        if(parseInt(origin.x) > parseInt(destination.x)){
+            tmp = origin.x;
+            origin.x = destination.x
+            destination.x = tmp;
+        }
+
+        if(parseInt(origin.y) > parseInt(destination.y)){
+            tmp = origin.y;
+            origin.y = destination.y
+            destination.y = tmp;
+        }
     }
 
     // Determine if a given point is inside box coordinates

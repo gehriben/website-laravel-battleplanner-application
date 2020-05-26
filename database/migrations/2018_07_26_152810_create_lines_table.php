@@ -20,7 +20,7 @@ class CreateSquaresTable extends Migration
             $table->timestamps();
         });
 
-        Schema::create('line_coordinate', function (Blueprint $table) {
+        Schema::create('coordinate_line', function (Blueprint $table) {
             $table->increments('id');
             $table->timestamps();
             

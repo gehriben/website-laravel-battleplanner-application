@@ -23,6 +23,7 @@ class ToolSquare extends Tool {
         this.activeSquare = new this.Square(
             null,
             this.AddOffsetCoordinates(coordinates),
+            this.AddOffsetCoordinates(coordinates),
             this.color,
             this.size,
             this.opacity

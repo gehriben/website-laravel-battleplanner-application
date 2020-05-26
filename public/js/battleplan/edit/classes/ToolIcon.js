@@ -13,7 +13,7 @@ class ToolIcon extends Tool {
         // Super Class constructor call
         super(app);
         this.Icon = require('./Icon.js').default;
-        this.size = 100;
+        this.size = 3;
     }
 
     actionDrop(coordinates,src) {
@@ -27,7 +27,6 @@ class ToolIcon extends Tool {
             );
 
             this.app.battleplan.floor.AddDraw(icon);
-
             this.app.canvas.Update();
         }
     }

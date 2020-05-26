@@ -142,14 +142,14 @@
             <div class="tab-pane fade show active" id="defenders" role="tabpanel" aria-labelledby="defender-tab">
                 <div class="row">
                     <!-- Populate icons -->
-                    @for ($i = 0; $i < 10; $i++)
-                        <div class="col-3 text-center" onclick="ChangeOperator(1,'https://www.himgs.com/imagenes/hello/social/hello-fb-logo.png')" data-dismiss="modal">
-                            <img src="https://www.himgs.com/imagenes/hello/social/hello-fb-logo.png" class="op-icon map-thumb"> <br>
+                    @foreach($defenders as $operator)
+                        <div class="col-3 text-center" onclick="ChangeOperator( {{$operator->id}},'{{$operator->icon->url()}}' )" data-dismiss="modal">
+                            <img src="{{$operator->icon->url()}}" class="op-icon map-thumb"> <br>
                             <div class="map-name stroke-text">
-                                DefenderY
+                                {{$operator->name}}
                             </div>
                         </div>
-                    @endfor
+                    @endforeach
                 </div>
             </div>
 
@@ -157,14 +157,14 @@
             <div class="tab-pane fade" id="attackers" role="tabpanel" aria-labelledby="attacker-tab">
                 <div class="row">
                     <!-- Populate icons -->
-                    @for ($i = 0; $i < 10; $i++)
-                        <div class="col-3 text-center" onclick="ChangeOperator(1,'https://via.placeholder.com/50')" data-dismiss="modal">
-                            <img src="https://via.placeholder.com/50" class="op-icon map-thumb"> <br>
+                    @foreach($attackers as $operator)
+                        <div class="col-3 text-center" onclick="ChangeOperator( {{$operator->id}},'{{$operator->icon->url()}}' ) " data-dismiss="modal">
+                            <img src="{{$operator->icon->url()}}" class="op-icon map-thumb"> <br>
                             <div class="map-name stroke-text">
-                                DefenderY
+                                {{$operator->name}}
                             </div>
                         </div>
-                    @endfor
+                    @endforeach
                 </div>
             </div>
 

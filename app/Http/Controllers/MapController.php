@@ -91,12 +91,11 @@ class MapController extends Controller
             'thumbnail' => ['file'],
             'floor-files.*' => ['file'],
             'floor-names' => [],
-            'floor-orders' => ['required'],
+            'floor-orders' => [],
             'floor-ids' => [],
             'competitive' => [],
         ]);
         
-        // Update map
         $data['competitive'] = isset($data['competitive']);
 
         // Update the thumbnail
@@ -105,21 +104,21 @@ class MapController extends Controller
                 $map->thumbnail->delete(); // delete old one
             }
             $media = Media::fromFile($data['thumbnail'], "maps/{$map->name}", "public"); // create new one
-            $data['media_id'] = $media->id; // associate
+            $data['thumbnail_id'] = $media->id; // associate
         }
 
         $map->update($data);
         $map = $map->fresh();
 
         $floorids = array_column($map->floors->toArray(), "id");
-        $sentids = $data["floor-ids"];
+        $sentids = isset($data["floor-ids"])? $data["floor-ids"] : []; // error check no floors sent back (deleted all floors)
         $diffs = array_diff($floorids, $sentids);
 
         foreach($diffs as $diff) {
           Floor::find($diff)->delete();
         }
 
-        // // Create floors
+        // Create floors
         $data['floor-files'] = isset($data['floor-files']) ? $data['floor-files'] : null;
         $data['floor-names'] = isset($data['floor-names']) ? $data['floor-names'] : [];
         $data['floor-orders'] = isset($data['floor-orders']) ? $data['floor-orders'] : [];
@@ -160,7 +159,7 @@ class MapController extends Controller
           $floor->media->delete();
         }
         $newFile = Media::fromFile($file, "maps/" . $mapName, "public");
-        $data["media_id"] = $newFile->id;
+        $data["source_id"] = $newFile->id;
       }
       $floor->update($data);
     }

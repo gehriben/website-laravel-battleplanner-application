@@ -86,7 +86,7 @@ class App {
     /**
      * Save
      */
-    SaveAs(){
+    SaveAs(name,description,notes,ispublic){
         var operatorsJson = [];
         
         for (let i = 0; i < this.operators.length; i++) {
@@ -97,16 +97,17 @@ class App {
         var json = {
             'battleplan' : this.battleplan.ToJson(),
             'operators' : operatorsJson,
+            'name' : name,
+            'description' : description,
+            'notes' : notes,
+            'public' : ispublic
         }
 
         $.ajax({
             method: "POST",
-            contentType: "application/json",
-            url: `/battleplan`,
-            dataType: "json",
-
+            url: `/battleplan/${this.battleplan.id}`,
+            data: json,
             success: function (result) {
-                // callback(result);
                 alert("success");
             },
             

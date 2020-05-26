@@ -45,7 +45,7 @@
 
           <div class="row mt-3" style="padding-left: 15px;">
             <div class="custom-control custom-switch col-4 col-md-6">
-              <input type="checkbox" class="custom-control-input" name="atk" id="exampleCheck1">
+              <input type="checkbox" class="custom-control-input" name="attacker" id="exampleCheck1">
               <label class="custom-control-label" for="exampleCheck1">Attacker</label>
             </div>
 

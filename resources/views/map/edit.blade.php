@@ -61,9 +61,7 @@
           <div class="form-group">
               <label for="exampleInputEmail1">Thumbnail</label>
               <input type="file" class="col-sm form-control" name="thumbnail">
-              @if($map->media)
-                <img src="{{$map->media->url()}}"></img>
-              @endif
+              <img src="{{($map->thumbnail) ? $map->thumbnail->url() : 'https://via.placeholder.com/150'}}"></img>
           </div>
 
           <div class="custom-control custom-switch">

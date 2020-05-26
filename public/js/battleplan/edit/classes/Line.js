@@ -92,7 +92,6 @@ class Line extends Draw {
             'localId' : this.localId,
             'type': 'Line',
             'id' : this.id,
-            'origin' : this.origin,
             'color' : this.color,
             'size' : this.size,
             'points' : this.points
