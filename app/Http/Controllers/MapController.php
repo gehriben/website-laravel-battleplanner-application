@@ -16,8 +16,7 @@ class MapController extends Controller
      */
 
     public function index(Request $request){
-        $maps = Map::all();
-        return view("map.index", compact('maps'));
+        return view("map.index", ['maps' => Map::all()]);
     }
 
     public function new(Request $request){
@@ -25,26 +24,22 @@ class MapController extends Controller
     }
 
     public function edit(Request $request, Map $map){
-        $map = $map
-            ->with('floors.media')
-            ->with('thumbnail')
+        $map = Map::with(Map::$printWith)
             ->with(array('floors' => function($query) {
                 $query->orderBy('order', 'ASC');
             }))
             ->find($map->id);
+            
         return view("map.edit", compact('map'));
     }
 
     public function show(Request $request, Map $map){
-      $map = $map
-          ->with('floors.media')
-          ->with('thumbnail')
+        $map = Map::with(Map::$printWith)
           ->with(array('floors' => function($query) {
               $query->orderBy('order', 'ASC');
           }))
           ->find($map->id);
-
-      return view("map.show", compact('map'));
+        return view("map.show", compact('map'));
     }
 
     /**
@@ -63,11 +58,12 @@ class MapController extends Controller
             'floor-names' => [],
             'floor-ids' => [],
             'floor-orders' => [],
-            'is_competitive' => [],
+            'competitive' => [],
         ]);
 
-        // Create map
-        $data['is_competitive'] = isset($data['is_competitive']);
+        // Checkbox is set to 'on' if true, null if false. Convert to bool value
+        $data['competitive'] = isset($data['competitive']);
+
         $data['floor-files'] = isset($data['floor-files']) ? $data['floor-files'] : [];
         $data['floor-names'] = isset($data['floor-names']) ? $data['floor-names'] : [];
         $data['user_id'] = Auth::user()->id;
@@ -78,8 +74,8 @@ class MapController extends Controller
         $map_id = $map->id;
         foreach ($data['floor-names'] as $key => $name) {
             $order = $data['floor-orders'][$key];
-            $file = $data['floor-files'][$key];
-            $floors[] = Floor::create(compact('name','file','order','map_id'));
+            $source = $data['floor-files'][$key];
+            $floors[] = Floor::create(compact('name','source','order','map_id'));
         }
 
         if($request->wantsJson()){
@@ -95,13 +91,12 @@ class MapController extends Controller
             'thumbnail' => ['file'],
             'floor-files.*' => ['file'],
             'floor-names' => [],
-            'floor-orders' => ['required'],
+            'floor-orders' => [],
             'floor-ids' => [],
-            'is_competitive' => [],
+            'competitive' => [],
         ]);
-
-        // Update map
-        $data['is_competitive'] = isset($data['is_competitive']);
+        
+        $data['competitive'] = isset($data['competitive']);
 
         // Update the thumbnail
         if(isset($data["thumbnail"])){
@@ -109,21 +104,21 @@ class MapController extends Controller
                 $map->thumbnail->delete(); // delete old one
             }
             $media = Media::fromFile($data['thumbnail'], "maps/{$map->name}", "public"); // create new one
-            $data['media_id'] = $media->id; // associate
+            $data['thumbnail_id'] = $media->id; // associate
         }
 
         $map->update($data);
         $map = $map->fresh();
 
         $floorids = array_column($map->floors->toArray(), "id");
-        $sentids = $data["floor-ids"];
+        $sentids = isset($data["floor-ids"])? $data["floor-ids"] : []; // error check no floors sent back (deleted all floors)
         $diffs = array_diff($floorids, $sentids);
 
         foreach($diffs as $diff) {
           Floor::find($diff)->delete();
         }
 
-        // // Create floors
+        // Create floors
         $data['floor-files'] = isset($data['floor-files']) ? $data['floor-files'] : null;
         $data['floor-names'] = isset($data['floor-names']) ? $data['floor-names'] : [];
         $data['floor-orders'] = isset($data['floor-orders']) ? $data['floor-orders'] : [];
@@ -164,7 +159,7 @@ class MapController extends Controller
           $floor->media->delete();
         }
         $newFile = Media::fromFile($file, "maps/" . $mapName, "public");
-        $data["media_id"] = $newFile->id;
+        $data["source_id"] = $newFile->id;
       }
       $floor->update($data);
     }

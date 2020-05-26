@@ -25,14 +25,16 @@
   </div>
 
   <div class="row mt-3 justify-content-center">
+    <img class="thumb" src="{{($map->thumbnail) ? $map->thumbnail->url() : 'https://via.placeholder.com/150'}}"></img>
+  </div>
+
+  <div class="row mt-3 justify-content-center">
     <div class="list-group col-12 col-md-5">
       @foreach ($map->floors as $floor)
         <div class="list-group-item list-group-item-action flex-column align-items-start">
           <div class="d-flex w-100 justify-content-between">
             <h5 class="mb-1">{{$floor->name}}</h5>
-            @if($floor->media)
-              <img class="thumb" src="{{$floor->media->url()}}"></img>
-            @endif
+            <img class="thumb" src="{{ ($floor->source) ? $floor->source->url() : 'https://via.placeholder.com/150'}}"></img>
           </div>
         </div>
       @endforeach
@@ -41,7 +43,7 @@
 
   <div class="row mt-3 justify-content-center">
     <h5 style="color:white;">Competitive&nbsp;</h5>
-    @if ($map->is_competitive)
+    @if ($map->competitive)
     <i class="fa fa-check"></i>
     @else
     <i class="fas fa-times"></i>

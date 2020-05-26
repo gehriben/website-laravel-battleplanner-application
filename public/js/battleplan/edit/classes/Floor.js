@@ -14,14 +14,72 @@ class Floor extends Databaseable{
         this.load;
         this.finishedCallback = callback;
 
+        // map the possible classes for draws
+        this.Line = require('./Line.js').default,
+        this.Square = require('./Square.js').default,
+        this.Icon = require('./Icon.js').default,
+
         this.Initialize(data);
     }
     
     Initialize(data){
-        this.background = data.floor.media.url;
-        for (var i = 0; i < this.draws.length; i++) {
-			this.draws[i] = Object.assign(new this.Draw, this.draws[i]);
-            this.draws[i].init();
+        this.background = data.floor.source.url;
+
+        for (var i = 0; i < data.draws.length; i++) {
+            var typeArray = data.draws[i]['drawable_type'].split('\\');
+            var type = typeArray[typeArray.length - 1];
+
+            switch (type) {
+                case 'Line':
+                    this.draws[i] = new this.Line(
+                        data.draws[i].id,
+                        data.draws[i].drawable.color,
+                        data.draws[i].drawable.size,
+                    );
+                    
+                    data.draws[i].drawable.points.forEach(coordinate => {
+                        this.draws[i].points.push({
+                            'x' : coordinate['x'],
+                            'y' : coordinate['y']
+                        });
+                    });
+
+                    break;
+
+                case 'Square':
+                    
+                    this.draws[i] = new this.Square(
+                        data.draws[i].id,
+                        data.draws[i].drawable.origin,
+                        data.draws[i].drawable.destination,
+                        data.draws[i].drawable.color,
+                        data.draws[i].drawable.size,
+                        data.draws[i].drawable.opacity,
+                    );
+
+                    break;
+
+                case 'Icon':
+                    
+                    this.draws[i] = new this.Icon(
+                        data.draws[i].id,
+                        {'x': data.draws[i].drawable.origin.x,'y': data.draws[i].drawable.origin.y},
+                        data.draws[i].drawable.size,
+                        data.draws[i].drawable.source,
+                    );
+                    
+                    // var tmp = data.draws[i].drawable;
+                    
+                    // this.draws[i].origin = {'x': data.draws[i].drawable.origin.x,'y': data.draws[i].drawable.origin.y};
+                    // this.draws[i].destination =  {'x': data.draws[i].drawable.destination.x,'y': data.draws[i].drawable.destination.y};
+
+                    break;
+            
+                // Do default
+                default:
+                    console.error(' Invalid Draw Type');
+                    break;
+            }
         }
         
         // acquire image

@@ -21,6 +21,7 @@ class ToolSelect extends Tool {
         
         this.activeSelect = new this.SelectBox(
             this.AddOffsetCoordinates(coordinates),
+            this.AddOffsetCoordinates(coordinates),
             "ffffff",
             this.size 
         );

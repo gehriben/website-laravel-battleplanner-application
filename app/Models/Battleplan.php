@@ -32,6 +32,18 @@ class Battleplan extends Model
         'owner_id', 'map_id', 
     ];
     
+    public Static $printWith = [
+        'owner',
+        'battlefloors',
+        'battlefloors.floor',
+        'battlefloors.floor.source',
+        'battlefloors.draws',
+        'battlefloors.draws.drawable',
+        'operatorSlots',
+        'operatorSlots.operator',
+        'operatorSlots.operator.icon',
+    ];
+    
     /**
      * Relationships
      */

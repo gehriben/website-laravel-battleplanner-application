@@ -8,6 +8,13 @@ use App\Models\Battleplan;
 use App\Models\Battlefloor;
 use App\Models\Room;
 use App\Models\Map;
+use App\Models\Draw;
+use App\Models\Line;
+use App\Models\Square;
+use App\Models\Icon;
+use App\Models\Coordinate;
+use App\Models\Operator;
+
 use Auth;
 class BattleplanController extends Controller
 {
@@ -46,32 +53,16 @@ class BattleplanController extends Controller
      * Show a battleplan
      */
     public function show(Request $request, Battleplan $battleplan){
+        if (
+            $battleplan->public ||                                  // Return immediately if plan is public
+            Auth::user() && Auth::user() == $battleplan->owner ||   // Owner of the private plan
+            Auth::user() && Auth::user()->admin                     // Admin can always see the plan
+        ) {
 
-        // Return immediately if plan is public
-        if ($battleplan->public) {
+            $battleplan = Battleplan::with(Battleplan::$printWith)->find($battleplan->id);
 
             if ($request->expectsJson()) {
-                return $this->fullPlanData($battleplan);
-            }
-
-            return view("battleplan.show", compact("battleplan"));
-        }
-        
-        // Owner of the private plan
-        if (Auth::user() && Auth::user() == $battleplan->owner) {
-            
-            if ($request->expectsJson()) {
-                return $this->fullPlanData($battleplan);
-            }
-
-            return view("battleplan.show", compact("battleplan"));
-        }
-
-        // Admin can always see the plan
-        if(Auth::user() && Auth::user()->admin){
-            
-            if ($request->expectsJson()) {
-                return $this->fullPlanData($battleplan);
+                return $battleplan;
             }
 
             return view("battleplan.show", compact("battleplan"));
@@ -86,26 +77,19 @@ class BattleplanController extends Controller
      */
     public function edit(Request $request, Battleplan $battleplan){
 
-        // return $this->fullPlanData($battleplan);
+        if (
+            Auth::user() && Auth::user() == $battleplan->owner ||   // Owner of the private plan
+            Auth::user() && Auth::user()->admin                     // Admin can always see the plan
+        ) {
 
-        // Owner of the private plan
-        if (Auth::user() && Auth::user() == $battleplan->owner) {
-            
+            $battleplan = Battleplan::with(Battleplan::$printWith)->find($battleplan->id);
+            $attackers = Operator::attackers()->get();
+            $defenders = Operator::defenders()->get();
             if ($request->expectsJson()) {
-                return $this->fullPlanData($battleplan);
+                return $battleplan;
             }
-
-            return view("battleplan.edit", compact("battleplan"));
-        }
-
-        // Admin can always see the plan
-        if(Auth::user() && Auth::user()->admin){
             
-            if ($request->expectsJson()) {
-                return $this->fullPlanData($battleplan);
-            }
-
-            return view("battleplan.show", compact("battleplan"));
+            return view("battleplan.edit", compact("battleplan", "attackers", "defenders"));
         }
 
         // Insufficient permissions
@@ -130,51 +114,50 @@ class BattleplanController extends Controller
     public function create(Request $request){
 
         $data = $request->validate([
-            'map_id' => ['required'],
-            'name' => [],
-            'description' => [],
-            'notes' => []
+            'name' => ['required'],
+            'map_id' => ['required', 'exists:maps,id'],
+            'description' => [''],
+            'notes' => [''],
+            'public' => [''],
         ]);
-        
+
         $data['owner_id'] = Auth::User()->id;
+        $data['public'] = isset($data['public']);
+        $data['description'] = isset($data['description']) && $data['description'] ? $data['description'] : "";
+        $data['notes'] = isset($data['notes']) && $data['notes'] ? $data['notes'] : "";
 
         $battleplan = Battleplan::create($data);
-        
-        if($request->wantsJson()){
-            return response()->success(
-                $bp
-                ->slotData()
-                ->mapData()
-                ->BattlefloorData()
-                ->first()
-            );
-        }
-        return redirect("battleplan/$battleplan->id/edit");
+        $battleplan = Battleplan::with(Battleplan::$printWith)->find($battleplan->id);
 
+        if($request->wantsJson()){
+            return response()->success($battleplan);
+        }
+
+        return redirect("battleplan/$battleplan->id/edit");
     }
 
     /**
      * Retrieve a battleplan
      */
-    public function read(Request $request, Battleplan $battleplan){
+    // public function read(Request $request, Battleplan $battleplan){
 
-        // Return immediately if plan is public
-        if ($battleplan->public) {
-            return response()->success($this->fullPlanData($battleplan));
-        }
+    //     // Return immediately if plan is public
+    //     if ($battleplan->public) {
+    //         return response()->success($this->fullPlanData($battleplan));
+    //     }
 
-        // Owner of the private plan
-        if (Auth::user() && Auth::user()->id == $battleplan->owner) {
-            return response()->success($this->fullPlanData($battleplan));
-        }
+    //     // Owner of the private plan
+    //     if (Auth::user() && Auth::user()->id == $battleplan->owner) {
+    //         return response()->success($this->fullPlanData($battleplan));
+    //     }
 
-        // Admin can always see the plan
-        if(Auth::user() && Auth::user()->admin){
-            return response()->success($this->fullPlanData($battleplan));
-        }
+    //     // Admin can always see the plan
+    //     if(Auth::user() && Auth::user()->admin){
+    //         return response()->success($this->fullPlanData($battleplan));
+    //     }
 
-        return response()->error("Unauthorized", [], 403);
-    }
+    //     return response()->error("Unauthorized", [], 403);
+    // }
     
     /**
      * Update a battleplan values
@@ -185,18 +168,64 @@ class BattleplanController extends Controller
         if ($battleplan->owner->id != Auth::User()->id) {
             return response()->error("Unauthorized", [], 403);
         }
-
+        
         // validate request object contains all needed data
         $data = $request->validate([
-            'name' => 'required',
-            'notes' => 'required',
-            'public' => 'required',
+            // Battleplan data
+            'name' => ['required'],
+            'description' => [''],
+            'notes' => [''],
+            'public' => [''],
+            'battleplan' => ['required'],
+            'operators' => ['required']
         ]);
 
+        // dd($data);
+
+        $data['public'] = isset($data['public']);
+        $data['description'] = isset($data['description']) && $data['description'] ? $data['description'] : "";
+        $data['notes'] = isset($data['notes']) && $data['notes'] ? $data['notes'] : "";
+
         $battleplan->update($data);
+        $battleplan = Battleplan::with(Battleplan::$printWith)->find($battleplan->id);
+
+        foreach ($data["battleplan"]["floors"] as $key => $floorData) {
+            // Update BattleFloor
+            $floorModel = Battlefloor::find($floorData["id"]);
+            $floorModel->update($floorData);
+
+            // default value
+            $floorData["draws"] = isset($floorData["draws"]) ? $floorData["draws"] : [];
+
+            // Delete draws that no longer exist
+            $existingIds = array_column($floorModel->draws->toArray(), "id");
+            $sentids = array_column($floorData["draws"], "id");
+            $diffs = array_diff($existingIds, $sentids);
+            foreach ($diffs as $key => $toDeleteId) {
+                Draw::find($toDeleteId)->delete();
+            }
+
+            // Update draws / create new draws
+            foreach ($floorData["draws"] as $key => $draw) {
+                $draw['battlefloor_id'] = $floorModel->id;
+
+                // Update existing
+                if(isset($draw['id'])){
+                    $drawModel = Draw::find($draw['id']);
+                    $this->updateDraw($draw);
+                }
+                
+                // No id, create new
+                else{
+                    $drawModel = Draw::create($draw);
+                }
+            }
+        }
+
+        $battleplan = Battleplan::with(Battleplan::$printWith)->find($battleplan->id);
 
         // respond with update object
-        return response()->success($this->fullPlanData($battleplan->fresh()));
+        return response()->success($battleplan);
     }
 
     /**
@@ -237,11 +266,55 @@ class BattleplanController extends Controller
     /**
      * Helper function
      */
-    private function fullPlanData($battleplan){
-        return Battleplan::
-            slotData()
-            ->mapData()
-            ->BattlefloorData()
-            ->find($battleplan->id);
+
+    // Account for all the possible draw types and how to update them
+    private function updateDraw($data){
+        // Note: There are no possible fiels to update in the draw, only the draw morph
+        $draw = Draw::find($data['id']);
+        
+        switch (get_class($draw->drawable)) {
+            case Square::class:
+                $data['origin_id'] = Coordinate::create($data["origin"])->id;
+                $data['destination_id'] = Coordinate::create($data["destination"])->id;
+
+                $oldOrigin = $draw->drawable->origin;
+                $oldDestination = $draw->drawable->destination;
+
+                $draw->drawable->update($data);
+
+                $oldOrigin->delete();
+                $oldDestination->delete();
+
+                break;
+            
+            case Line::class:
+                // Generate new points
+                $points = [];
+                foreach ($data['points'] as $key => $point) {
+                    $points[] = Coordinate::create($point);
+                }
+
+                // Delete existing
+                foreach ($draw->drawable->coordinates as $key => $coordinate) {
+                    $draw->drawable->coordinates()->detach($coordinate->id);
+                    $coordinate->delete();
+                }
+                
+                // Update call
+                $draw->drawable->coordinates()->sync(array_column($points, 'id'));
+                $draw->drawable->update($data);
+                break;
+                
+            case Icon::class:
+                
+                $data['origin_id'] = Coordinate::create($data["origin"])->id;
+
+                $oldOrigin = $draw->drawable->origin;
+                $draw->drawable->update($data);
+                $oldOrigin->delete();
+
+                break;
+            
+        }
     }
 }

@@ -66,7 +66,7 @@
           </div>
 
           <div class="custom-control custom-switch">
-            <input type="checkbox" class="custom-control-input" name="is_competitive" id="exampleCheck1">
+            <input type="checkbox" class="custom-control-input" name="competitive" id="exampleCheck1">
             <label class="custom-control-label" for="exampleCheck1">Competitive Playlist</label>
           </div>
         </div>

@@ -11,7 +11,7 @@ class OperatorController extends Controller {
 
   /**
    * Views
-  */
+   */
 
   public function index(Request $request) {
     $ops = Operator::all();
@@ -24,28 +24,32 @@ class OperatorController extends Controller {
 
   public function show(Request $request, Operator $operator) {
     $op = $operator
-        ->with('media')
+        ->with('icon')
         ->find($operator->id);
     return view("operators.show", compact('op'));
   }
 
   public function edit(Request $request, Operator $operator){
     $op = $operator
-        ->with('media')
+        ->with('icon')
         ->find($operator->id);
     return view("operators.edit", compact('op'));
   }
 
+  /**
+   * Views
+   */
   public function create(Request $request) {
 
     $data = $request->validate([
         'name' => ['required'],
         'icon' => ['required','file'],
-        'atk' => [],
+        'attacker' => [],
         'colour' => ['required']
     ]);
 
-    $data['is_attacker'] = isset($data['is_attacker']);
+    // Checkbox is set to 'on' if true, null if false. Convert to bool value
+    $data['attacker'] = isset($data['attacker']);
     $data['user_id'] = Auth::user()->id;
 
     $operator = Operator::create($data);
@@ -61,18 +65,18 @@ class OperatorController extends Controller {
     $data = $request->validate([
         'name' => ['required'],
         'icon' => ['file'],
-        'atk' => [],
+        'attacker' => [],
         'colour' => ['required']
     ]);
 
-    $data['atk'] = isset($data['atk']);
+    $data['attacker'] = isset($data['attacker']);
 
     if(isset($data["icon"])){
         if($operator->media){
             $operator->media->delete(); // delete old one
         }
         $media = Media::fromFile($data['icon'], "operators/{$operator->name}", "public"); // create new one
-        $data['media_id'] = $media->id; // associate
+        $data['icon_id'] = $media->id; // associate
     }
 
     $operator->update($data);

@@ -18866,7 +18866,7 @@ function () {
 
   }, {
     key: "SaveAs",
-    value: function SaveAs() {
+    value: function SaveAs(name, description, notes, ispublic) {
       var operatorsJson = [];
 
       for (var i = 0; i < this.operators.length; i++) {
@@ -18876,15 +18876,17 @@ function () {
 
       var json = {
         'battleplan': this.battleplan.ToJson(),
-        'operators': operatorsJson
+        'operators': operatorsJson,
+        'name': name,
+        'description': description,
+        'notes': notes,
+        'public': ispublic
       };
       $.ajax({
         method: "POST",
-        contentType: "application/json",
-        url: "/battleplan",
-        dataType: "json",
+        url: "/battleplan/".concat(this.battleplan.id),
+        data: json,
         success: function success(result) {
-          // callback(result);
           alert("success");
         },
         error: function error(result) {
@@ -19495,21 +19497,53 @@ function (_Databaseable) {
     _this.background;
     _this.image = new Image();
     _this.load;
-    _this.finishedCallback = callback;
+    _this.finishedCallback = callback; // map the possible classes for draws
 
-    _this.Initialize(data);
-
+    _this.Line = __webpack_require__(/*! ./Line.js */ "./resources/js/battleplan/edit/classes/Line.js")["default"], _this.Square = __webpack_require__(/*! ./Square.js */ "./resources/js/battleplan/edit/classes/Square.js")["default"], _this.Icon = __webpack_require__(/*! ./Icon.js */ "./resources/js/battleplan/edit/classes/Icon.js")["default"], _this.Initialize(data);
     return _this;
   }
 
   _createClass(Floor, [{
     key: "Initialize",
     value: function Initialize(data) {
-      this.background = data.floor.media.url;
+      var _this2 = this;
 
-      for (var i = 0; i < this.draws.length; i++) {
-        this.draws[i] = Object.assign(new this.Draw(), this.draws[i]);
-        this.draws[i].init();
+      this.background = data.floor.source.url;
+
+      for (var i = 0; i < data.draws.length; i++) {
+        var typeArray = data.draws[i]['drawable_type'].split('\\');
+        var type = typeArray[typeArray.length - 1];
+
+        switch (type) {
+          case 'Line':
+            this.draws[i] = new this.Line(data.draws[i].id, data.draws[i].drawable.color, data.draws[i].drawable.size);
+            data.draws[i].drawable.points.forEach(function (coordinate) {
+              _this2.draws[i].points.push({
+                'x': coordinate['x'],
+                'y': coordinate['y']
+              });
+            });
+            break;
+
+          case 'Square':
+            this.draws[i] = new this.Square(data.draws[i].id, data.draws[i].drawable.origin, data.draws[i].drawable.destination, data.draws[i].drawable.color, data.draws[i].drawable.size, data.draws[i].drawable.opacity);
+            break;
+
+          case 'Icon':
+            this.draws[i] = new this.Icon(data.draws[i].id, {
+              'x': data.draws[i].drawable.origin.x,
+              'y': data.draws[i].drawable.origin.y
+            }, data.draws[i].drawable.size, data.draws[i].drawable.source); // var tmp = data.draws[i].drawable;
+            // this.draws[i].origin = {'x': data.draws[i].drawable.origin.x,'y': data.draws[i].drawable.origin.y};
+            // this.draws[i].destination =  {'x': data.draws[i].drawable.destination.x,'y': data.draws[i].drawable.destination.y};
+
+            break;
+          // Do default
+
+          default:
+            console.error(' Invalid Draw Type');
+            break;
+        }
       } // acquire image
 
 
@@ -19595,12 +19629,12 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 /**************************
 	Extention class type
 **************************/
-var Rectangleable = __webpack_require__(/*! ./Rectangleable.js */ "./resources/js/battleplan/edit/classes/Rectangleable.js")["default"];
+var Draw = __webpack_require__(/*! ./Draw.js */ "./resources/js/battleplan/edit/classes/Draw.js")["default"];
 
 var Icon =
 /*#__PURE__*/
-function (_Rectangleable) {
-  _inherits(Icon, _Rectangleable);
+function (_Draw) {
+  _inherits(Icon, _Draw);
 
   /**************************
           Constructor
@@ -19610,14 +19644,17 @@ function (_Rectangleable) {
 
     _classCallCheck(this, Icon);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Icon).call(this, id, origin, origin));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(Icon).call(this, id, origin));
     _this.size = size;
-    _this.origin.x = _this.origin.x - _this.size / 2;
-    _this.origin.y = _this.origin.y - _this.size / 2;
-    _this.destination = {
-      "x": _this.origin.x + _this.size,
-      "y": _this.origin.y + _this.size
-    };
+    _this.height;
+    _this.width;
+    _this.origin = origin; // this.origin.x = this.origin.x - this.size/2;
+    // this.origin.y = this.origin.y - this.size/2;
+    // this.destination = {
+    //     "x": this.origin.x  + this.size,
+    //     "y": this.origin.y  + this.size
+    // }
+
     _this.SelectBox = __webpack_require__(/*! ./SelectBox.js */ "./resources/js/battleplan/edit/classes/SelectBox.js")["default"];
     _this.src = src;
     _this.img = null;
@@ -19632,12 +19669,14 @@ function (_Rectangleable) {
         this.img.src = this.src; // Load the image in memory
 
         this.img.onload = function () {
+          this.width = this.img.width;
+          this.height = this.img.height;
           this.draw(canvas);
         }.bind(this);
       } else {
         // translate offset
         canvas.ctx.translate(canvas.offset.x, canvas.offset.y);
-        canvas.ctx.drawImage(this.img, this.origin.x, this.origin.y, this.size, this.size);
+        canvas.ctx.drawImage(this.img, this.origin.x - this.height * this.size / 2, this.origin.y - this.width * this.size / 2, this.width * this.size, this.height * this.size);
 
         if (this.highlighted) {
           this.Highlight(canvas);
@@ -19646,6 +19685,78 @@ function (_Rectangleable) {
 
         canvas.ctx.translate(-canvas.offset.x, -canvas.offset.y);
       }
+    } // Highlights object
+
+  }, {
+    key: "Highlight",
+    value: function Highlight(canvas) {
+      var defaultColor = canvas.ctx.strokeStyle;
+      canvas.ctx.strokeStyle = "blue";
+      canvas.ctx.beginPath();
+      canvas.ctx.rect(this.origin.x - this.height * this.size / 2, this.origin.y - this.width * this.size / 2, this.width * this.size, this.height * this.size);
+      canvas.ctx.stroke();
+      canvas.ctx.strokeStyle = defaultColor;
+    }
+  }, {
+    key: "inBox",
+    value: function inBox(canvas, box) {
+      // square inside box
+      var offsetOrigin = {
+        'x': this.origin.x - this.width * this.size / 2 + canvas.offset.x,
+        'y': this.origin.y - this.height * this.size / 2 + canvas.offset.y
+      };
+      var offsetDestination = {
+        'x': this.origin.x + this.width * this.size / 2 + canvas.offset.x,
+        'y': this.origin.y + this.height * this.size / 2 + canvas.offset.y
+      };
+
+      if (this.SelectBox.PointInBox(canvas, offsetOrigin, box) || this.SelectBox.PointInBox(canvas, {
+        "x": offsetOrigin.x,
+        "y": offsetDestination.y
+      }, box) || this.SelectBox.PointInBox(canvas, offsetDestination, box) || this.SelectBox.PointInBox(canvas, {
+        "x": offsetDestination.x,
+        "y": offsetOrigin.y
+      }, box)) {
+        return true;
+      } // box inside square
+
+
+      offsetOrigin = {
+        "x": box.origin.x + canvas.offset.x,
+        "y": box.origin.y + canvas.offset.y
+      };
+      offsetDestination = {
+        "x": box.destination.x + canvas.offset.x,
+        "y": box.destination.y + canvas.offset.y
+      };
+      box = {
+        origin: {
+          'x': this.origin.x - this.width * this.size / 2,
+          'y': this.origin.y - this.height * this.size / 2
+        },
+        destination: {
+          'x': this.origin.x + this.width * this.size / 2,
+          'y': this.origin.y + this.height * this.size / 2
+        }
+      };
+
+      if (this.SelectBox.PointInBox(canvas, offsetOrigin, box) || this.SelectBox.PointInBox(canvas, {
+        "x": offsetOrigin.x,
+        "y": offsetDestination.y
+      }, box) || this.SelectBox.PointInBox(canvas, offsetDestination, box) || this.SelectBox.PointInBox(canvas, {
+        "x": offsetDestination.x,
+        "y": offsetOrigin.y
+      }, box)) {
+        return true;
+      }
+
+      return false;
+    }
+  }, {
+    key: "Move",
+    value: function Move(dX, dY) {
+      this.origin.x += dX;
+      this.origin.y += dY;
     }
     /**************************
         Helper functions
@@ -19659,15 +19770,14 @@ function (_Rectangleable) {
         'type': 'Icon',
         'id': this.id,
         'origin': this.origin,
-        'src': this.src,
-        'size': this.size,
-        'destination': this.destination
+        'source': this.src,
+        'size': this.size
       };
     }
   }]);
 
   return Icon;
-}(Rectangleable);
+}(Draw);
 
 
 
@@ -20116,7 +20226,6 @@ function (_Draw) {
         'localId': this.localId,
         'type': 'Line',
         'id': this.id,
-        'origin': this.origin,
         'color': this.color,
         'size': this.size,
         'points': this.points
@@ -20200,167 +20309,6 @@ function (_Databaseable) {
 
 /***/ }),
 
-/***/ "./resources/js/battleplan/edit/classes/Rectangleable.js":
-/*!***************************************************************!*\
-  !*** ./resources/js/battleplan/edit/classes/Rectangleable.js ***!
-  \***************************************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Rectangleable; });
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
-
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-
-var Draw = __webpack_require__(/*! ./Draw.js */ "./resources/js/battleplan/edit/classes/Draw.js")["default"];
-
-var Rectangleable =
-/*#__PURE__*/
-function (_Draw) {
-  _inherits(Rectangleable, _Draw);
-
-  /**************************
-          Constructor
-  **************************/
-  function Rectangleable(id, origin, destination) {
-    var _this;
-
-    _classCallCheck(this, Rectangleable);
-
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Rectangleable).call(this, id));
-    _this.origin = origin;
-    _this.destination = destination;
-    return _this;
-  }
-
-  _createClass(Rectangleable, [{
-    key: "Highlight",
-    // Highlights object
-    value: function Highlight(canvas) {
-      var defaultColor = canvas.ctx.strokeStyle;
-      canvas.ctx.strokeStyle = "blue";
-      var offsetOrigin = {
-        "x": this.origin.x,
-        "y": this.origin.y
-      };
-      var offsetDestination = {
-        "x": this.destination.x,
-        "y": this.destination.y
-      };
-      canvas.ctx.beginPath();
-      canvas.ctx.rect(offsetOrigin.x, offsetOrigin.y, offsetDestination.x - offsetOrigin.x, offsetDestination.y - offsetOrigin.y);
-      canvas.ctx.stroke();
-      canvas.ctx.strokeStyle = defaultColor;
-    }
-  }, {
-    key: "inBox",
-    value: function inBox(canvas, box) {
-      // square inside box
-      var offsetOrigin = {
-        "x": this.origin.x + canvas.offset.x,
-        "y": this.origin.y + canvas.offset.y
-      };
-      var offsetDestination = {
-        "x": this.destination.x + canvas.offset.x,
-        "y": this.destination.y + canvas.offset.y
-      }; // origin must always be bigger the destination for drawing on canvas
-
-      Rectangleable.checkSides(offsetOrigin, offsetDestination);
-
-      if (this.SelectBox.PointInBox(canvas, offsetOrigin, box) || this.SelectBox.PointInBox(canvas, {
-        "x": offsetOrigin.x,
-        "y": offsetDestination.y
-      }, box) || this.SelectBox.PointInBox(canvas, offsetDestination, box) || this.SelectBox.PointInBox(canvas, {
-        "x": offsetDestination.x,
-        "y": offsetOrigin.y
-      }, box)) {
-        return true;
-      } // square inside box
-
-
-      offsetOrigin = {
-        "x": box.origin.x + canvas.offset.x,
-        "y": box.origin.y + canvas.offset.y
-      };
-      offsetDestination = {
-        "x": box.destination.x + canvas.offset.x,
-        "y": box.destination.y + canvas.offset.y
-      }; // origin must always be bigger the destination for drawing on canvas
-
-      Rectangleable.checkSides(offsetOrigin, offsetDestination);
-
-      if (this.SelectBox.PointInBox(canvas, offsetOrigin, this) || this.SelectBox.PointInBox(canvas, {
-        "x": offsetOrigin.x,
-        "y": offsetDestination.y
-      }, this) || this.SelectBox.PointInBox(canvas, offsetDestination, this) || this.SelectBox.PointInBox(canvas, {
-        "x": offsetDestination.x,
-        "y": offsetOrigin.y
-      }, this)) {
-        return true;
-      }
-
-      return false;
-    }
-  }, {
-    key: "Move",
-    value: function Move(dX, dY) {
-      this.origin.x += dX;
-      this.origin.y += dY;
-      this.destination.x += dX;
-      this.destination.y += dY;
-    }
-  }, {
-    key: "ToJson",
-    value: function ToJson() {
-      return {
-        'id': this.id,
-        'localId': this.localId,
-        'origin': this.origin,
-        'destination': this.destination
-      };
-    }
-  }], [{
-    key: "checkSides",
-    value: function checkSides(origin, destination) {
-      var tmp;
-
-      if (parseInt(origin.x) > parseInt(destination.x)) {
-        tmp = origin.x;
-        origin.x = destination.x;
-        destination.x = tmp;
-      }
-
-      if (parseInt(origin.y) > parseInt(destination.y)) {
-        tmp = origin.y;
-        origin.y = destination.y;
-        destination.y = tmp;
-      }
-    }
-  }]);
-
-  return Rectangleable;
-}(Draw);
-
-
-
-/***/ }),
-
 /***/ "./resources/js/battleplan/edit/classes/SelectBox.js":
 /*!***********************************************************!*\
   !*** ./resources/js/battleplan/edit/classes/SelectBox.js ***!
@@ -20392,24 +20340,26 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 /**************************
 	Extention class type
 **************************/
-var Rectangleable = __webpack_require__(/*! ./Rectangleable.js */ "./resources/js/battleplan/edit/classes/Rectangleable.js")["default"];
+var Draw = __webpack_require__(/*! ./Draw.js */ "./resources/js/battleplan/edit/classes/Draw.js")["default"];
 
 var SelectBox =
 /*#__PURE__*/
-function (_Rectangleable) {
-  _inherits(SelectBox, _Rectangleable);
+function (_Draw) {
+  _inherits(SelectBox, _Draw);
 
   /**************************
           Constructor
   **************************/
-  function SelectBox(origin, color, size) {
+  function SelectBox(origin, destination, color, size) {
     var _this;
 
     _classCallCheck(this, SelectBox);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(SelectBox).call(this, null, origin, origin));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(SelectBox).call(this, null));
     _this.color = color;
     _this.size = size;
+    _this.origin = origin;
+    _this.destination = destination;
     return _this;
   }
 
@@ -20430,10 +20380,7 @@ function (_Rectangleable) {
       canvas.ctx.beginPath();
       canvas.ctx.rect(offsetOrigin.x, offsetOrigin.y, offsetDestination.x - offsetOrigin.x, offsetDestination.y - offsetOrigin.y);
       canvas.ctx.stroke();
-    } // Determine if a given point is inside box coordinates
-    // Assumption, box is Axis alignes with both x and y (AABB)
-    // point is searched point (2d)
-
+    }
   }, {
     key: "Select",
     value: function Select(canvas, draws) {
@@ -20444,6 +20391,26 @@ function (_Rectangleable) {
       });
     }
   }], [{
+    key: "checkSides",
+    value: function checkSides(origin, destination) {
+      var tmp;
+
+      if (parseInt(origin.x) > parseInt(destination.x)) {
+        tmp = origin.x;
+        origin.x = destination.x;
+        destination.x = tmp;
+      }
+
+      if (parseInt(origin.y) > parseInt(destination.y)) {
+        tmp = origin.y;
+        origin.y = destination.y;
+        destination.y = tmp;
+      }
+    } // Determine if a given point is inside box coordinates
+    // Assumption, box is Axis alignes with both x and y (AABB)
+    // point is searched point (2d)
+
+  }, {
     key: "PointInBox",
     value: function PointInBox(canvas, point, box) {
       var offsetOrigin = {
@@ -20462,7 +20429,7 @@ function (_Rectangleable) {
   }]);
 
   return SelectBox;
-}(Rectangleable);
+}(Draw);
 
 
 
@@ -20499,26 +20466,28 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 /**************************
 	Extention class type
 **************************/
-var Rectangleable = __webpack_require__(/*! ./Rectangleable.js */ "./resources/js/battleplan/edit/classes/Rectangleable.js")["default"];
+var Draw = __webpack_require__(/*! ./Draw.js */ "./resources/js/battleplan/edit/classes/Draw.js")["default"];
 
 var Square =
 /*#__PURE__*/
-function (_Rectangleable) {
-  _inherits(Square, _Rectangleable);
+function (_Draw) {
+  _inherits(Square, _Draw);
 
   /**************************
           Constructor
   **************************/
-  function Square(id, origin, color, size, opacity) {
+  function Square(id, origin, destination, color, size, opacity) {
     var _this;
 
     _classCallCheck(this, Square);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Square).call(this, id, origin, origin));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(Square).call(this, id));
     _this.SelectBox = __webpack_require__(/*! ./SelectBox.js */ "./resources/js/battleplan/edit/classes/SelectBox.js")["default"];
     _this.color = color;
     _this.size = size;
     _this.opacity = opacity;
+    _this.origin = origin;
+    _this.destination = destination;
     return _this;
   }
 
@@ -20551,6 +20520,82 @@ function (_Rectangleable) {
       canvas.ctx.translate(-canvas.offset.x, -canvas.offset.y);
     }
   }, {
+    key: "inBox",
+    value: function inBox(canvas, box) {
+      // square inside box
+      var offsetOrigin = {
+        "x": this.origin.x + canvas.offset.x,
+        "y": this.origin.y + canvas.offset.y
+      };
+      var offsetDestination = {
+        "x": this.destination.x + canvas.offset.x,
+        "y": this.destination.y + canvas.offset.y
+      }; // origin must always be bigger the destination for drawing on canvas
+
+      Square.checkSides(offsetOrigin, offsetDestination);
+
+      if (this.SelectBox.PointInBox(canvas, offsetOrigin, box) || this.SelectBox.PointInBox(canvas, {
+        "x": offsetOrigin.x,
+        "y": offsetDestination.y
+      }, box) || this.SelectBox.PointInBox(canvas, offsetDestination, box) || this.SelectBox.PointInBox(canvas, {
+        "x": offsetDestination.x,
+        "y": offsetOrigin.y
+      }, box)) {
+        return true;
+      } // square inside box
+
+
+      offsetOrigin = {
+        "x": box.origin.x + canvas.offset.x,
+        "y": box.origin.y + canvas.offset.y
+      };
+      offsetDestination = {
+        "x": box.destination.x + canvas.offset.x,
+        "y": box.destination.y + canvas.offset.y
+      }; // origin must always be bigger the destination for drawing on canvas
+
+      Square.checkSides(offsetOrigin, offsetDestination);
+
+      if (this.SelectBox.PointInBox(canvas, offsetOrigin, this) || this.SelectBox.PointInBox(canvas, {
+        "x": offsetOrigin.x,
+        "y": offsetDestination.y
+      }, this) || this.SelectBox.PointInBox(canvas, offsetDestination, this) || this.SelectBox.PointInBox(canvas, {
+        "x": offsetDestination.x,
+        "y": offsetOrigin.y
+      }, this)) {
+        return true;
+      }
+
+      return false;
+    }
+  }, {
+    key: "Move",
+    value: function Move(dX, dY) {
+      this.origin.x += dX;
+      this.origin.y += dY;
+      this.destination.x += dX;
+      this.destination.y += dY;
+    } // Highlights object
+
+  }, {
+    key: "Highlight",
+    value: function Highlight(canvas) {
+      var defaultColor = canvas.ctx.strokeStyle;
+      canvas.ctx.strokeStyle = "blue";
+      var offsetOrigin = {
+        "x": this.origin.x,
+        "y": this.origin.y
+      };
+      var offsetDestination = {
+        "x": this.destination.x,
+        "y": this.destination.y
+      };
+      canvas.ctx.beginPath();
+      canvas.ctx.rect(offsetOrigin.x, offsetOrigin.y, offsetDestination.x - offsetOrigin.x, offsetDestination.y - offsetOrigin.y);
+      canvas.ctx.stroke();
+      canvas.ctx.strokeStyle = defaultColor;
+    }
+  }, {
     key: "ToJson",
     value: function ToJson() {
       return {
@@ -20564,10 +20609,27 @@ function (_Rectangleable) {
         'opacity': this.opacity
       };
     }
+  }], [{
+    key: "checkSides",
+    value: function checkSides(origin, destination) {
+      var tmp;
+
+      if (parseInt(origin.x) > parseInt(destination.x)) {
+        tmp = origin.x;
+        origin.x = destination.x;
+        destination.x = tmp;
+      }
+
+      if (parseInt(origin.y) > parseInt(destination.y)) {
+        tmp = origin.y;
+        origin.y = destination.y;
+        destination.y = tmp;
+      }
+    }
   }]);
 
   return Square;
-}(Rectangleable);
+}(Draw);
 
 
 
@@ -20804,7 +20866,7 @@ function (_Tool) {
     // Super Class constructor call
     _this = _possibleConstructorReturn(this, _getPrototypeOf(ToolIcon).call(this, app));
     _this.Icon = __webpack_require__(/*! ./Icon.js */ "./resources/js/battleplan/edit/classes/Icon.js")["default"];
-    _this.size = 100;
+    _this.size = 3;
     return _this;
   }
 
@@ -21146,7 +21208,7 @@ function (_Tool) {
   _createClass(ToolSelect, [{
     key: "actionDown",
     value: function actionDown(coordinates) {
-      this.activeSelect = new this.SelectBox(this.AddOffsetCoordinates(coordinates), "ffffff", this.size);
+      this.activeSelect = new this.SelectBox(this.AddOffsetCoordinates(coordinates), this.AddOffsetCoordinates(coordinates), "ffffff", this.size);
       this.app.battleplan.floor.AddDraw(this.activeSelect);
     }
   }, {
@@ -21241,7 +21303,7 @@ function (_Tool) {
   _createClass(ToolSquare, [{
     key: "actionDown",
     value: function actionDown(coordinates) {
-      this.activeSquare = new this.Square(null, this.AddOffsetCoordinates(coordinates), this.color, this.size, this.opacity);
+      this.activeSquare = new this.Square(null, this.AddOffsetCoordinates(coordinates), this.AddOffsetCoordinates(coordinates), this.color, this.size, this.opacity);
       this.app.battleplan.floor.AddDraw(this.activeSquare);
     }
   }, {
@@ -21388,7 +21450,7 @@ window.app = app;
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! D:\Documents\GitHub\website-laravel-battleplanner-v2\resources\js\battleplan\edit\edit.js */"./resources/js/battleplan/edit/edit.js");
+module.exports = __webpack_require__(/*! D:\Repositories\website-laravel-battleplanner-v2\resources\js\battleplan\edit\edit.js */"./resources/js/battleplan/edit/edit.js");
 
 
 /***/ })

@@ -29,7 +29,7 @@
 @endpush
 
 @section('content')
-@include('battleplan.left-sidebar')
+@include('battleplan.left-sidebar', ["attackers" => $attackers, "defenders" => $defenders])
 @include('battleplan.right-sidebar')
 <div class="wrapper">
     <canvas id="viewport"></canvas>
@@ -53,12 +53,30 @@
 
       <div class="modal-body">
         <div class="form-group">
-            <input type="text" class="form-control" id="battleplanName" name="battleplanName" placeholder="Battleplan Name">
+            <label for="exampleInputEmail1">Name</label>
+            <input type="text" class="form-control" id="bName" name="name" aria-describedby="emailHelp" placeholder="Battleplan Name" value="{{$battleplan->name}}">
+        </div>
+
+        <div class="form-group">
+            <label for="exampleInputEmail1">Description</label>
+            <textarea type="text" class="form-control" id="bDescription" name="description" aria-describedby="emailHelp" placeholder="Battleplan Description">{{$battleplan->description}}</textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="exampleInputEmail1">Notes</label>
+            <textarea type="text" class="form-control" id="bNotes" name="notes" aria-describedby="emailHelp" placeholder="Notes about the plan">{{$battleplan->notes}}</textarea>
+        </div>
+        
+        <div class="custom-control custom-switch">
+            <input type="checkbox" class="custom-control-input" name="public" id="bPublic" {{ ($battleplan->public) ?"checked" : ""}}>
+            <label class="custom-control-label" for="exampleCheck1">Public</label>
         </div>
       </div>
 
+      
+
       <div class="modal-footer">
-        <button type="button" class="btn btn-primary" onclick="app.SaveAs()" data-dismiss="modal">Save</button>
+        <button type="button" class="btn btn-primary" onclick="app.SaveAs($('#bName').val(),$('#bDescription').val(),$('#bNotes').val(),$('#bPublic').val())" data-dismiss="modal">Save</button>
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
       </div>
 

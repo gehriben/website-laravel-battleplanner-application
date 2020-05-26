@@ -60,6 +60,7 @@ Route::prefix('/battleplan')->group(function () {
 
     // API's
     Route::post('/', 'BattleplanController@create')->name("Battleplan.create");
+    Route::post('{battleplan}', 'BattleplanController@update')->name("Battleplan.update");
 
 });
 
