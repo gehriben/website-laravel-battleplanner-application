@@ -52,6 +52,14 @@ Route::prefix('/operators')->group(function () {
     Route::post('/{operator}', 'OperatorController@update')->name("Operators.update");
 });
 
+Route::prefix('/gadgets')->group(function() {
+    Route::get('/', 'GadgetController@index')->name("Gadgets.index");
+    Route::get('new', 'GadgetController@new')->name("Gadgets.new");
+
+    // APIs
+    Route::post('/', 'GadgetController@create')->name("Gadgets.create");
+});
+
 Route::prefix('/battleplan')->group(function () {
     Route::get('/', 'BattleplanController@index')->name("Battleplan.index");
     Route::get('new', 'BattleplanController@new')->name("Battleplan.new");

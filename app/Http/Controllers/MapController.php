@@ -10,6 +10,13 @@ use Auth;
 
 class MapController extends Controller
 {
+    /**
+     * Middleware checks
+     */
+    public function __construct()
+    {
+        $this->middleware('isAdmin')->only(['index', 'new', 'edit', 'show']);
+    }
 
     /**
      * Views
@@ -29,7 +36,7 @@ class MapController extends Controller
                 $query->orderBy('order', 'ASC');
             }))
             ->find($map->id);
-            
+
         return view("map.edit", compact('map'));
     }
 
@@ -95,7 +102,7 @@ class MapController extends Controller
             'floor-ids' => [],
             'competitive' => [],
         ]);
-        
+
         $data['competitive'] = isset($data['competitive']);
 
         // Update the thumbnail

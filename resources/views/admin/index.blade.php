@@ -29,15 +29,14 @@
         <div class="d-flex w-100 justify-content-between">
           <h5 class="mb-1">Operators</h5>
         </div>
-        <p class="mb-1">Customize available Operators and their gadgets</p>
+        <p class="mb-1">Customize available Operators</p>
       </a>
 
-        <a href="/admin/gadget" class="list-group-item list-group-item-action flex-column align-items-start">
+        <a href="/gadgets" class="list-group-item list-group-item-action flex-column align-items-start">
         <div class="d-flex w-100 justify-content-between">
-            <h5 class="mb-1">General Gadgets</h5>
-            <!-- <small>3 days ago</small> -->
+            <h5 class="mb-1">Gadgets</h5>
         </div>
-        <p class="mb-1">Customize available General Gadgets</p>
+        <p class="mb-1">Customize available Gadgets</p>
         </a>
 
     </div>

@@ -13,7 +13,7 @@ class Gadget extends Model
   protected $fillable = [
     // Properties
     'name',
-    
+
     // Fkeys
     'icon_id',
   ];
@@ -27,5 +27,11 @@ class Gadget extends Model
 
   public function icon() {
     return $this->belongsTo(Media::class);
+  }
+
+  public static function create(array $attributes = []) {
+    $media = Media::fromFile($attributes['icon'], "gadgets/{$attributes['name']}", "public");
+    $attributes['icon_id'] = $media->id;
+    return static::query()->create($attributes);
   }
 }

@@ -10,6 +10,14 @@ use Auth;
 class OperatorController extends Controller {
 
   /**
+   * Middleware checks
+   */
+  public function __construct()
+  {
+      $this->middleware('isAdmin');
+  }
+
+  /**
    * Views
    */
 
@@ -37,8 +45,9 @@ class OperatorController extends Controller {
   }
 
   /**
-   * Views
+   * APIs
    */
+
   public function create(Request $request) {
 
     $data = $request->validate([
