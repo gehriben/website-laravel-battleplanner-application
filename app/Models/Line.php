@@ -35,10 +35,16 @@ class Line extends Model
      */
     public static function create(array $attributes = [])
     {
+        
+        // we need to optimize the compressions of objects or else we go over the alloted php POST size limit.
+        // Serialization is a 2n array where all 1n are x and 2n are y coordinates
+        $explodedPoints = explode(',', $attributes['points']);
+
         $points = [];
-        foreach ($attributes['points'] as $key => $point) {
-            $points[] = Coordinate::create($point);
+        for ($i=0; $i < count($explodedPoints); $i++) {
+            $points[] = Coordinate::create(['x' => $explodedPoints[$i], 'y' => $explodedPoints[++$i]]);
         }
+        
         $model = static::query()->create($attributes);
 
         $model->coordinates()->sync(array_column($points, 'id'));

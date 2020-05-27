@@ -4,7 +4,7 @@
 
     function openOperatorModal(operatorSlot) {
         $('#operator-modal').modal();
-        app.operator = app.operators[operatorSlot];
+        app.battleplan.operator = app.battleplan.operators[operatorSlot];
     }
     function ChangeOperator(id,src){
         $('#operator-modal').hide();

@@ -15,8 +15,8 @@ class CreateCoordinatesTable extends Migration
     {
         Schema::create('coordinates', function (Blueprint $table) {
             $table->increments('id');
-            $table->float("x", 10, 5);
-            $table->float("y", 10, 5);
+            $table->double("x", 12, 2);
+            $table->double("y", 12, 2);
             $table->timestamps();
         });
     }

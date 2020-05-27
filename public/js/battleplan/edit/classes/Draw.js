@@ -38,6 +38,7 @@ class Draw extends Databaseable{
     }
 
     Move(dX,dY){
+        this.updated = true;
         // Should be overriden in child
     }
 
