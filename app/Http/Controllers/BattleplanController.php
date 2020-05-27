@@ -14,6 +14,7 @@ use App\Models\Square;
 use App\Models\Icon;
 use App\Models\Coordinate;
 use App\Models\Operator;
+use App\Models\OperatorSlot;
 
 use Auth;
 class BattleplanController extends Controller
@@ -112,7 +113,6 @@ class BattleplanController extends Controller
      * Create a battleplan
      */
     public function create(Request $request){
-
         $data = $request->validate([
             'name' => ['required'],
             'map_id' => ['required', 'exists:maps,id'],
@@ -163,7 +163,6 @@ class BattleplanController extends Controller
      * Update a battleplan values
      */
     public function update(Request $request, Battleplan $battleplan){
-        
         // Is not owner
         if ($battleplan->owner->id != Auth::User()->id) {
             return response()->error("Unauthorized", [], 403);
@@ -177,7 +176,6 @@ class BattleplanController extends Controller
             'notes' => [''],
             'public' => [''],
             'battleplan' => ['required'],
-            'operators' => ['required']
         ]);
 
         // dd($data);
@@ -188,6 +186,12 @@ class BattleplanController extends Controller
 
         $battleplan->update($data);
         $battleplan = Battleplan::with(Battleplan::$printWith)->find($battleplan->id);
+
+        // Update operators on the battleplan
+        foreach ($data['battleplan']["operators"] as $key => $operatorSlotData) {
+            $operatorSlotModel = OperatorSlot::find($operatorSlotData['id']);
+            $operatorSlotModel->update($operatorSlotData);
+        }
 
         foreach ($data["battleplan"]["floors"] as $key => $floorData) {
             // Update BattleFloor
@@ -211,8 +215,11 @@ class BattleplanController extends Controller
 
                 // Update existing
                 if(isset($draw['id'])){
-                    $drawModel = Draw::find($draw['id']);
-                    $this->updateDraw($draw);
+                    if($draw['updated'] === 'true'){
+                        // dd($draw['updated']);
+                        $drawModel = Draw::find($draw['id']);
+                        $this->updateDraw($draw);
+                    }
                 }
                 
                 // No id, create new
@@ -289,20 +296,25 @@ class BattleplanController extends Controller
             
             case Line::class:
                 // Generate new points
+
+                // we need to optimize the compressions of objects or else we go over the alloted php POST size limit.
+                // Serialization is a 2n array where all 1n are x and 2n are y coordinates
+                $explodedPoints = explode(',', $data['points']);
+
                 $points = [];
-                foreach ($data['points'] as $key => $point) {
-                    $points[] = Coordinate::create($point);
+                for ($i=0; $i < count($explodedPoints); $i++) {
+                    $points[] = Coordinate::create(['x' => $explodedPoints[$i], 'y' => $explodedPoints[++$i]]);
                 }
 
                 // Delete existing
-                foreach ($draw->drawable->coordinates as $key => $coordinate) {
-                    $draw->drawable->coordinates()->detach($coordinate->id);
-                    $coordinate->delete();
-                }
+                $toDeleteIds = array_column($draw->drawable->coordinates->toArray(), 'id');
+                $draw->drawable->coordinates()->detach($toDeleteIds);
+                Coordinate::whereIn('id', $toDeleteIds)->delete();
                 
                 // Update call
                 $draw->drawable->coordinates()->sync(array_column($points, 'id'));
                 $draw->drawable->update($data);
+
                 break;
                 
             case Icon::class:

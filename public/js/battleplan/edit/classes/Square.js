@@ -127,7 +127,7 @@ class Square extends Draw {
     }
     
     Move(dX,dY){
-        
+        super.Move(dX,dY);
         this.origin.x += dX;
         this.origin.y += dY;
 
@@ -171,7 +171,8 @@ class Square extends Draw {
             'color' : this.color,
             'size' : this.size,
             'destination' : this.destination,
-            'opacity' : this.opacity
+            'opacity' : this.opacity,
+            'updated' : this.updated,
         }
     }
 }

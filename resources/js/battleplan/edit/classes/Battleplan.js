@@ -1,5 +1,6 @@
 var Floor = require('./Floor.js').default;
 var Databaseable = require('./Databaseable.js').default;
+var Operator = require('./Operator.js').default;
 
 class Battleplan extends Databaseable{
 
@@ -7,18 +8,21 @@ class Battleplan extends Databaseable{
             Constructor
     **************************/
 
-    constructor(id, callback) {
+    constructor(id, slots, callback) {
         // Properties
         super(id);
         this.floors = [];        // Floors of the battleplan
         this.floor;              // Current Active Floor
         this.finishedCallback = callback;
-        this.Initialize(id,callback);
+        this.operators = []             // Operators
+        this.operator;                  // Operator slot being edited
+        this.Initialize(id,slots,callback);
     }
     
-    Initialize(id,callback){
+    Initialize(id,slots,callback){
         this.Get(id,function(result){
 
+            // Create floors
             for(var i = 0; i < result.battlefloors.length; i++){
                 var floor = new Floor(result.battlefloors[i], this.ReadyCheck.bind(this))
                 this.floors.push(floor);
@@ -27,6 +31,15 @@ class Battleplan extends Databaseable{
                 if(i == 0){
                     this.floor = floor;
                 }
+            }
+
+            // Create operator slots object
+            for (let i = 0; i < slots.length; i++) {
+                var operator_src = (result['operator_slots'][i]['operator']) ? result['operator_slots'][i]['operator']["icon"]["url"] : "https://via.placeholder.com/50";
+                this.operators.push({
+                    "operator" : new Operator(result['operator_slots'][i]['id'],result['operator_slots'][i]['operator_id'],operator_src),
+                    "slot" : slots[i]
+                });
             }
 
         }.bind(this));
@@ -67,6 +80,13 @@ class Battleplan extends Databaseable{
     }
 
     ToJson(){
+        
+        var operatorsJson = [];
+        for (let i = 0; i < this.operators.length; i++) {
+            const operator = this.operators[i].operator;
+            operatorsJson.push(operator.ToJson());
+        }
+
         var floorsJson = [];
         for (let i = 0; i < this.floors.length; i++) {
             const floor = this.floors[i];
@@ -75,6 +95,7 @@ class Battleplan extends Databaseable{
 
         return {
             'id' : this.id,
+            'operators' : operatorsJson,
             'localId' : this.localId,
             'floors' : floorsJson
         }

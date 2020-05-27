@@ -77,6 +77,7 @@ class Line extends Draw {
     }
 
     Move(dX,dY){
+        super.Move(dX,dY);
         // Itterate each point
         for (let i = 0; i < this.points.length; i++) {
             this.points[i].x += dX;
@@ -94,10 +95,27 @@ class Line extends Draw {
             'id' : this.id,
             'color' : this.color,
             'size' : this.size,
-            'points' : this.points
+            'updated' : this.updated,
+
+            // we need to optimize the compressions of objects or else we go over the alloted php POST size limit.
+            // Serialization is a 2n array where all 1n are x and 2n are y coordinates
+            'points' : this.CompressPoints(this.points)
+
+            // This is too unoptimized
+            // 'points' : this.points
         }
     }
 
+    CompressPoints(points){
+        var compressed = "";
+        points.forEach(point => {
+            compressed += `${point.x},${point.y},`;
+        });
+        
+        // remove trailling ','
+        compressed = compressed.substring(0, compressed.length - 1);
+        return compressed;
+    }
 }
 export {
     Line as

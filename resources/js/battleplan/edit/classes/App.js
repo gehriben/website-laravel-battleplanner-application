@@ -1,7 +1,6 @@
 var Battleplan = require('./Battleplan.js').default;
 var Canvas = require('./Canvas.js').default;
 var Keybinds = require('./Keybinds.js').default;
-var Operator = require('./Operator.js').default;
 
 class App {
 
@@ -10,14 +9,15 @@ class App {
     **************************/
 
     constructor(id, viewport, slots) {
+        this.id = id;
+        this.viewport = viewport
+        this.slots = slots;
+
         // Properties
         this.canvas;                    // Canvas data and logic
         this.map;                       // Saved Map Data (map & floors)
         this.battleplan;                // Saved battleplan instance
         this.keybinds;                  // Definition of keybind actions
-        this.viewport = viewport        // Active canvas
-        this.operators = []             // Operators
-        this.operator;                  // Operator slot being edited
 
         // Button statuses
         this.buttonEvents = {
@@ -49,19 +49,11 @@ class App {
         this.keybinds = new Keybinds(this);
 
         // Initialize Battleplan hierarchy
-        this.battleplan = new Battleplan(id, function(){
+        this.battleplan = new Battleplan(id,slots, function(){
             this.canvas = new Canvas(this,viewport);       // Initialize canvas
+            this.DisplayOperators();
         }.bind(this));
 
-        // Create operator slots object
-        for (let i = 0; i < slots.length; i++) {
-            this.operators.push({
-                "operator" : new Operator(null,"https://via.placeholder.com/50"),
-                "slot" : slots[i]
-            });
-        }
-
-        this.DisplayOperators();
     }
 
     ChangeTool(tool){
@@ -72,14 +64,14 @@ class App {
      * Operator Logic
      */
     DisplayOperators(){
-        this.operators.forEach(operator => {
+        this.battleplan.operators.forEach(operator => {
             operator.slot.attr( "src", operator.operator.src );
         });
     }
 
     ChangeOperator(operatorId,src){
-        this.operator.operator.operatorId = operatorId;
-        this.operator.operator.src = src;
+        this.battleplan.operator.operator.operatorId = operatorId;
+        this.battleplan.operator.operator.src = src;
         this.DisplayOperators();
     }
 
@@ -87,20 +79,13 @@ class App {
      * Save
      */
     SaveAs(name,description,notes,ispublic){
-        var operatorsJson = [];
-        
-        for (let i = 0; i < this.operators.length; i++) {
-            const operator = this.operators[i].operator;
-            operatorsJson.push(operator.ToJson());
-        }
 
         var json = {
             'battleplan' : this.battleplan.ToJson(),
-            'operators' : operatorsJson,
             'name' : name,
             'description' : description,
             'notes' : notes,
-            'public' : ispublic
+            'public' : ispublic,
         }
 
         $.ajax({
@@ -108,8 +93,14 @@ class App {
             url: `/battleplan/${this.battleplan.id}`,
             data: json,
             success: function (result) {
-                alert("success");
-            },
+                // alert("success");
+
+                // Initialize Battleplan hierarchy
+                this.battleplan = new Battleplan(this.id,this.slots, function(){
+                    this.canvas = new Canvas(this,this.viewport);       // Initialize canvas
+                    this.DisplayOperators();
+                }.bind(this));
+            }.bind(this),
             
             error: function (result) {
                 console.log(result);

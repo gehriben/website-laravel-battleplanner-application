@@ -11,20 +11,11 @@ class Icon extends Draw {
 
     constructor(id, origin, size, src) {
         super(id,origin);
+        this.SelectBox = require('./SelectBox.js').default;
         this.size = size;
         this.height;
         this.width;
         this.origin = origin;
-
-        // this.origin.x = this.origin.x - this.size/2;
-        // this.origin.y = this.origin.y - this.size/2;
-
-        // this.destination = {
-        //     "x": this.origin.x  + this.size,
-        //     "y": this.origin.y  + this.size
-        // }
-
-        this.SelectBox = require('./SelectBox.js').default;
         this.src = src;
         this.img = null;
     }
@@ -141,10 +132,9 @@ class Icon extends Draw {
     }
     
     Move(dX,dY){
-        
+        super.Move(dX,dY);
         this.origin.x += dX;
         this.origin.y += dY;
-
     }
     /**************************
         Helper functions
@@ -157,7 +147,8 @@ class Icon extends Draw {
             'id' : this.id,
             'origin' : this.origin,
             'source' : this.src,
-            'size' : this.size,            
+            'size' : this.size,
+            'updated' : this.updated
         }
     }
 }
