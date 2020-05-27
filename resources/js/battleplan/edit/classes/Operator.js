@@ -8,16 +8,18 @@ class Operator extends Databaseable{
     /**************************
             Constructor
     **************************/
-    constructor(id,src) {
+    constructor(id,operator_id,src) {
         super(id);
         this.src = src;
+        this.operatorId = operator_id;
     }
 
     ToJson(){
         return {
             'id' : this.id,
             'localId' : this.localId,
-            'src' : this.src
+            'src' : this.src,
+            'operator_id' : this.operatorId
         }
     }
 }

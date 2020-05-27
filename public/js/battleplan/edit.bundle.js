@@ -18767,8 +18767,6 @@ var Canvas = __webpack_require__(/*! ./Canvas.js */ "./resources/js/battleplan/e
 
 var Keybinds = __webpack_require__(/*! ./Keybinds.js */ "./resources/js/battleplan/edit/classes/Keybinds.js")["default"];
 
-var Operator = __webpack_require__(/*! ./Operator.js */ "./resources/js/battleplan/edit/classes/Operator.js")["default"];
-
 var App =
 /*#__PURE__*/
 function () {
@@ -18778,7 +18776,10 @@ function () {
   function App(id, viewport, slots) {
     _classCallCheck(this, App);
 
-    // Properties
+    this.id = id;
+    this.viewport = viewport;
+    this.slots = slots; // Properties
+
     this.canvas; // Canvas data and logic
 
     this.map; // Saved Map Data (map & floors)
@@ -18786,12 +18787,6 @@ function () {
     this.battleplan; // Saved battleplan instance
 
     this.keybinds; // Definition of keybind actions
-
-    this.viewport = viewport; // Active canvas
-
-    this.operators = []; // Operators
-
-    this.operator; // Operator slot being edited
     // Button statuses
 
     this.buttonEvents = {
@@ -18824,18 +18819,11 @@ function () {
       // Make Keybind Listener class
       this.keybinds = new Keybinds(this); // Initialize Battleplan hierarchy
 
-      this.battleplan = new Battleplan(id, function () {
+      this.battleplan = new Battleplan(id, slots, function () {
         this.canvas = new Canvas(this, viewport); // Initialize canvas
-      }.bind(this)); // Create operator slots object
 
-      for (var i = 0; i < slots.length; i++) {
-        this.operators.push({
-          "operator": new Operator(null, "https://via.placeholder.com/50"),
-          "slot": slots[i]
-        });
-      }
-
-      this.DisplayOperators();
+        this.DisplayOperators();
+      }.bind(this));
     }
   }, {
     key: "ChangeTool",
@@ -18849,15 +18837,15 @@ function () {
   }, {
     key: "DisplayOperators",
     value: function DisplayOperators() {
-      this.operators.forEach(function (operator) {
+      this.battleplan.operators.forEach(function (operator) {
         operator.slot.attr("src", operator.operator.src);
       });
     }
   }, {
     key: "ChangeOperator",
     value: function ChangeOperator(operatorId, src) {
-      this.operator.operator.operatorId = operatorId;
-      this.operator.operator.src = src;
+      this.battleplan.operator.operator.operatorId = operatorId;
+      this.battleplan.operator.operator.src = src;
       this.DisplayOperators();
     }
     /**
@@ -18867,16 +18855,8 @@ function () {
   }, {
     key: "SaveAs",
     value: function SaveAs(name, description, notes, ispublic) {
-      var operatorsJson = [];
-
-      for (var i = 0; i < this.operators.length; i++) {
-        var operator = this.operators[i].operator;
-        operatorsJson.push(operator.ToJson());
-      }
-
       var json = {
         'battleplan': this.battleplan.ToJson(),
-        'operators': operatorsJson,
         'name': name,
         'description': description,
         'notes': notes,
@@ -18886,9 +18866,15 @@ function () {
         method: "POST",
         url: "/battleplan/".concat(this.battleplan.id),
         data: json,
-        success: function success(result) {
-          alert("success");
-        },
+        success: function (result) {
+          // alert("success");
+          // Initialize Battleplan hierarchy
+          this.battleplan = new Battleplan(this.id, this.slots, function () {
+            this.canvas = new Canvas(this, this.viewport); // Initialize canvas
+
+            this.DisplayOperators();
+          }.bind(this));
+        }.bind(this),
         error: function error(result) {
           console.log(result);
         }
@@ -18936,6 +18922,8 @@ var Floor = __webpack_require__(/*! ./Floor.js */ "./resources/js/battleplan/edi
 
 var Databaseable = __webpack_require__(/*! ./Databaseable.js */ "./resources/js/battleplan/edit/classes/Databaseable.js")["default"];
 
+var Operator = __webpack_require__(/*! ./Operator.js */ "./resources/js/battleplan/edit/classes/Operator.js")["default"];
+
 var Battleplan =
 /*#__PURE__*/
 function (_Databaseable) {
@@ -18944,7 +18932,7 @@ function (_Databaseable) {
   /**************************
           Constructor
   **************************/
-  function Battleplan(id, callback) {
+  function Battleplan(id, slots, callback) {
     var _this;
 
     _classCallCheck(this, Battleplan);
@@ -18956,16 +18944,20 @@ function (_Databaseable) {
     _this.floor; // Current Active Floor
 
     _this.finishedCallback = callback;
+    _this.operators = []; // Operators
 
-    _this.Initialize(id, callback);
+    _this.operator; // Operator slot being edited
+
+    _this.Initialize(id, slots, callback);
 
     return _this;
   }
 
   _createClass(Battleplan, [{
     key: "Initialize",
-    value: function Initialize(id, callback) {
+    value: function Initialize(id, slots, callback) {
       this.Get(id, function (result) {
+        // Create floors
         for (var i = 0; i < result.battlefloors.length; i++) {
           var floor = new Floor(result.battlefloors[i], this.ReadyCheck.bind(this));
           this.floors.push(floor); // First floor, set as default
@@ -18973,6 +18965,15 @@ function (_Databaseable) {
           if (i == 0) {
             this.floor = floor;
           }
+        } // Create operator slots object
+
+
+        for (var _i = 0; _i < slots.length; _i++) {
+          var operator_src = result['operator_slots'][_i]['operator'] ? result['operator_slots'][_i]['operator']["icon"]["url"] : "https://via.placeholder.com/50";
+          this.operators.push({
+            "operator": new Operator(result['operator_slots'][_i]['id'], result['operator_slots'][_i]['operator_id'], operator_src),
+            "slot": slots[_i]
+          });
         }
       }.bind(this));
     } // Check that all sub assets have loaded
@@ -19012,15 +19013,23 @@ function (_Databaseable) {
   }, {
     key: "ToJson",
     value: function ToJson() {
+      var operatorsJson = [];
+
+      for (var i = 0; i < this.operators.length; i++) {
+        var operator = this.operators[i].operator;
+        operatorsJson.push(operator.ToJson());
+      }
+
       var floorsJson = [];
 
-      for (var i = 0; i < this.floors.length; i++) {
-        var floor = this.floors[i];
+      for (var _i2 = 0; _i2 < this.floors.length; _i2++) {
+        var floor = this.floors[_i2];
         floorsJson.push(floor.ToJson());
       }
 
       return {
         'id': this.id,
+        'operators': operatorsJson,
         'localId': this.localId,
         'floors': floorsJson
       };
@@ -19340,6 +19349,7 @@ function () {
     _classCallCheck(this, Databaseable);
 
     this.id = id;
+    this.updated = false;
     this.localId = this.GenerateLocalId();
   }
 
@@ -19437,7 +19447,8 @@ function (_Databaseable) {
     }
   }, {
     key: "Move",
-    value: function Move(dX, dY) {// Should be overriden in child
+    value: function Move(dX, dY) {
+      this.updated = true; // Should be overriden in child
     }
   }]);
 
@@ -19620,6 +19631,10 @@ function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) ===
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
+function _get(target, property, receiver) { if (typeof Reflect !== "undefined" && Reflect.get) { _get = Reflect.get; } else { _get = function _get(target, property, receiver) { var base = _superPropBase(target, property); if (!base) return; var desc = Object.getOwnPropertyDescriptor(base, property); if (desc.get) { return desc.get.call(receiver); } return desc.value; }; } return _get(target, property, receiver || target); }
+
+function _superPropBase(object, property) { while (!Object.prototype.hasOwnProperty.call(object, property)) { object = _getPrototypeOf(object); if (object === null) break; } return object; }
+
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
@@ -19645,17 +19660,11 @@ function (_Draw) {
     _classCallCheck(this, Icon);
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(Icon).call(this, id, origin));
+    _this.SelectBox = __webpack_require__(/*! ./SelectBox.js */ "./resources/js/battleplan/edit/classes/SelectBox.js")["default"];
     _this.size = size;
     _this.height;
     _this.width;
-    _this.origin = origin; // this.origin.x = this.origin.x - this.size/2;
-    // this.origin.y = this.origin.y - this.size/2;
-    // this.destination = {
-    //     "x": this.origin.x  + this.size,
-    //     "y": this.origin.y  + this.size
-    // }
-
-    _this.SelectBox = __webpack_require__(/*! ./SelectBox.js */ "./resources/js/battleplan/edit/classes/SelectBox.js")["default"];
+    _this.origin = origin;
     _this.src = src;
     _this.img = null;
     return _this;
@@ -19755,6 +19764,8 @@ function (_Draw) {
   }, {
     key: "Move",
     value: function Move(dX, dY) {
+      _get(_getPrototypeOf(Icon.prototype), "Move", this).call(this, dX, dY);
+
       this.origin.x += dX;
       this.origin.y += dY;
     }
@@ -19771,7 +19782,8 @@ function (_Draw) {
         'id': this.id,
         'origin': this.origin,
         'source': this.src,
-        'size': this.size
+        'size': this.size,
+        'updated': this.updated
       };
     }
   }]);
@@ -20127,6 +20139,10 @@ function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) ===
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
+function _get(target, property, receiver) { if (typeof Reflect !== "undefined" && Reflect.get) { _get = Reflect.get; } else { _get = function _get(target, property, receiver) { var base = _superPropBase(target, property); if (!base) return; var desc = Object.getOwnPropertyDescriptor(base, property); if (desc.get) { return desc.get.call(receiver); } return desc.value; }; } return _get(target, property, receiver || target); }
+
+function _superPropBase(object, property) { while (!Object.prototype.hasOwnProperty.call(object, property)) { object = _getPrototypeOf(object); if (object === null) break; } return object; }
+
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
@@ -20209,7 +20225,9 @@ function (_Draw) {
   }, {
     key: "Move",
     value: function Move(dX, dY) {
-      // Itterate each point
+      _get(_getPrototypeOf(Line.prototype), "Move", this).call(this, dX, dY); // Itterate each point
+
+
       for (var i = 0; i < this.points.length; i++) {
         this.points[i].x += dX;
         this.points[i].y += dY;
@@ -20228,8 +20246,24 @@ function (_Draw) {
         'id': this.id,
         'color': this.color,
         'size': this.size,
-        'points': this.points
+        'updated': this.updated,
+        // we need to optimize the compressions of objects or else we go over the alloted php POST size limit.
+        // Serialization is a 2n array where all 1n are x and 2n are y coordinates
+        'points': this.CompressPoints(this.points) // This is too unoptimized
+        // 'points' : this.points
+
       };
+    }
+  }, {
+    key: "CompressPoints",
+    value: function CompressPoints(points) {
+      var compressed = "";
+      points.forEach(function (point) {
+        compressed += "".concat(point.x, ",").concat(point.y, ",");
+      }); // remove trailling ','
+
+      compressed = compressed.substring(0, compressed.length - 1);
+      return compressed;
     }
   }]);
 
@@ -20281,13 +20315,14 @@ function (_Databaseable) {
   /**************************
           Constructor
   **************************/
-  function Operator(id, src) {
+  function Operator(id, operator_id, src) {
     var _this;
 
     _classCallCheck(this, Operator);
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(Operator).call(this, id));
     _this.src = src;
+    _this.operatorId = operator_id;
     return _this;
   }
 
@@ -20297,7 +20332,8 @@ function (_Databaseable) {
       return {
         'id': this.id,
         'localId': this.localId,
-        'src': this.src
+        'src': this.src,
+        'operator_id': this.operatorId
       };
     }
   }]);
@@ -20457,6 +20493,10 @@ function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) ===
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
+function _get(target, property, receiver) { if (typeof Reflect !== "undefined" && Reflect.get) { _get = Reflect.get; } else { _get = function _get(target, property, receiver) { var base = _superPropBase(target, property); if (!base) return; var desc = Object.getOwnPropertyDescriptor(base, property); if (desc.get) { return desc.get.call(receiver); } return desc.value; }; } return _get(target, property, receiver || target); }
+
+function _superPropBase(object, property) { while (!Object.prototype.hasOwnProperty.call(object, property)) { object = _getPrototypeOf(object); if (object === null) break; } return object; }
+
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
@@ -20571,6 +20611,8 @@ function (_Draw) {
   }, {
     key: "Move",
     value: function Move(dX, dY) {
+      _get(_getPrototypeOf(Square.prototype), "Move", this).call(this, dX, dY);
+
       this.origin.x += dX;
       this.origin.y += dY;
       this.destination.x += dX;
@@ -20606,7 +20648,8 @@ function (_Draw) {
         'color': this.color,
         'size': this.size,
         'destination': this.destination,
-        'opacity': this.opacity
+        'opacity': this.opacity,
+        'updated': this.updated
       };
     }
   }], [{

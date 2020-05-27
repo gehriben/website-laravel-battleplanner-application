@@ -9,6 +9,7 @@ class Databaseable{
 
     constructor(id) {
         this.id = id;
+        this.updated = false;
         this.localId = this.GenerateLocalId();
     }
     

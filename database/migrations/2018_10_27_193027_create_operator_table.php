@@ -20,8 +20,8 @@ class CreateOperatorTable extends Migration
             $table->boolean('attacker')->default(false);
             $table->timestamps();
 
-            $table->unsignedInteger('media_id')->nullable();
-            $table->foreign('media_id')
+            $table->unsignedInteger('icon_id')->nullable();
+            $table->foreign('icon_id')
                 ->onDelete("set null")
                 ->references('id')
                 ->on('medias');
