@@ -91,7 +91,7 @@ class GadgetController extends Controller {
 
      $gadget->update($data);
      $gadget = $gadget->fresh();
-     
+
      if(isset($data['operators'])) {
          $data['operators'] = !in_array("", $data['operators']) ? $data['operators'] : [];
          $gadget->operators()->sync($data['operators']);
