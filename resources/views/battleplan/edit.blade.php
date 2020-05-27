@@ -66,14 +66,14 @@
             <label for="exampleInputEmail1">Notes</label>
             <textarea type="text" class="form-control" id="bNotes" name="notes" aria-describedby="emailHelp" placeholder="Notes about the plan">{{$battleplan->notes}}</textarea>
         </div>
-        
+
         <div class="custom-control custom-switch">
             <input type="checkbox" class="custom-control-input" name="public" id="bPublic" {{ ($battleplan->public) ?"checked" : ""}}>
-            <label class="custom-control-label" for="exampleCheck1">Public</label>
+            <label class="custom-control-label" for="bPublic">Public</label>
         </div>
       </div>
 
-      
+
 
       <div class="modal-footer">
         <button type="button" class="btn btn-primary" onclick="app.SaveAs($('#bName').val(),$('#bDescription').val(),$('#bNotes').val(),$('#bPublic').val())" data-dismiss="modal">Save</button>

@@ -3,9 +3,9 @@
     @if($operator)
         {{-- {{dd($room->owner == Auth::User())}} --}}
       @if ($room->owner == Auth::User())
-          <div class="col-md-3 col-xs-12 top-buffer cursor-click" data-toggle="modal" data-target="#opModal" onclick="app.engine.changeOperatorSlot($('#EditingOperatorSlot').val(),{{$operator->id}})">
+          <div class="col-xl-3 col-xs-12 top-buffer cursor-click" data-toggle="modal" data-target="#opModal" onclick="app.engine.changeOperatorSlot($('#EditingOperatorSlot').val(),{{$operator->id}})">
       @else
-          <div class="col-md-3 col-xs-12 top-buffer">
+          <div class="col-xl-3 col-xs-12 top-buffer">
       @endif
             <div class="container text-center map-container">
             <img src="{{$operator->icon}}" class="map-thumb">

@@ -28,13 +28,13 @@ class Operator extends Model
   }
 
   public function gadgets() {
-    return $this->belongsToMany(Gadget::class);
+    return $this->belongsToMany(Gadget::class, 'operator_gadget');
   }
 
   public function slots() {
     return $this->belongsToMany(OperatorSlot::class);
   }
-  
+
   public static function create(array $attributes = []) {
     $media = Media::fromFile($attributes['icon'], "operators/{$attributes['name']}", "public");
     $attributes['icon_id'] = $media->id;

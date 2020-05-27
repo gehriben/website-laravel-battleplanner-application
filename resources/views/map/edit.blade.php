@@ -53,21 +53,18 @@
       <div class="card mt-3 col-12">
         <div class="properties container">
           <h2>Properties</h2>
-          <div class="form-group">
-              <label for="exampleInputEmail1">Name</label>
-              <input type="text" class="form-control" id="exampleInputEmail1" name="name" value="{{$map->name}}" required>
+          <div class="row justify-content-center form-group">
+              <label class="col-auto align-self-center mt-3" for="exampleInputEmail1">Name</label>
+              <input type="text" class="mt-3 file-input align-self-center col-12 col-xl-4 form-control" id="exampleInputEmail1" name="name" value="{{$map->name}}" required>
+              <img class="mt-3 thumb d-none d-xl-block col-xl-2" src="{{($map->thumbnail) ? $map->thumbnail->url() : 'https://via.placeholder.com/150'}}"></img>
+              <label class="mt-3 col-auto align-self-center" for="exampleInputEmail1">Thumbnail</label>
+              <input type="file" class="mt-3 file-input align-self-center col-12 col-xl-4 form-control" name="thumbnail">
           </div>
 
-          <div class="form-group">
-              <label for="exampleInputEmail1">Thumbnail</label>
-              <input type="file" class="col-sm form-control" name="thumbnail">
-              <img src="{{($map->thumbnail) ? $map->thumbnail->url() : 'https://via.placeholder.com/150'}}"></img>
-          </div>
-
-          <div class="custom-control custom-switch">
+          <div class="row mt-3 custom-control custom-switch">
             @if($map->competitive)
-            <input type="checkbox" checked class="custom-control-input" name="competitive" id="exampleCheck1">
-            <label class="custom-control-label" for="exampleCheck1">Competitive Playlist</label>
+            <input type="checkbox" checked class="col-2 custom-control-input" name="competitive" id="exampleCheck1">
+            <label class="col-2 custom-control-label" for="exampleCheck1">Competitive Playlist</label>
             @else
             <input type="checkbox" class="custom-control-input" name="competitive" id="exampleCheck1">
             <label class="custom-control-label" for="exampleCheck1">Competitive Playlist</label>
@@ -93,8 +90,10 @@
       </div>
     </div>
   </form>
-  <div class="row justify-content-center mt-3 mb-3">
-    <a type="button" href="/map/{{$map->id}}" method="DELETE" class="col-3 btn btn-secondary">Delete Map</a>
+  <form class="row mt-3 justify-content-center" action="/map/{{$map->id}}/delete" method="post">
+    @csrf
+    <button type="submit" class="col-3 btn btn-secondary">Delete Map</a>
+  </form>
   </div>
 </div>
 @endsection

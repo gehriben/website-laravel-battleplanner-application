@@ -1,7 +1,7 @@
 <div class="row text-center">
   @foreach($atk_operators as $operator)
     @if($operator)
-      <div class="col-md-3 col-xs-12 top-buffer cursor-click" data-toggle="modal" data-target="#opModal" onclick="app.engine.changeOperatorSlot($('#EditingOperatorSlot').val(),{{$operator->id}})">
+      <div class="col-xl-3 col-xs-12 top-buffer cursor-click" data-toggle="modal" data-target="#opModal" onclick="app.engine.changeOperatorSlot($('#EditingOperatorSlot').val(),{{$operator->id}})">
           <div class="container text-center map-container">
 
               <div class="row">

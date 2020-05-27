@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 
 // Models
@@ -12,6 +13,8 @@ use App\Models\Battlefloor;
 
 class Floor extends Model
 {
+  use SoftDeletes;
+
   public $timestamps = true;
 
   protected $fillable = [

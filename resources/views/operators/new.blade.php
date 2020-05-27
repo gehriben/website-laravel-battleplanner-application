@@ -43,15 +43,25 @@
               <input type="file" class="col-sm form-control" name="icon" required>
           </div>
 
-          <div class="row mt-3" style="padding-left: 15px;">
-            <div class="custom-control custom-switch col-4 col-md-6">
+          <div class="row" style="padding-left: 15px;">
+            <div class="custom-control custom-switch col-4 col-xl-4 mt-3">
               <input type="checkbox" class="custom-control-input" name="attacker" id="exampleCheck1">
               <label class="custom-control-label" for="exampleCheck1">Attacker</label>
             </div>
 
-            <div class="colour-pick col-8 col-md-6">
+            <div class="colour-pick col-12 col-xl-4 mt-3">
               <input type="color" name="colour" id="operator-color">
               <label for "operator-color">Operator Color</label>
+            </div>
+            
+            <div class="col-12 col-xl-4 mt-3">
+              <label class="" for="exampleCheck1">Gadget(s)</label>
+              <select class="custom-select" name="gadgets[]" id="exampleCheck1" multiple>
+                <option value="">None</option>
+                @foreach($gadgets as $gadget)
+                <option value="{{$gadget->id}}">{{$gadget->name}}</option>
+                @endforeach
+              </select>
             </div>
           </div>
         </div>

@@ -22,7 +22,7 @@ class Gadget extends Model
    * Relationships
    */
   public function operators() {
-    return $this->belongsToMany(Operator::class);
+    return $this->belongsToMany(Operator::class, 'operator_gadget');
   }
 
   public function icon() {

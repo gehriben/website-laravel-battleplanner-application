@@ -67,6 +67,11 @@
   color: #e6755c;
 }
 
+.custom-select:focus {
+  border-color: #c34022 !important;
+  box-shadow: none !important;
+}
+
 .custom-switch .custom-control-input:checked ~ .custom-control-label::before {
   background-color: #e6755c !important;
   box-shadow: none !important;
@@ -74,6 +79,16 @@
 
 .custom-switch .custom-control-input:focus ~ .custom-control-label::before {
   box-shadow: none !important;
+}
+
+.bg {
+  background-image: url("https://battleplanner-production.s3.ca-central-1.amazonaws.com/static/Annotation_2020-05-27_141556.png");
+  height: 100vh;
+  width: 100vw;
+  position: fixed;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
 }
 
 label {

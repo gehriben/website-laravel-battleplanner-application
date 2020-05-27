@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 
 // Models
@@ -11,7 +12,8 @@ use App\Models\Media;
 
 class Map extends Model
 {
-  
+  use SoftDeletes;
+
   protected $fillable = [
     // Properties
     'name', 'thumbnail_id', 'competitive',
@@ -26,7 +28,7 @@ class Map extends Model
   /**
    * Relationships
    */
-  
+
   public function thumbnail() {
     return $this->belongsTo(Media::class);
   }

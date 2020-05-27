@@ -150,14 +150,14 @@ class MapController extends Controller
         return redirect("map/$map->id");
     }
 
-    public function delete(Map $map) {
-      $map = Map::find($map->id)->delete();
+    public function delete(Request $request, Map $map) {
+      $map->delete();
 
       if($request->wantsJson()){
-          return response()->success($map);
+          return response()->success();
       }
 
-      return redirect("map/");
+      return redirect("/map");
     }
 
     private function updateFloor(Floor $floor, $data, $file, $mapName) {

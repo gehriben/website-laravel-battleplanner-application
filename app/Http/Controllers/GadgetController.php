@@ -32,6 +32,22 @@ class GadgetController extends Controller {
     return view("gadgets.new", compact ('ops'));
   }
 
+  public function show(Request $request, Gadget $gadget) {
+    $gadget = $gadget
+        ->with('icon')
+        ->find($gadget->id);
+    $operators = $gadget->operators;
+    return view("gadgets.show", compact('gadget', 'operators'));
+  }
+
+  public function edit(Request $request, Gadget $gadget) {
+    $gadget = $gadget
+        ->with('icon')
+        ->find($gadget->id);
+    $ops = Operator::all();
+    return view("gadgets.edit", compact ('gadget', 'ops'));
+  }
+
   /**
    * APIs
    */
@@ -45,9 +61,41 @@ class GadgetController extends Controller {
 
      $data['user_id'] = Auth::user()->id;
 
-     // TODO: link gadget to its ops
-
      $gadget = Gadget::create($data);
+
+     if(isset($data['operators'])) {
+         $data['operators'] = !in_array("", $data['operators']) ? $data['operators'] : [];
+         $gadget->operators()->sync($data['operators']);
+     }
+
+     if($request->wantsJson()){
+         return response()->success($gadget);
+     }
+     return redirect("gadgets/$gadget->id");
+   }
+
+   public function update(Request $request, Gadget $gadget) {
+     $data = $request->validate([
+         'name' => ['required'],
+         'icon' => ['file'],
+         'operators' => []
+     ]);
+
+     if(isset($data["icon"])){
+         if($gadget->media){
+             $gadget->media->delete(); // delete old one
+         }
+         $media = Media::fromFile($data['icon'], "gadgets/{$gadget->name}", "public"); // create new one
+         $data['icon_id'] = $media->id; // associate
+     }
+
+     $gadget->update($data);
+     $gadget = $gadget->fresh();
+     
+     if(isset($data['operators'])) {
+         $data['operators'] = !in_array("", $data['operators']) ? $data['operators'] : [];
+         $gadget->operators()->sync($data['operators']);
+     }
 
      if($request->wantsJson()){
          return response()->success($gadget);
