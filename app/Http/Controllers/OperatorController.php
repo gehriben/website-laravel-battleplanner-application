@@ -112,4 +112,14 @@ class OperatorController extends Controller {
     }
     return redirect("operators/$operator->id");
   }
+
+  public function delete(Request $request, Operator $operator) {
+    $operator->delete();
+
+    if($request->wantsJson()){
+        return response()->success();
+    }
+
+    return redirect("/operators");
+  }
 }

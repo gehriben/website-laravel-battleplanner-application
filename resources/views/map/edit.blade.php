@@ -94,6 +94,5 @@
     @csrf
     <button type="submit" class="col-3 btn btn-secondary">Delete Map</a>
   </form>
-  </div>
 </div>
 @endsection

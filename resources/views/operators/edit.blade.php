@@ -76,5 +76,9 @@
       </div>
     </div>
   </form>
+  <form class="row mt-3 justify-content-center" action="/operators/{{$op->id}}/delete" method="post">
+    @csrf
+    <button type="submit" class="col-3 btn btn-secondary">Delete Operator</a>
+  </form>
 </div>
 @endsection

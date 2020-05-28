@@ -19,6 +19,7 @@ class CreateOperatorTable extends Migration
             $table->text('colour');
             $table->boolean('attacker')->default(false);
             $table->timestamps();
+            $table->softDeletes();
 
             $table->unsignedInteger('icon_id')->nullable();
             $table->foreign('icon_id')

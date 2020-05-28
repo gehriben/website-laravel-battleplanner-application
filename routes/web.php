@@ -48,6 +48,7 @@ Route::prefix('/operators')->group(function () {
     Route::get('{operator}/edit', 'OperatorController@edit')->name("Operators.edit");
 
     // APIs
+    Route::post('{operator}/delete', 'OperatorController@delete')->name("Operator.delete");
     Route::post('/', 'OperatorController@create')->name("Operators.create");
     Route::post('/{operator}', 'OperatorController@update')->name("Operators.update");
 });
@@ -59,6 +60,7 @@ Route::prefix('/gadgets')->group(function() {
     Route::get('{gadget}/edit', 'GadgetController@edit')->name('Gadgets.edit');
 
     // APIs
+    Route::post('{gadget}/delete', 'GadgetController@delete')->name("Gadget.delete");
     Route::post('/', 'GadgetController@create')->name("Gadgets.create");
     Route::post('/{gadget}', 'GadgetController@update')->name("Gadgets.update");
 });

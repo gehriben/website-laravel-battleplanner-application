@@ -102,4 +102,14 @@ class GadgetController extends Controller {
      }
      return redirect("gadgets/$gadget->id");
    }
+
+   public function delete(Request $request, Gadget $gadget) {
+     $gadget->delete();
+
+     if($request->wantsJson()){
+         return response()->success();
+     }
+
+     return redirect("/gadgets");
+   }
 }
