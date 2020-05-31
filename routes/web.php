@@ -29,10 +29,10 @@ Route::prefix('/map')->group(function () {
     Route::get('/', 'MapController@index')->name("Map.index");
     Route::get('new', 'MapController@new')->name("Map.new");
     Route::get('{map}/edit', 'MapController@edit')->name("Map.edit");
-    Route::delete('{map}/edit', 'MapController@delete')->name("Map.delete");
     Route::get('{map}', 'MapController@show')->name("Map.show");
 
     // API's
+    Route::post('{map}/delete', 'MapController@delete')->name("Map.delete");
     Route::post('/', 'MapController@create')->name("Map.create");
     Route::post('/{map}', 'MapController@update')->name("Map.update");
 });
@@ -48,8 +48,21 @@ Route::prefix('/operators')->group(function () {
     Route::get('{operator}/edit', 'OperatorController@edit')->name("Operators.edit");
 
     // APIs
+    Route::post('{operator}/delete', 'OperatorController@delete')->name("Operator.delete");
     Route::post('/', 'OperatorController@create')->name("Operators.create");
     Route::post('/{operator}', 'OperatorController@update')->name("Operators.update");
+});
+
+Route::prefix('/gadgets')->group(function() {
+    Route::get('/', 'GadgetController@index')->name("Gadgets.index");
+    Route::get('new', 'GadgetController@new')->name("Gadgets.new");
+    Route::get('{gadget}', 'GadgetController@show')->name('Gadgets.show');
+    Route::get('{gadget}/edit', 'GadgetController@edit')->name('Gadgets.edit');
+
+    // APIs
+    Route::post('{gadget}/delete', 'GadgetController@delete')->name("Gadget.delete");
+    Route::post('/', 'GadgetController@create')->name("Gadgets.create");
+    Route::post('/{gadget}', 'GadgetController@update')->name("Gadgets.update");
 });
 
 Route::prefix('/battleplan')->group(function () {

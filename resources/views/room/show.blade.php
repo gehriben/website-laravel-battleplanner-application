@@ -193,7 +193,7 @@
 </div>
 
 <div class="operatorContainer float-right">
-    <div class="col-md-12 col-sm-12" id="operatorSlotList">
+    <div class="col-xl-12 col-sm-12" id="operatorSlotList">
         @if ($room->battleplan != null)
         @foreach ($room->battleplan->slots as $key => $slot)
         <div class="row">

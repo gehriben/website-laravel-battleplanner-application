@@ -54,6 +54,15 @@ body h1 {
 .color {
   height: 50px;
   width: 50px;
+  margin: auto;
+}
+
+.labeling {
+  color: white;
+}
+
+.file-input {
+  height: 45px;
 }
 
 .icon {

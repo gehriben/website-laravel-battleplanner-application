@@ -18,7 +18,8 @@ class CreateMapsTable extends Migration
             $table->text('name');
             $table->boolean('competitive');
             $table->timestamps();
-                
+            $table->softDeletes();
+
             $table->unsignedInteger('thumbnail_id')->nullable();
             $table->foreign('thumbnail_id')
                 ->onDelete("set null")

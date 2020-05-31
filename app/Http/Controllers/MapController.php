@@ -10,6 +10,13 @@ use Auth;
 
 class MapController extends Controller
 {
+    /**
+     * Middleware checks
+     */
+    public function __construct()
+    {
+        $this->middleware('isAdmin')->only(['index', 'new', 'edit', 'show']);
+    }
 
     /**
      * Views
@@ -29,7 +36,7 @@ class MapController extends Controller
                 $query->orderBy('order', 'ASC');
             }))
             ->find($map->id);
-            
+
         return view("map.edit", compact('map'));
     }
 
@@ -95,7 +102,7 @@ class MapController extends Controller
             'floor-ids' => [],
             'competitive' => [],
         ]);
-        
+
         $data['competitive'] = isset($data['competitive']);
 
         // Update the thumbnail
@@ -143,14 +150,14 @@ class MapController extends Controller
         return redirect("map/$map->id");
     }
 
-    public function delete(Map $map) {
-      $map = Map::find($map->id)->delete();
+    public function delete(Request $request, Map $map) {
+      $map->delete();
 
       if($request->wantsJson()){
-          return response()->success($map);
+          return response()->success();
       }
 
-      return redirect("map/");
+      return redirect("/map");
     }
 
     private function updateFloor(Floor $floor, $data, $file, $mapName) {

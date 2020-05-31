@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 // Models
 use App\Models\Gadget;
@@ -11,6 +13,16 @@ use App\Models\Media;
 
 class Operator extends Model
 {
+  use SoftDeletes;
+
+  public static function boot() {
+    parent::boot();
+
+    static::deleting(function($op) {
+         DB::table('operator_gadget')->where('operator_id', $op->id)->delete();
+    });
+  }
+
   protected $fillable = [
     // Properties
     'name', 'colour', 'attacker',
@@ -28,13 +40,13 @@ class Operator extends Model
   }
 
   public function gadgets() {
-    return $this->belongsToMany(Gadget::class);
+    return $this->belongsToMany(Gadget::class, 'operator_gadget');
   }
 
   public function slots() {
     return $this->belongsToMany(OperatorSlot::class);
   }
-  
+
   public static function create(array $attributes = []) {
     $media = Media::fromFile($attributes['icon'], "operators/{$attributes['name']}", "public");
     $attributes['icon_id'] = $media->id;

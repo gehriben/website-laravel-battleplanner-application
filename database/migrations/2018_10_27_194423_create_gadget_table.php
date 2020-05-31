@@ -17,6 +17,7 @@ class CreateGadgetTable extends Migration
             $table->increments('id');
             $table->text('name');
             $table->timestamps();
+            $table->softDeletes();
 
             $table->unsignedInteger('icon_id')->nullable();
             $table->foreign('icon_id')
@@ -24,7 +25,7 @@ class CreateGadgetTable extends Migration
                 ->onDelete('set null')
                 ->on('medias');
         });
-        
+
         Schema::create('operator_gadget', function (Blueprint $table) {
             $table->increments('id');
             $table->timestamps();

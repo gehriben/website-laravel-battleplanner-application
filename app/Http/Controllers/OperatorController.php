@@ -5,9 +5,18 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Operator;
 use App\Models\Media;
+use App\Models\Gadget;
 use Auth;
 
 class OperatorController extends Controller {
+
+  /**
+   * Middleware checks
+   */
+  public function __construct()
+  {
+      $this->middleware('isAdmin');
+  }
 
   /**
    * Views
@@ -19,33 +28,38 @@ class OperatorController extends Controller {
   }
 
   public function new(Request $request) {
-    return view("operators.new");
+    $gadgets = Gadget::all();
+    return view("operators.new", compact('gadgets'));
   }
 
   public function show(Request $request, Operator $operator) {
     $op = $operator
         ->with('icon')
         ->find($operator->id);
-    return view("operators.show", compact('op'));
+    $gadgets = $op->gadgets;
+    return view("operators.show", compact('op', 'gadgets'));
   }
 
   public function edit(Request $request, Operator $operator){
     $op = $operator
         ->with('icon')
         ->find($operator->id);
-    return view("operators.edit", compact('op'));
+    $gadgets = Gadget::all();
+    return view("operators.edit", compact('op', 'gadgets'));
   }
 
   /**
-   * Views
+   * APIs
    */
+
   public function create(Request $request) {
 
     $data = $request->validate([
         'name' => ['required'],
         'icon' => ['required','file'],
         'attacker' => [],
-        'colour' => ['required']
+        'colour' => ['required'],
+        'gadgets' => []
     ]);
 
     // Checkbox is set to 'on' if true, null if false. Convert to bool value
@@ -53,6 +67,11 @@ class OperatorController extends Controller {
     $data['user_id'] = Auth::user()->id;
 
     $operator = Operator::create($data);
+
+    if(isset($data['gadgets'])) {
+        $data['gadgets'] = !in_array("", $data['gadgets']) ? $data['gadgets'] : [];
+        $operator->gadgets()->sync($data['gadgets']);
+    }
 
     if($request->wantsJson()){
         return response()->success($operator);
@@ -66,7 +85,8 @@ class OperatorController extends Controller {
         'name' => ['required'],
         'icon' => ['file'],
         'attacker' => [],
-        'colour' => ['required']
+        'colour' => ['required'],
+        'gadgets' => []
     ]);
 
     $data['attacker'] = isset($data['attacker']);
@@ -82,9 +102,24 @@ class OperatorController extends Controller {
     $operator->update($data);
     $operator = $operator->fresh();
 
+    if(isset($data['gadgets'])) {
+        $data['gadgets'] = !in_array("", $data['gadgets']) ? $data['gadgets'] : [];
+        $operator->gadgets()->sync($data['gadgets']);
+    }
+
     if($request->wantsJson()){
         return response()->success($operator);
     }
     return redirect("operators/$operator->id");
+  }
+
+  public function delete(Request $request, Operator $operator) {
+    $operator->delete();
+
+    if($request->wantsJson()){
+        return response()->success();
+    }
+
+    return redirect("/operators");
   }
 }

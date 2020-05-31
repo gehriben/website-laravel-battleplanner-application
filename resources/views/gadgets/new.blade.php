@@ -21,11 +21,11 @@
       @endforeach
   @endif
 
-  <form action="/operators" method="post"  enctype="multipart/form-data">
+  <form action="/gadgets" method="post"  enctype="multipart/form-data">
     @csrf
     <div class="row mt-3">
       <div class="col-12 text-center">
-        <h1>New Operator</h1>
+        <h1>New Gadget</h1>
       </div>
     </div>
 
@@ -33,33 +33,21 @@
       <div class="card mt-3 col-12">
         <div class="properties container">
           <h2>Properties</h2>
-          <div class="form-group">
+          <div class="form-group row justify-content-center" style="padding-left: 15px;">
+            <div class="col-12 col-xl-4 mt-3">
               <label for="exampleInputEmail1">Name</label>
-              <input type="text" class="form-control" id="exampleInputEmail1" name="name" placeholder="Operator Name" required>
-          </div>
-
-          <div class="form-group">
+              <input type="text" class="form-control" id="exampleInputEmail1" name="name" placeholder="Gadget Name" required>
+            </div>
+            <div class="col-12 col-xl-4 mt-3">
               <label for="exampleInputEmail1">Icon</label>
               <input type="file" class="col-sm form-control" name="icon" required>
-          </div>
-
-          <div class="row" style="padding-left: 15px;">
-            <div class="custom-control custom-switch col-4 col-xl-4 mt-3">
-              <input type="checkbox" class="custom-control-input" name="attacker" id="exampleCheck1">
-              <label class="custom-control-label" for="exampleCheck1">Attacker</label>
             </div>
-
-            <div class="colour-pick col-12 col-xl-4 mt-3">
-              <input type="color" name="colour" id="operator-color">
-              <label for "operator-color">Operator Color</label>
-            </div>
-            
             <div class="col-12 col-xl-4 mt-3">
-              <label class="" for="exampleCheck1">Gadget(s)</label>
-              <select class="custom-select" name="gadgets[]" id="exampleCheck1" multiple>
+              <label class="" for="exampleCheck1">Operator(s)</label>
+              <select class="custom-select" name="operators[]" id="exampleCheck1" multiple>
                 <option value="">None</option>
-                @foreach($gadgets as $gadget)
-                <option value="{{$gadget->id}}">{{$gadget->name}}</option>
+                @foreach($ops as $op)
+                <option value="{{$op->id}}">{{$op->name}}</option>
                 @endforeach
               </select>
             </div>

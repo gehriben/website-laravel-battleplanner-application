@@ -18,10 +18,12 @@ class CreateFloorsTable extends Migration
             $table->string('name');
             $table->integer('order');
             $table->timestamps();
+            $table->softDeletes();
 
             $table->unsignedInteger('map_id');
             $table->foreign('map_id')
                 ->references('id')
+                ->onDelete("cascade")
                 ->on('maps');
 
             $table->unsignedInteger('source_id')->nullable();
