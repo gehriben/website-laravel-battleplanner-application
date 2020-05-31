@@ -44,7 +44,20 @@ class Battleplan extends Databaseable{
 
         }.bind(this));
     }
-    
+
+    ChangeFloor(increment){
+        var current = this.floors.findIndex(floor => floor.id === this.floor.id);
+        var next = current + increment;
+
+        if(
+            next >=0 &&                     // lowest
+            next <= this.floors.length  -1    // highest
+        ){
+            this.floor = this.floors[next]
+        }
+        return this.floor;
+    }
+
     // Check that all sub assets have loaded
     ReadyCheck(){
 

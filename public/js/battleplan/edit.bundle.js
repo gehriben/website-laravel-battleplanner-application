@@ -18976,6 +18976,24 @@ function (_Databaseable) {
           });
         }
       }.bind(this));
+    }
+  }, {
+    key: "ChangeFloor",
+    value: function ChangeFloor(increment) {
+      var _this2 = this;
+
+      var current = this.floors.findIndex(function (floor) {
+        return floor.id === _this2.floor.id;
+      });
+      var next = current + increment;
+
+      if (next >= 0 && // lowest
+      next <= this.floors.length - 1 // highest
+      ) {
+          this.floor = this.floors[next];
+        }
+
+      return this.floor;
     } // Check that all sub assets have loaded
 
   }, {

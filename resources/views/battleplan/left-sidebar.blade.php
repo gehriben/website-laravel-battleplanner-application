@@ -125,11 +125,20 @@
                 <!-- Populate tools -->
                 
                 <div class="col-12">
+                    <button type="button" id="FloorUpTool" class="tool col-12 btn btn-primary" onclick="app.battleplan.ChangeFloor(1)">Floor Up</button>
+                </div>
+                <div class="col-12">
+                    <button type="button" id="FloorDownTool" class="tool col-12 btn btn-primary" onclick="app.battleplan.ChangeFloor(-1)">Floor Down</button>
+                </div>
+                
+                <hr>
+
+                <div class="col-12">
                     <button type="button" id="EraserTool" class="tool col-12 btn btn-primary" onclick="selectTool(this);app.keybinds.ChangeTool(app.keybinds.toolMoveDraws)">Move</button>
                 </div>
 
                 <div class="col-12">
-                    <button type="button" id="EraserTool" class="tool col-12 btn btn-primary" onclick="selectTool(this);app.keybinds.ChangeTool(app.keybinds.toolSelect)">Select</button>
+                    <button type="button" id="selectTool" class="tool col-12 btn btn-primary" onclick="selectTool(this);app.keybinds.ChangeTool(app.keybinds.toolSelect)">Select</button>
                 </div>
 
                 <div class="col-12">
