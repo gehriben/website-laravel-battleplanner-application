@@ -12,7 +12,7 @@ class Icon extends Model
 {
     protected $fillable = [
         // Properties
-        "source", "size",
+        "source", "size", 'opacity',
 
         // Fkeys
         "origin_id"

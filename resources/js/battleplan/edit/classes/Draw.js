@@ -27,7 +27,7 @@ class Draw extends Databaseable{
 
     // Method to see if object is inside a given bounding box.
     // Used for the selection tool
-    InBox(canvas,box){
+    inBox(canvas,box){
         // Should be overriden in child
         return false;
     }

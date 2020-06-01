@@ -9,12 +9,11 @@ class Icon extends Draw {
             Constructor
     **************************/
 
-    constructor(id, origin, size, src) {
+    constructor(id, origin, size, opacity, src) {
         super(id,origin);
         this.SelectBox = require('./SelectBox.js').default;
         this.size = size;
-        this.height;
-        this.width;
+        this.opacity = opacity;
         this.origin = origin;
         this.src = src;
         this.img = null;
@@ -37,6 +36,7 @@ class Icon extends Draw {
             
             // translate offset
             canvas.ctx.translate(canvas.offset.x,canvas.offset.y);
+            canvas.ctx.globalAlpha = this.opacity;
             
             canvas.ctx.drawImage(
                 this.img,
@@ -47,6 +47,8 @@ class Icon extends Draw {
                 (this.height * this.size)
             );    
             
+            canvas.ctx.globalAlpha = 1;
+
             if(this.highlighted){
                 this.Highlight(canvas);
             }
@@ -148,6 +150,7 @@ class Icon extends Draw {
             'origin' : this.origin,
             'source' : this.src,
             'size' : this.size,
+            'opacity': this.opacity,
             'updated' : this.updated
         }
     }

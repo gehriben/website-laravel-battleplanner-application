@@ -3,7 +3,7 @@
 **************************/
 const Tool = require('./Tool.js').default;
 
-class ToolMoveCanvas extends Tool {
+class ToolMove extends Tool {
 
     /**************************
             Constructor
@@ -28,6 +28,6 @@ class ToolMoveCanvas extends Tool {
 
 }
 export {
-    ToolMoveCanvas as
+    ToolMove as
         default
 }

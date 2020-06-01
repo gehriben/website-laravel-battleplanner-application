@@ -23,7 +23,9 @@ var app = new App(BATTLEPLAN_ID,
         $('#operator-2'),
         $('#operator-3'),
         $('#operator-4')
-    ]);
+    ],
+);
+    
 
 /**************************
    Give access to app object in main windows

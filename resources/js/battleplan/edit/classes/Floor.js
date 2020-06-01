@@ -34,6 +34,7 @@ class Floor extends Databaseable{
                     this.draws[i] = new this.Line(
                         data.draws[i].id,
                         data.draws[i].drawable.color,
+                        data.draws[i].drawable.opacity,
                         data.draws[i].drawable.size,
                     );
                     
@@ -53,7 +54,6 @@ class Floor extends Databaseable{
                         data.draws[i].drawable.origin,
                         data.draws[i].drawable.destination,
                         data.draws[i].drawable.color,
-                        data.draws[i].drawable.size,
                         data.draws[i].drawable.opacity,
                     );
 
@@ -65,6 +65,7 @@ class Floor extends Databaseable{
                         data.draws[i].id,
                         {'x': data.draws[i].drawable.origin.x,'y': data.draws[i].drawable.origin.y},
                         data.draws[i].drawable.size,
+                        data.draws[i].drawable.opacity,
                         data.draws[i].drawable.source,
                     );
                     

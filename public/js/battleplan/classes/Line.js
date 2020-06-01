@@ -9,10 +9,11 @@ class Line extends Draw {
             Constructor
     **************************/
 
-    constructor(id, color, size) {
+    constructor(id, color, opacity, size) {
         super(id);
         this.SelectBox = require('./SelectBox.js').default;
         this.color = color;
+        this.opacity = opacity;
         this.size = size;
         this.points = [];
     }
@@ -24,13 +25,15 @@ class Line extends Draw {
     draw(canvas){
         
         var defaultColor = canvas.ctx.strokeStyle;
+
         if(this.highlighted){
             canvas.ctx.strokeStyle = "blue";
+        } else{
+            canvas.ctx.strokeStyle = this.hexToRgbA(this.color, this.opacity);
         }
 
         // Settings
         canvas.ctx.lineWidth = this.size;
-        canvas.ctx.fillStyle = this.color;
         canvas.ctx.lineCap = 'round';
         
         canvas.ctx.beginPath();
@@ -95,6 +98,7 @@ class Line extends Draw {
             'id' : this.id,
             'color' : this.color,
             'size' : this.size,
+            'opacity' : this.opacity,
             'updated' : this.updated,
 
             // we need to optimize the compressions of objects or else we go over the alloted php POST size limit.
@@ -115,6 +119,19 @@ class Line extends Draw {
         // remove trailling ','
         compressed = compressed.substring(0, compressed.length - 1);
         return compressed;
+    }
+
+    hexToRgbA(hex, opacity){
+        var c;
+        if(/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)){
+            c= hex.substring(1).split('');
+            if(c.length== 3){
+                c= [c[0], c[0], c[1], c[1], c[2], c[2]];
+            }
+            c= '0x'+c.join('');
+            return 'rgba('+[(c>>16)&255, (c>>8)&255, c&255].join(',')+','+opacity+')';
+        }
+        throw new Error('Bad Hex');
     }
 }
 export {

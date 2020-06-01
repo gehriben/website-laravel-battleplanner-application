@@ -82,7 +82,7 @@
 
 
 <div id="toggletag-right" class="" onclick="togglerightNav()">
-    Tools & Icons
+    Operators
 </div>
 
 <div id="sidebar-right" class="sidebar-right">

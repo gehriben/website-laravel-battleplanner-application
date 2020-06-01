@@ -6,14 +6,15 @@ class Keybinds {
             Constructor
     **************************/
     constructor(app) {
-        this.toolMoveCanvas = new (require('./ToolMoveCanvas.js').default)(app); 
-        this.toolMoveDraws = new (require('./ToolMoveDraws.js').default)(app); 
+        this.app = app;
+
+        this.ToolMove = new (require('./ToolMove.js').default)(app); 
         this.toolZoom = new (require('./ToolZoom.js').default)(app); 
         this.toolLine = new (require('./ToolLine.js').default)(app); 
         this.toolSquare = new (require('./ToolSquare.js').default)(app); 
-        this.toolIcon = new (require('./ToolIcon.js').default)(app); 
-        this.toolSelect = new (require('./ToolSelect.js').default)(app); 
-        this.toolEraser = new (require('./ToolEraser.js').default)(app); 
+        this.toolIcon = new (require('./ToolIcon.js').default)(app);
+        this.toolSelect = new (require('./ToolSelect.js').default)(app);
+        this.toolEraser = new (require('./ToolEraser.js').default)(app);
 
         this.keysPressed = [];              // keys actively pressed
         this.keyEvents = [];                // Key binding to events
@@ -29,22 +30,37 @@ class Keybinds {
             },
             "mmb": {
                 "active": false,
-                "tool": this.toolMoveCanvas
+                "tool": this.ToolMove
             },
         }
-
-        // Defining possible key Combinations & actions
-
-        // up arrow
-        // this.keyEvents.push({ "keys": [46], "event": function(){
-
-        // } });
 
         // Save
         this.keyEvents.push({ "keys": [17,83], "event": function(ev){
             $('#test-modal').modal();
             ev.preventDefault();
         } });
+
+        // Arrow Up
+        this.keyEvents.push({ "keys": [38], "event": function(ev){
+            app.ChangeFloor(1);
+            ev.preventDefault();
+        } });
+        
+        // Arrow down
+        this.keyEvents.push({ "keys": [40], "event": function(ev){
+            app.ChangeFloor(-1);
+            ev.preventDefault();
+        } });
+        
+        // Delete key
+        this.keyEvents.push({ "keys": [46], "event": function(ev){
+            
+            app.battleplan.floor.SelectedDraws().forEach(draw => {
+                app.battleplan.floor.RemoveDraw(draw);
+            });
+            this.app.canvas.Update();
+            ev.preventDefault();
+        }.bind(this)});
 
         // this.keyEvents.push({ "keys": [40], "event": this.floorDown }); // down arrow
         // this.keyEvents.push({ "keys": [17,83], "event": this.save }); // down arrow
@@ -243,31 +259,6 @@ class Keybinds {
     ChangeTool(tool){
         this.mousePressed.lmb.tool = tool;
     }
-
-    // floorDown() {
-    //     app.engine.changeFloor(-1);
-    // }
-    // floorUp() {
-    //     app.engine.changeFloor(1);
-    // }
-    // save() {
-    //     $("#saveModalToggle").click();
-    // }
-    // load() {
-    //     $("#loadModalToggle").click();
-    // }
-    // toolPencil(){
-    //     toast("Pencil Selected", 2000);
-    //     $("#pencil").click();
-    // }
-    // toolSquare(){
-    //     toast("Square Selected", 2000);
-    //     $("#square").click();
-    // }
-    // toolEraser(){
-    //     toast("Eraser Selected", 2000);
-    //     $("#eraser").click();
-    // }
 }
 export {
     Keybinds as

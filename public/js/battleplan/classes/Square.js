@@ -9,11 +9,10 @@ class Square extends Draw {
             Constructor
     **************************/
 
-    constructor(id, origin, destination, color, size, opacity) {
+    constructor(id, origin, destination, color, opacity) {
         super(id);
         this.SelectBox = require('./SelectBox.js').default;
         this.color = color;
-        this.size = size;
         this.opacity = opacity;
         this.origin = origin;
         this.destination = destination;
@@ -169,7 +168,6 @@ class Square extends Draw {
             'id' : this.id,
             'origin' : this.origin,
             'color' : this.color,
-            'size' : this.size,
             'destination' : this.destination,
             'opacity' : this.opacity,
             'updated' : this.updated,
