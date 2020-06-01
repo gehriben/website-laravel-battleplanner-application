@@ -8,61 +8,45 @@ use App\Models\Battleplan;
 use App\Models\Line;
 use App\Models\Square;
 use App\Models\Icon;
+use App\Models\Coordinate;
+
 use Faker\Generator as Faker;
 
-$factory->defineAs(Draw::class, "Line", function (Faker $faker) {
+$factory->defineAs(Draw::class, Line::class, function (Faker $faker) {
     $battleplan = factory(Battleplan::class)->create();
-    $user = factory(User::class)->create();
     $drawable = factory(Line::class)->create();
 
+    $drawable->points()->sync([
+        factory(Coordinate::class)->create(),
+        factory(Coordinate::class)->create(),
+        factory(Coordinate::class)->create()
+    ]);
+
     return [
-        "battlefloor_id" => $battleplan,
-        "originX" => $faker->numberBetween(-100,100),
-        "originY" =>  $faker->numberBetween(-100,100), 
-        "destinationX" => $faker->numberBetween(-100,100),
-        "destinationY" => $faker->numberBetween(-100,100), 
-        "user_id" => $user->id, 
-        "saved" => false,
+        "battlefloor_id" => $battleplan->id, 
         "drawable_id" => $drawable->id, 
-        "drawable_type" => get_class($drawable), 
-        "deleted" => false
+        "drawable_type" => get_class($drawable)
     ];
 });
 
-$factory->defineAs(Draw::class, "Square", function (Faker $faker) {
+$factory->defineAs(Draw::class, Square::class, function (Faker $faker) {
     $battleplan = factory(Battleplan::class)->create();
-    $user = factory(User::class)->create();
     $drawable = factory(Square::class)->create();
 
     return [
-        "battlefloor_id" => $battleplan,
-        "originX" => $faker->numberBetween(-100,100),
-        "originY" =>  $faker->numberBetween(-100,100), 
-        "destinationX" => $faker->numberBetween(-100,100),
-        "destinationY" => $faker->numberBetween(-100,100), 
-        "user_id" => $user->id, 
-        "saved" => false,
+        "battlefloor_id" => $battleplan->id, 
         "drawable_id" => $drawable->id, 
-        "drawable_type" => get_class($drawable), 
-        "deleted" => false
+        "drawable_type" => get_class($drawable)
     ];
 });
 
-$factory->defineAs(Draw::class, "Icon", function (Faker $faker) {
+$factory->defineAs(Draw::class, Icon::class, function (Faker $faker) {
     $battleplan = factory(Battleplan::class)->create();
-    $user = factory(User::class)->create();
     $drawable = factory(Icon::class)->create();
 
     return [
-        "battlefloor_id" => $battleplan,
-        "originX" => $faker->numberBetween(-100,100),
-        "originY" =>  $faker->numberBetween(-100,100), 
-        "destinationX" => $faker->numberBetween(-100,100),
-        "destinationY" => $faker->numberBetween(-100,100), 
-        "user_id" => $user->id, 
-        "saved" => false,
+        "battlefloor_id" => $battleplan->id, 
         "drawable_id" => $drawable->id, 
-        "drawable_type" => get_class($drawable), 
-        "deleted" => false
+        "drawable_type" => get_class($drawable)
     ];
 });

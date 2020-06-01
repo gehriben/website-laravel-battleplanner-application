@@ -171,12 +171,12 @@
             <div id="icon-box" class="row align-center">
 
                 <!-- Populate icons -->
-                @for ($i = 0; $i < 100; $i++)
+                @foreach($gadgets as $gadget)
                     <div class="col-2 p-1 text-center">
-                        <input type="hidden" class="name" id="" value="{{$i}}">
-                        <img src="https://via.placeholder.com/50" alt="" draggable="true" ondragstart="app.keybinds.drag(event)" height="50" width="50">
+                        <input type="hidden" class="name" id="" value="{{$gadget->name}}">
+                        <img src="{{$gadget->icon->url()}}" alt="" draggable="true" ondragstart="app.keybinds.drag(event)" height="50" width="50">
                     </div>
-                @endfor
+                @endforeach
 
             </div>
         </div>

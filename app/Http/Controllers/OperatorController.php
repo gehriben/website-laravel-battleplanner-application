@@ -65,6 +65,7 @@ class OperatorController extends Controller {
     // Checkbox is set to 'on' if true, null if false. Convert to bool value
     $data['attacker'] = isset($data['attacker']);
     $data['user_id'] = Auth::user()->id;
+    $data['icon_id'] = Media::fromFile($data['icon'], "operators/{$data['name']}", "public")->id;
 
     $operator = Operator::create($data);
 

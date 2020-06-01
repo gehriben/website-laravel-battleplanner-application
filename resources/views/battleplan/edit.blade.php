@@ -29,7 +29,7 @@
 @endpush
 
 @section('content')
-@include('battleplan.left-sidebar', ["attackers" => $attackers, "defenders" => $defenders])
+@include('battleplan.left-sidebar', ["gadgets" => $gadgets])
 @include('battleplan.right-sidebar')
 <div class="wrapper">
     <canvas id="viewport"></canvas>

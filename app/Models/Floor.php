@@ -45,8 +45,6 @@ class Floor extends Model
      */
     public static function create(array $attributes = []) {
         $map = Map::find($attributes["map_id"]);
-        $media = isset($attributes['source']) ? Media::fromFile($attributes['source'], "maps/" . $map->name, "public") : null;
-        $attributes['source_id'] = ($media) ? $media->id : null;
         return static::query()->create($attributes);
     }
 }

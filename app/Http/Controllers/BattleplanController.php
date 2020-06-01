@@ -15,6 +15,7 @@ use App\Models\Icon;
 use App\Models\Coordinate;
 use App\Models\Operator;
 use App\Models\OperatorSlot;
+use App\Models\Gadget;
 
 use Auth;
 class BattleplanController extends Controller
@@ -86,11 +87,14 @@ class BattleplanController extends Controller
             $battleplan = Battleplan::with(Battleplan::$printWith)->find($battleplan->id);
             $attackers = Operator::attackers()->get();
             $defenders = Operator::defenders()->get();
+            $gadgets = Gadget::all();
+
+
             if ($request->expectsJson()) {
                 return $battleplan;
             }
             
-            return view("battleplan.edit", compact("battleplan", "attackers", "defenders"));
+            return view("battleplan.edit", compact("battleplan", "attackers", "defenders",'gadgets'));
         }
 
         // Insufficient permissions
