@@ -11,7 +11,7 @@ class Line extends Model
 {
     protected $fillable = [
         // Properties
-        "color", "size"
+        "color", "size", 'opacity'
     ];
 
     /**

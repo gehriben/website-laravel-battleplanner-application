@@ -17,6 +17,7 @@ class CreateIconsTable extends Migration
             $table->increments('id');
             $table->text('source');
             $table->float('size');
+            $table->float('opacity');
             $table->timestamps();
 
             $table->unsignedInteger('origin_id');

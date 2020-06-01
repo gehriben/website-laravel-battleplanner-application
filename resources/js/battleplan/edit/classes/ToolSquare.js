@@ -14,9 +14,6 @@ class ToolSquare extends Tool {
         super(app);
         this.Square = require('./Square.js').default;
         this.activeSquare;
-        this.size = 1;
-        this.color = "ffffff";
-        this.opacity = 0.35;
     }
     
     actionDown(coordinates){
@@ -24,9 +21,8 @@ class ToolSquare extends Tool {
             null,
             this.AddOffsetCoordinates(coordinates),
             this.AddOffsetCoordinates(coordinates),
-            this.color,
-            this.size,
-            this.opacity
+            this.app.color,
+            this.app.opacity
         );
         
         this.app.battleplan.floor.AddDraw(this.activeSquare);

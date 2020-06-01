@@ -14,15 +14,14 @@ class ToolLine extends Tool {
         super(app);
         this.Line = require('./Line.js').default;
         this.activeLine;
-        this.size = 1;
-        this.color = "ffffff";
     }
     
     actionDown(coordinates){
         this.activeLine = new this.Line(
             null,
-            this.color,
-            this.size 
+            this.app.color,
+            this.app.opacity,
+            this.app.lineSize
         );
 
         this.activeLine.points.push(

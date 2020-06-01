@@ -19,6 +19,12 @@ class App {
         this.battleplan;                // Saved battleplan instance
         this.keybinds;                  // Definition of keybind actions
 
+        //Drawing settings
+        this.color = '#ffffff';
+        this.opacity = 1;
+        this.lineSize = 1;
+        this.iconSizeModifier = 1
+
         // Button statuses
         this.buttonEvents = {
             "lmb": {
@@ -56,8 +62,29 @@ class App {
 
     }
 
+    ChangeFloor(increment){
+        this.battleplan.ChangeFloor(increment);
+        this.canvas.Update();
+    }
+
     ChangeTool(tool){
         this.keybinds.mousePressed.lmb.tool = tool;
+    }
+
+    ChangeColor(color){
+        this.color = color;
+    }
+
+    ChangeOpacity(opacity){
+        this.opacity = opacity;
+    }
+
+    ChangeLineSize(lineSize){
+        this.lineSize = lineSize;
+    }
+
+    ChangeIconSizeModifier(size){
+        this.iconSizeModifier = size;
     }
 
     /**

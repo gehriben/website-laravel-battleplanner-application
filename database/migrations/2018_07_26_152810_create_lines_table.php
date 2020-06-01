@@ -17,6 +17,7 @@ class CreateSquaresTable extends Migration
             $table->increments('id');
             $table->string("color");
             $table->float("size");
+            $table->float("opacity");
             $table->timestamps();
         });
 
