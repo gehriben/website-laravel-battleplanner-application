@@ -69,11 +69,6 @@ class Floor extends Databaseable{
                         data.draws[i].drawable.source,
                     );
                     
-                    // var tmp = data.draws[i].drawable;
-                    
-                    // this.draws[i].origin = {'x': data.draws[i].drawable.origin.x,'y': data.draws[i].drawable.origin.y};
-                    // this.draws[i].destination =  {'x': data.draws[i].drawable.destination.x,'y': data.draws[i].drawable.destination.y};
-
                     break;
             
                 // Do default
