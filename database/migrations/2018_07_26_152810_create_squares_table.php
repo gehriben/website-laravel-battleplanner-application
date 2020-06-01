@@ -15,7 +15,6 @@ class CreateLinesTable extends Migration
     {
         Schema::create('squares', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer("size");
             $table->float("opacity", 10, 5);
             $table->string("color");
             $table->timestamps();

@@ -19593,10 +19593,7 @@ function (_Databaseable) {
             this.draws[i] = new this.Icon(data.draws[i].id, {
               'x': data.draws[i].drawable.origin.x,
               'y': data.draws[i].drawable.origin.y
-            }, data.draws[i].drawable.size, data.draws[i].drawable.opacity, data.draws[i].drawable.source); // var tmp = data.draws[i].drawable;
-            // this.draws[i].origin = {'x': data.draws[i].drawable.origin.x,'y': data.draws[i].drawable.origin.y};
-            // this.draws[i].destination =  {'x': data.draws[i].drawable.destination.x,'y': data.draws[i].drawable.destination.y};
-
+            }, data.draws[i].drawable.size, data.draws[i].drawable.opacity, data.draws[i].drawable.source);
             break;
           // Do default
 

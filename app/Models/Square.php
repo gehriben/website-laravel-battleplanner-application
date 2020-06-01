@@ -12,7 +12,7 @@ class Square extends Model
 {
     protected $fillable = [
         // Properties
-        "color", "size", 'opacity',
+        "color", 'opacity',
         
         // Fkeys
         "origin_id", "destination_id"
