@@ -48,8 +48,8 @@ class Operator extends Model
   }
 
   public static function create(array $attributes = []) {
-    $media = Media::fromFile($attributes['icon'], "operators/{$attributes['name']}", "public");
-    $attributes['icon_id'] = $media->id;
+    // $media = Media::fromFile($attributes['icon'], "operators/{$attributes['name']}", "public");
+    // $attributes['icon_id'] = $media->id;
     return static::query()->create($attributes);
   }
 

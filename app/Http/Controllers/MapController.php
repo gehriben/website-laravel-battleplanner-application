@@ -82,7 +82,9 @@ class MapController extends Controller
         foreach ($data['floor-names'] as $key => $name) {
             $order = $data['floor-orders'][$key];
             $source = $data['floor-files'][$key];
-            $floors[] = Floor::create(compact('name','source','order','map_id'));
+            $source_id = Media::fromFile($source, "maps/{$name}", "public")->id; // create new one
+
+            $floors[] = Floor::create(compact('name','source_id','order','map_id'));
         }
 
         if($request->wantsJson()){
@@ -136,8 +138,10 @@ class MapController extends Controller
         foreach ($data['floor-names'] as $key => $name) {
             $order = $data['floor-orders'][$key];
             $file = isset($data['floor-files'][$key]) ? $data['floor-files'][$key] : null;
+            $source_id = isset($data['source']) ? Media::fromFile($data['source'], "maps/" . $map->name, "public")->id : null;
+
             if(!$data['floor-ids'][$key]){
-              $floors[] = Floor::create(compact('name','file','order','map_id'));
+              $floors[] = Floor::create(compact('name','source_id','order','map_id'));
             }
             else {
               $floors[] = $this->updateFloor(Floor::find($data["floor-ids"][$key]), compact('name','order','map_id'), $file, $data["name"]);

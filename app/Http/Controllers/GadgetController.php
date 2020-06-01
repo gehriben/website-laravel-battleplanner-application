@@ -60,7 +60,8 @@ class GadgetController extends Controller {
      ]);
 
      $data['user_id'] = Auth::user()->id;
-
+     $data['icon_id'] = Media::fromFile($data['icon'], "gadgets/{$data['name']}", "public")->id;
+     
      $gadget = Gadget::create($data);
 
      if(isset($data['operators'])) {

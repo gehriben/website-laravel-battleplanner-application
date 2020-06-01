@@ -42,8 +42,8 @@ class Gadget extends Model
   }
 
   public static function create(array $attributes = []) {
-    $media = Media::fromFile($attributes['icon'], "gadgets/{$attributes['name']}", "public");
-    $attributes['icon_id'] = $media->id;
+    // $media = Media::fromFile($attributes['icon'], "gadgets/{$attributes['name']}", "public");
+    // $attributes['icon_id'] = $media->id;
     return static::query()->create($attributes);
   }
 }

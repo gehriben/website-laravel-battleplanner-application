@@ -4,20 +4,22 @@
 
 use App\Models\Battleplan;
 use App\Models\Map;
-use App\Models\GameType;
 use App\Models\User;
 
 use Faker\Generator as Faker;
 
 $factory->define(Battleplan::class, function (Faker $faker) {
+    $user = Factory(User::class)->create();
+    $map = Factory(Map::class)->create();
     return [
-        'name' => "test plan",
-        'description' => 'test plan description',
-        'owner_id' => User::first()->id,
-        'gametype_id' => GameType::first()->id,
-        'map_id' => Map::first()->id,
-        'saved' => false,
-        'notes' => 'no notes', 
-        "public" => false
+        // Properties
+        'name'=> $faker->name,
+        'description'=> $faker->name,
+        'notes'=> $faker->name,
+        'public' => rand(0,1) == 1,
+
+        // Fkeys
+        'owner_id' => $user->id,
+        'map_id' => $map->id, 
     ];
 });

@@ -26,7 +26,7 @@ class Battleplan extends Model
      */
     protected $fillable = [
         // Properties
-        'name', 'description', 'saved', 'notes', 'public',
+        'name', 'description', 'notes', 'public',
 
         // Fkeys
         'owner_id', 'map_id', 
