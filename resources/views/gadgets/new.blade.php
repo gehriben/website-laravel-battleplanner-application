@@ -54,7 +54,7 @@
           </div>
         </div>
 
-        <div class="row justify-content-center mt-3 mb-3">
+        <div class="row justify-content-center my-3">
           <button type="submit" class="col-3 btn btn-success">Save</button>
         </div>
       </div>

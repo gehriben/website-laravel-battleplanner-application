@@ -1,0 +1,116 @@
+#sidebar-right {
+    height: 100%;
+    width: 200px;
+    right: -200px;
+    position: fixed;
+    z-index: 1;
+    background-color: grey;
+    overflow-x: hidden;
+    transition: 0.5s;
+}
+
+.sidebar-right-open{
+    right:0px !important;
+}
+
+#toggletag-right {
+    cursor: pointer;
+    position: absolute;
+    top: 100px;
+    right:0px;
+    background-color: grey;
+    padding: 10px;
+    transition: 0.5s;
+
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+}
+
+.toggletag-right-open {
+    right:200px !important;
+}
+
+/**
+    Toolbox
+ */
+.op-icon {
+    height:60px;
+    width:60px;
+}
+
+.operator-border {
+    border-style: solid;
+    border-width: 10px;
+    height: 150px;
+    width: 150px;
+}
+
+#toggletag-left {
+  cursor: pointer;
+  position: absolute;
+  top: 100px;
+  left:0px;
+  background-color: grey;
+  padding: 10px;
+  transition: 0.5s;
+
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+}
+
+@media (max-width: 1200px) {
+  #sidebar-left {
+    height: 100%;
+    width:175px;
+    left:-175px;
+    position: fixed;
+    z-index: 1;
+    background-color: grey;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    transition: 0.5s;
+    padding-bottom: 60px;
+  }
+
+  .toggletag-left-open {
+      left: 175px !important;
+  }
+
+  #sidebar-right {
+      padding-bottom: 60px;
+  }
+}
+
+@media (min-width: 1200px) {
+  #sidebar-left {
+    height: 100%;
+    width:400px;
+    left:-400px;
+    position: fixed;
+    z-index: 1;
+    background-color: grey;
+    overflow-x: hidden;
+    transition: 0.5s;
+  }
+
+  .toggletag-left-open {
+    left:400px !important;
+  }
+}
+
+.sidebar-left-open{
+    left:0px !important;
+}
+
+.close-button{
+    position: absolute;
+    right: 30px;
+}
+
+/**
+    Icons
+ */
+#icon-box {
+   max-height: 400px;
+   overflow: auto;
+}

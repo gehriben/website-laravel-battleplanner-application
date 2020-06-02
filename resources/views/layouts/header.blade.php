@@ -26,7 +26,7 @@
           </li>
 
           <li class="nav-item">
-              <a class="nav-link btn btn-primary btn-xl" href="/register">Register</a>
+              <a class="nav-link btn btn-primary btn-xl" style="max-width: 75px;" href="/register">Register</a>
           </li>
           @endguest
 
@@ -42,7 +42,7 @@
             </li>
 
             <li class="nav-item">
-              <a class="nav-link btn btn-primary" onclick='logout()'>Logout</a>
+              <a class="nav-link btn btn-primary" style="max-width: 75px;" onclick='logout()'>Logout</a>
             </li>
           @endauth
         </ul>

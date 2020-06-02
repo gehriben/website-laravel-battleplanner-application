@@ -11,7 +11,8 @@
 }
 
 .btn-primary:focus,
-.btn-primary:active {
+.btn-primary:active,
+.btn-primary.active {
   outline: none !important;
   box-shadow: none !important;
   background-color: #b34830 !important;
@@ -31,7 +32,8 @@
 }
 
 .btn-success:focus,
-.btn-success:active {
+.btn-success:active,
+.btn-success.active {
   outline: none !important;
   box-shadow: none !important;
   background-color: #b35b47 !important;
@@ -50,7 +52,8 @@
 }
 
 .btn-secondary:focus,
-.btn-secondary:active {
+.btn-secondary:active,
+.btn-secondary.active {
   outline: none !important;
   box-shadow: none !important;
   background-color: #98321b !important;
@@ -64,6 +67,10 @@
 .fa,
 .fas {
   color: #e6755c;
+}
+
+.standard-text {
+  color: white;
 }
 
 .custom-select:focus {
