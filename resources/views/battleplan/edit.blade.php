@@ -3,8 +3,11 @@
 @push('js')
 
 {{-- init --}}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
 <script type="text/javascript">
     const BATTLEPLAN_ID = {{ $battleplan->id}};
+    const SOCKET = io('{{$listenSocket}}');
+    const LOBBY = {!! json_encode($lobby->toArray(), JSON_HEX_TAG) !!}
 </script>
 
 <script src="{{asset("js/battleplan/edit.bundle.js")}}"></script>

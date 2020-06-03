@@ -1,6 +1,8 @@
 var Battleplan = require('./Battleplan.js').default;
 var Canvas = require('./Canvas.js').default;
 var Keybinds = require('./Keybinds.js').default;
+var SocketListener = require('./SocketListener.js').default;
+var Lobby = require('./Lobby.js').default;
 
 class App {
 
@@ -8,7 +10,7 @@ class App {
             Constructor
     **************************/
 
-    constructor(id, viewport, slots) {
+    constructor(id, lobby, socket, viewport, slots) {
         this.id = id;
         this.viewport = viewport
         this.slots = slots;
@@ -18,6 +20,8 @@ class App {
         this.map;                       // Saved Map Data (map & floors)
         this.battleplan;                // Saved battleplan instance
         this.keybinds;                  // Definition of keybind actions
+        this.lobby;
+        this.socketListener;
 
         //Drawing settings
         this.color = '#ffffff';
@@ -41,7 +45,7 @@ class App {
             },
         }
 
-        this.Start(id, viewport, slots);
+        this.Start(id, lobby, socket, viewport, slots);
     }
 
     /**
@@ -50,9 +54,11 @@ class App {
      * - Get Map data
      * - Initialize new battleplan
      */
-    Start(id,viewport, slots){
+    Start(id,lobby,socket, viewport, slots){
         // Make Keybind Listener class
         this.keybinds = new Keybinds(this);
+        this.lobby = new Lobby(lobby);
+        this.socketListener = new SocketListener(socket, this);
 
         // Initialize Battleplan hierarchy
         this.battleplan = new Battleplan(id,slots, function(){

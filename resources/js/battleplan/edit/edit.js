@@ -15,7 +15,10 @@ $.ajaxSetup({
 /**************************
     Constant declarations
 **************************/
-var app = new App(BATTLEPLAN_ID,
+var app = new App(
+    BATTLEPLAN_ID,
+    LOBBY,
+    SOCKET,
     $('#viewport'),
     [
         $('#operator-0'),

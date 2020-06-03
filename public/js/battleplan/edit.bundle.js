@@ -18767,13 +18767,17 @@ var Canvas = __webpack_require__(/*! ./Canvas.js */ "./resources/js/battleplan/e
 
 var Keybinds = __webpack_require__(/*! ./Keybinds.js */ "./resources/js/battleplan/edit/classes/Keybinds.js")["default"];
 
+var SocketListener = __webpack_require__(/*! ./SocketListener.js */ "./resources/js/battleplan/edit/classes/SocketListener.js")["default"];
+
+var Lobby = __webpack_require__(/*! ./Lobby.js */ "./resources/js/battleplan/edit/classes/Lobby.js")["default"];
+
 var App =
 /*#__PURE__*/
 function () {
   /**************************
           Constructor
   **************************/
-  function App(id, viewport, slots) {
+  function App(id, lobby, socket, viewport, slots) {
     _classCallCheck(this, App);
 
     this.id = id;
@@ -18787,7 +18791,9 @@ function () {
     this.battleplan; // Saved battleplan instance
 
     this.keybinds; // Definition of keybind actions
-    //Drawing settings
+
+    this.lobby;
+    this.socketListener; //Drawing settings
 
     this.color = '#ffffff';
     this.opacity = 1;
@@ -18808,7 +18814,7 @@ function () {
         "tool": null
       }
     };
-    this.Start(id, viewport, slots);
+    this.Start(id, lobby, socket, viewport, slots);
   }
   /**
    * Setup the battleplan data:
@@ -18820,9 +18826,11 @@ function () {
 
   _createClass(App, [{
     key: "Start",
-    value: function Start(id, viewport, slots) {
+    value: function Start(id, lobby, socket, viewport, slots) {
       // Make Keybind Listener class
-      this.keybinds = new Keybinds(this); // Initialize Battleplan hierarchy
+      this.keybinds = new Keybinds(this);
+      this.lobby = new Lobby(lobby);
+      this.socketListener = new SocketListener(socket, this); // Initialize Battleplan hierarchy
 
       this.battleplan = new Battleplan(id, slots, function () {
         this.canvas = new Canvas(this, viewport); // Initialize canvas
@@ -20342,6 +20350,53 @@ function (_Draw) {
 
 /***/ }),
 
+/***/ "./resources/js/battleplan/edit/classes/Lobby.js":
+/*!*******************************************************!*\
+  !*** ./resources/js/battleplan/edit/classes/Lobby.js ***!
+  \*******************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Lobby; });
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+var Lobby =
+/*#__PURE__*/
+function () {
+  /**************************
+          Constructor
+  **************************/
+  function Lobby(data) {
+    _classCallCheck(this, Lobby);
+
+    this.id;
+    this.connectionString;
+    this.owner;
+    this.initialize(data);
+  }
+
+  _createClass(Lobby, [{
+    key: "initialize",
+    value: function initialize(data) {
+      this.id = data["id"];
+      this.connectionString = data["connection_string"];
+      this.owner = data["owner"];
+    }
+  }]);
+
+  return Lobby;
+}();
+
+
+
+/***/ }),
+
 /***/ "./resources/js/battleplan/edit/classes/Operator.js":
 /*!**********************************************************!*\
   !*** ./resources/js/battleplan/edit/classes/Operator.js ***!
@@ -20536,6 +20591,56 @@ function (_Draw) {
 }(Draw);
 
 
+
+/***/ }),
+
+/***/ "./resources/js/battleplan/edit/classes/SocketListener.js":
+/*!****************************************************************!*\
+  !*** ./resources/js/battleplan/edit/classes/SocketListener.js ***!
+  \****************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return SocketListener; });
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var SocketListener =
+/**************************
+        Constructor
+**************************/
+function SocketListener(LISTEN_SOCKET, app) {
+  _classCallCheck(this, SocketListener);
+
+  LISTEN_SOCKET.on("RequestBattleplan.".concat(app.lobby.connection_string, ":App\\Events\\Lobby\\RequestBattleplan"), function (message) {
+    alert('Request Received!');
+  });
+  LISTEN_SOCKET.on("ResponseBattleplan.".concat(app.lobby.connection_string, ":App\\Events\\Lobby\\ResponseBattleplan"), function (message) {
+    alert('Response Received!');
+  });
+};
+
+ // function init(LISTEN_SOCKET, ROOM_CONN_STRING ,app){
+//     LISTEN_SOCKET.on(`RequestBattleplan.${ROOM_CONN_STRING}:App\\Events\\Lobby\\RequestBattleplan`, function(message){
+//         alert('Request Received!');
+//     });
+//     LISTEN_SOCKET.on(`ResponseBattleplan.${ROOM_CONN_STRING}:App\\Events\\Lobby\\ResponseBattleplan`, function(message){
+//         alert('Response Received!');
+//     });
+//     // //listen for someone elses draws
+//     // LISTEN_SOCKET.on(`BattlefloorDraw.${ROOM_CONN_STRING}:App\\Events\\Battlefloor\\CreateDraws`, function(message){
+//     //     app.serverDraw(message);
+//     // });
+//     // //listen for someone elses draws
+//     // LISTEN_SOCKET.on(`BattlefloorDelete.${ROOM_CONN_STRING}:App\\Events\\Battlefloor\\DeleteDraws`, function(message){
+//     //     app.serverDelete(message);
+//     // });
+//     // //listen for someone elses draws
+//     // LISTEN_SOCKET.on(`ChangeOperatorSlot.${ROOM_CONN_STRING}:App\\Events\\Battleplan\\ChangeOperatorSlot`, function(message){
+//     //     app.changeOperatorSlotDom(message.operatorSlot.id,message.operator);
+//     // }); 
+// }
 
 /***/ }),
 
@@ -21561,7 +21666,7 @@ $.ajaxSetup({
     Constant declarations
 **************************/
 
-var app = new App(BATTLEPLAN_ID, $('#viewport'), [$('#operator-0'), $('#operator-1'), $('#operator-2'), $('#operator-3'), $('#operator-4')]);
+var app = new App(BATTLEPLAN_ID, LOBBY, SOCKET, $('#viewport'), [$('#operator-0'), $('#operator-1'), $('#operator-2'), $('#operator-3'), $('#operator-4')]);
 /**************************
    Give access to app object in main windows
 **************************/
