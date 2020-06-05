@@ -16,6 +16,7 @@ class Line extends Draw {
         this.opacity = opacity;
         this.size = size;
         this.points = [];
+        this.type = 'Line';
     }
 
     init(){
@@ -39,16 +40,16 @@ class Line extends Draw {
         canvas.ctx.beginPath();
         
         canvas.ctx.moveTo(
-            this.points[0].x + canvas.offset.x,
-            this.points[0].y + canvas.offset.y
+            parseFloat(this.points[0].x) + canvas.offset.x,
+            parseFloat(this.points[0].y) + canvas.offset.y
         );
 
         // Itterate each point
         for (let i = 0; i < this.points.length; i++) {
             
             canvas.ctx.lineTo(
-                this.points[i].x + canvas.offset.x,
-                this.points[i].y + canvas.offset.y
+                parseFloat(this.points[i].x) + canvas.offset.x,
+                parseFloat(this.points[i].y) + canvas.offset.y
             );
             
         }
@@ -65,8 +66,8 @@ class Line extends Draw {
             const point = this.points[i];
             
             var coors = {
-                "x": point.x + canvas.offset.x,
-                "y": point.y + canvas.offset.y
+                "x": parseFloat(point.x) + canvas.offset.x,
+                "y": parseFloat(point.y) + canvas.offset.y
             }
 
             if(
@@ -83,11 +84,27 @@ class Line extends Draw {
         super.Move(dX,dY);
         // Itterate each point
         for (let i = 0; i < this.points.length; i++) {
-            this.points[i].x += dX;
-            this.points[i].y += dY;
+            this.points[i].x = parseFloat(this.points[i].x) + dX;
+            this.points[i].y = parseFloat(this.points[i].y) + dY;
         }
     }
     
+    
+    UpdateFromJson(json){
+        this.points = []
+        
+        
+        var exploded = json.points.split(",");
+        for (let i = 0; i < exploded.length; i++) {
+            this.points.push({
+                'x' : exploded[i],
+                'y' : exploded[++i]
+            });
+        }
+        
+    }
+
+
     /**************************
         Helper functions
     **************************/
@@ -100,6 +117,7 @@ class Line extends Draw {
             'size' : this.size,
             'opacity' : this.opacity,
             'updated' : this.updated,
+            'type' : this.type,
 
             // we need to optimize the compressions of objects or else we go over the alloted php POST size limit.
             // Serialization is a 2n array where all 1n are x and 2n are y coordinates
@@ -113,7 +131,7 @@ class Line extends Draw {
     CompressPoints(points){
         var compressed = "";
         points.forEach(point => {
-            compressed += `${point.x},${point.y},`;
+            compressed += `${parseFloat(point.x)},${parseFloat(point.y)},`;
         });
         
         // remove trailling ','

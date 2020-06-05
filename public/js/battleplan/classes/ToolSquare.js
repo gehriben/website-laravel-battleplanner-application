@@ -17,6 +17,11 @@ class ToolSquare extends Tool {
     }
     
     actionDown(coordinates){
+        
+        if(this.activeSquare){
+            this.sendBroadcast(this.activeSquare);
+        }
+        
         this.activeSquare = new this.Square(
             null,
             this.AddOffsetCoordinates(coordinates),
@@ -29,11 +34,19 @@ class ToolSquare extends Tool {
     }
 
     actionUp(coordinates){
+        
+        if(this.activeSquare){
+            this.sendBroadcast(this.activeSquare);
+        }
         this.activeSquare = null;
         this.app.canvas.Update();
     }
 
     actionLeave(coordinates){
+        
+        if(this.activeSquare){
+            this.sendBroadcast(this.activeSquare);
+        }
         this.activeSquare = null;
     }
 
@@ -49,6 +62,25 @@ class ToolSquare extends Tool {
             "x" : (coor.x) / this.app.canvas.scale - this.app.canvas.offset.x,
             "y" : (coor.y) / this.app.canvas.scale - this.app.canvas.offset.y
         }
+    }
+
+    sendBroadcast(draw){
+        $.ajax({
+            method: "POST",
+            url: `/lobby/${LOBBY["connection_string"]}/request-draw-create`,
+            data: {
+                'drawData' : draw.ToJson(),
+                'floorData' : this.app.battleplan.floor.ToJson(),
+            },
+            success: function (result) {
+                console.log(result);
+            }.bind(this),
+            
+            error: function (result) {
+                console.log(result);
+            }
+    
+        });
     }
 }
 export {

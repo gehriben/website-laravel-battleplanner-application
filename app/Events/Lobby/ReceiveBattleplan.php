@@ -13,22 +13,22 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use App\Models\OperatorSlot;
 use App\Models\Lobby;
 
-class ResponseBattleplan implements ShouldBroadcast
+class ReceiveBattleplan implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $lobby;
-    public $appJson;
+    public $battleplanJson;
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct($connection_string,$appJson)
+    public function __construct($connection_string,$battleplanJson)
     {
         $this->lobby = Lobby::byConnection($connection_string)->first();
-        $this->appJson = $appJson;
+        $this->battleplanJson = $battleplanJson;
     }
 
     /**

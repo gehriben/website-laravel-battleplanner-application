@@ -21,6 +21,7 @@ class ToolEraser extends Tool {
         this.app.battleplan.floor.draws.forEach(draw => {
             if(draw.inBox(app.canvas,this.getBox())){
                 this.app.battleplan.floor.RemoveDraw(draw);
+                this.sendBroadcast(draw.localId);
             }
         });
         this.app.canvas.Update();
@@ -32,12 +33,30 @@ class ToolEraser extends Tool {
         this.app.battleplan.floor.draws.forEach(draw => {
             if(draw.inBox(app.canvas,this.getBox())){
                 this.app.battleplan.floor.RemoveDraw(draw);
+                this.sendBroadcast(draw.localId);
             }
         });
         this.app.canvas.Update();
         this.getBox();
     }
     
+    sendBroadcast(drawLocalId){
+        $.ajax({
+            method: "POST",
+            url: `/lobby/${LOBBY["connection_string"]}/request-draw-delete`,
+            data: {
+                'localId' : drawLocalId
+            },
+            success: function (result) {
+                console.log(result);
+            }.bind(this),
+            
+            error: function (result) {
+                console.log(result);
+            }
+    
+        });
+    }
     /**
      * Private Helpers
      */

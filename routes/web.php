@@ -81,6 +81,12 @@ Route::prefix('/battleplan')->group(function () {
 Route::prefix('/lobby')->group(function () {
     Route::get('{connection_string}', 'LobbyController@show')->name("Lobby.show");
     Route::post('{connection_string}/request-battleplan', 'LobbyController@requestBattleplan')->name("Lobby.requestBattleplan");
+    Route::post('{connection_string}/response-battleplan', 'LobbyController@responseBattleplan')->name("Lobby.responseBattleplan");
+    Route::post('{connection_string}/request-draw-delete', 'LobbyController@requestDrawDelete')->name("Lobby.requestDrawDelete");
+    Route::post('{connection_string}/request-draw-create', 'LobbyController@requestDrawCreate')->name("Lobby.requestDrawCreate");
+    Route::post('{connection_string}/request-operator-slot-change', 'LobbyController@requestOperatorSlotChange')->name("Lobby.requestOperatorSlotChange");
+    Route::post('{connection_string}/request-draw-update', 'LobbyController@requestDrawUpdate')->name("Lobby.requestDrawUpdate");
+    
 });
 
 Route::prefix('/room')->group(function () {

@@ -10,8 +10,11 @@ class App {
             Constructor
     **************************/
 
-    constructor(id, lobby, socket, viewport, slots) {
-        this.id = id;
+    constructor(user, lobbyData, socket, viewport, slots) {
+        // this.id = id;
+        this.user = user;
+        this.lobbyData=lobbyData;
+        this.socket = socket;
         this.viewport = viewport
         this.slots = slots;
 
@@ -45,24 +48,36 @@ class App {
             },
         }
 
-        this.Start(id, lobby, socket, viewport, slots);
+        // Initialize variables
+        this.keybinds = new Keybinds(this);
+        this.lobby = new Lobby(this.lobbyData);
+        this.socketListener = new SocketListener(this.socket, this);
     }
 
     /**
-     * Setup the battleplan data:
+     * Setup the battleplan from API data
      * - Initialize key eventlisteners
      * - Get Map data
      * - Initialize new battleplan
      */
-    Start(id,lobby,socket, viewport, slots){
-        // Make Keybind Listener class
-        this.keybinds = new Keybinds(this);
-        this.lobby = new Lobby(lobby);
-        this.socketListener = new SocketListener(socket, this);
-
+    initializeByApi(id){
         // Initialize Battleplan hierarchy
-        this.battleplan = new Battleplan(id,slots, function(){
-            this.canvas = new Canvas(this,viewport);       // Initialize canvas
+        this.battleplan = new Battleplan(id)
+        this.battleplan.initializeByApi(this.slots, function(){
+            this.canvas = new Canvas(this,this.viewport);       // Initialize canvas
+            this.DisplayOperators();
+        }.bind(this));
+
+    }
+
+    /**
+     * Setup the battleplan data from Json data
+     */
+    initializeByJson(json){
+        // Initialize Battleplan hierarchy
+        this.battleplan = new Battleplan(json['id'])
+        this.battleplan.initializeByJson(json['appJson']['battleplan'],this.slots, function(){
+            this.canvas = new Canvas(this,this.viewport);       // Initialize canvas
             this.DisplayOperators();
         }.bind(this));
 
@@ -106,30 +121,36 @@ class App {
         this.battleplan.operator.operator.operatorId = operatorId;
         this.battleplan.operator.operator.src = src;
         this.DisplayOperators();
+
+        $.ajax({
+            method: "POST",
+            url: `/lobby/${LOBBY["connection_string"]}/request-operator-slot-change`,
+            data: {
+                'operatorSlotData' : this.battleplan.operator.operator.ToJson()
+            },
+            success: function (result) {
+                console.log(result);
+            }.bind(this),
+            
+            error: function (result) {
+                console.log(result);
+            }
+        });
     }
 
     /**
      * Save
      */
-    SaveAs(name,description,notes,ispublic){
-
-        var json = {
-            'battleplan' : this.battleplan.ToJson(),
-            'name' : name,
-            'description' : description,
-            'notes' : notes,
-            'public' : ispublic,
-        }
+    SaveAs(){
 
         $.ajax({
             method: "POST",
             url: `/battleplan/${this.battleplan.id}`,
-            data: json,
+            data: this.ToJson(),
             success: function (result) {
-                // alert("success");
-
                 // Initialize Battleplan hierarchy
-                this.battleplan = new Battleplan(this.id,this.slots, function(){
+                this.battleplan = new Battleplan(this.battleplan.id)
+                this.battleplan.initializeByApi(this.slots, function(){
                     this.canvas = new Canvas(this,this.viewport);       // Initialize canvas
                     this.DisplayOperators();
                 }.bind(this));
@@ -140,6 +161,16 @@ class App {
             }
 
         });
+    }
+
+    ToJson(){
+        return {
+            'battleplan' : this.battleplan.ToJson(),
+            'name' : $('#bName').val(),
+            'description' : $('#bDescription').val(),
+            'notes' : $('#bNotes').val(),
+            'public' : $('#bPublic').val(),
+        }
     }
 }
 export {

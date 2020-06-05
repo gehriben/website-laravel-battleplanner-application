@@ -10,25 +10,26 @@ use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
 // Models
-use App\Models\OperatorSlot;
 use App\Models\Lobby;
 
-class ResponseBattleplan implements ShouldBroadcast
+class ReceiveDrawDelete implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $lobby;
-    public $appJson;
+    public $localId;
+    public $requester;
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct($connection_string,$appJson)
+    public function __construct($connection_string, $localId, $requester)
     {
         $this->lobby = Lobby::byConnection($connection_string)->first();
-        $this->appJson = $appJson;
+        $this->localId = $localId;
+        $this->requester = $requester;
     }
 
     /**
@@ -38,6 +39,6 @@ class ResponseBattleplan implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return ['ResponseBattleplan'];
+        return ['ReceiveDrawDelete'];
     }
 }

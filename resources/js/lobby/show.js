@@ -1,7 +1,7 @@
 /**************************
     Imports
-**************************/
-var App = require('./classes/App.js').default;
+**************************/ 
+var App = require('../battleplan/edit/classes/App.js').default;
 
 /**************************
     Setup Ajax CSRF
@@ -28,7 +28,6 @@ var app = new App(
         $('#operator-4')
     ],
 );
-app.initializeByApi(BATTLEPLAN_ID);
 
 /**************************
    Give access to app object in main windows

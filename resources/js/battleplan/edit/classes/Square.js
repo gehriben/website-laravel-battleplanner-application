@@ -14,8 +14,9 @@ class Square extends Draw {
         this.SelectBox = require('./SelectBox.js').default;
         this.color = color;
         this.opacity = opacity;
-        this.origin = origin;
-        this.destination = destination;
+        this.origin = {'x':parseFloat(origin.x),'y':parseFloat(origin.y)};
+        this.destination = {'x':parseFloat(destination.x),'y':parseFloat(destination.y)};
+        this.type = 'Square';
     }
     
     static checkSides(origin,destination){
@@ -161,6 +162,11 @@ class Square extends Draw {
         canvas.ctx.strokeStyle = defaultColor;
     }
 
+    UpdateFromJson(json){
+        this.origin = {'x':parseFloat(json.origin.x),'y':parseFloat(json.origin.y)};
+        this.destination = {'x':parseFloat(json.destination.x),'y':parseFloat(json.destination.y)};
+    }
+
    ToJson(){
         return {
             'localId' : this.localId,
@@ -171,6 +177,7 @@ class Square extends Draw {
             'destination' : this.destination,
             'opacity' : this.opacity,
             'updated' : this.updated,
+            'type' : this.type,
         }
     }
 }

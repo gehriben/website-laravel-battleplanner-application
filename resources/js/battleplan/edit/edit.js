@@ -16,7 +16,7 @@ $.ajaxSetup({
     Constant declarations
 **************************/
 var app = new App(
-    BATTLEPLAN_ID,
+    USER,
     LOBBY,
     SOCKET,
     $('#viewport'),
@@ -28,7 +28,7 @@ var app = new App(
         $('#operator-4')
     ],
 );
-    
+app.initializeByApi(BATTLEPLAN_ID);
 
 /**************************
    Give access to app object in main windows

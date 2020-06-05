@@ -25,7 +25,7 @@ class ToolIcon extends Tool {
                 this.app.opacity,
                 src
             );
-
+            this.sendBroadcast(icon);
             this.app.battleplan.floor.AddDraw(icon);
             this.app.canvas.Update();
         }
@@ -38,6 +38,24 @@ class ToolIcon extends Tool {
         }
     }
     
+    sendBroadcast(draw){
+        $.ajax({
+            method: "POST",
+            url: `/lobby/${LOBBY["connection_string"]}/request-draw-create`,
+            data: {
+                'drawData' : draw.ToJson(),
+                'floorData' : this.app.battleplan.floor.ToJson(),
+            },
+            success: function (result) {
+                console.log(result);
+            }.bind(this),
+            
+            error: function (result) {
+                console.log(result);
+            }
+    
+        });
+    }
 }
 export {
     ToolIcon as

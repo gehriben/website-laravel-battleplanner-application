@@ -3,19 +3,34 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Auth;
 
 // Events
 use App\Events\Lobby\RequestBattleplan;
+use App\Events\Lobby\ResponseBattleplan;
+use App\Events\Lobby\ReceiveDrawDelete;
+use App\Events\Lobby\ReceiveDrawCreate;
+use App\Events\Lobby\ReceiveOperatorSlotChange;
+use App\Events\Lobby\ReceiveDrawUpdate;
 
 // Models
 use App\Models\Lobby;
+use App\Models\Battleplan;
+use App\Models\Operator;
+use App\Models\Gadget;
 
 class LobbyController extends Controller
 {
 
     public function show(Request $request, $connection_string){
-        $lobby = Lobby::byConnection($connection_string)->first();
-        return view('lobby.show', compact('lobby'));
+        $lobby = Lobby::byConnection($connection_string)->with('owner')->first();
+        
+        $attackers = Operator::attackers()->get();
+        $defenders = Operator::defenders()->get();
+        $gadgets = Gadget::all();
+        $listenSocket = env("LISTEN_SOCKET");
+
+        return view('lobby.show', compact("attackers", "defenders",'gadgets','lobby','listenSocket'));
     }
 
    /**
@@ -38,14 +53,15 @@ class LobbyController extends Controller
         // validate request object contains all needed data
         $data = $request->validate([
             // Battleplan data
-            'battleplanJson' => ['required'],
+            'appJson' => ['required'],
         ]);
         
         $lobby = Lobby::byConnection($connection_string)->first();
-        $battleplan = Battleplan::findOrFail($data['battleplanJson']['id']);
+        // dd($data['battleplanJson']['battleplan']);
+        $battleplan = Battleplan::findOrFail($data['appJson']['battleplan']['id']);
 
         // user does not own the lobby or does not own the battleplan
-        if(Auth::user()->id != $battleplan->owner->id || Auth::user()->id == $lobby->owner->id){
+        if(Auth::user()->id != $battleplan->owner->id || Auth::user()->id != $lobby->owner->id){
             abort(400);
         }
 
@@ -54,19 +70,86 @@ class LobbyController extends Controller
             abort(400);
         }
 
-        event(new ResponseBattleplan($data['battleplanJson'],$lobby->connection_string));
+        event(new ResponseBattleplan($lobby->connection_string,$data['appJson']));
         return response()->success();
     }
-//    public function create(Request $request) {
 
-//         $data['owner_id'] = Auth::user()->id;
+    public function requestDrawDelete(Request $request, $connection_string){
+        
+        // validate request object contains all needed data
+        $data = $request->validate([
+            // Battleplan data
+            'localId' => ['required'],
+        ]);
+        
+        $lobby = Lobby::byConnection($connection_string)->first();
+        
+        // No lobby found
+        if(!$lobby){
+            abort(400);
+        }
 
-//         $lobby = Lobby::create([]);
+        event(new ReceiveDrawDelete($lobby->connection_string,$data['localId'],Auth::user()));
+        return response()->success();
+    }
 
-//         if($request->wantsJson()){
-//             return response()->success($gadget);
-//         }
-//         return redirect("Loby/$gadget->id");
-//     }
+    public function requestDrawCreate(Request $request, $connection_string){
+        
+        // validate request object contains all needed data
+        $data = $request->validate([
+            // Battleplan data
+            'drawData' => ['required'],
+            'floorData' => ['required'],
+        ]);
+        
+        $lobby = Lobby::byConnection($connection_string)->first();
+        
+        // No lobby found
+        if(!$lobby){
+            abort(400);
+        }
+
+        event(new ReceiveDrawCreate($lobby->connection_string,$data['drawData'],$data['floorData'],Auth::user()));
+        return response()->success();
+    }
+
+    public function requestOperatorSlotChange(Request $request, $connection_string){
+        
+        // validate request object contains all needed data
+        $data = $request->validate([
+            // Battleplan data
+            'operatorSlotData' => ['required']
+        ]);
+        
+        $lobby = Lobby::byConnection($connection_string)->first();
+        
+        // No lobby found
+        if(!$lobby){
+            abort(400);
+        }
+
+        event(new ReceiveOperatorSlotChange($lobby->connection_string,$data['operatorSlotData'],Auth::user()));
+        return response()->success();
+    }
+
+    public function requestDrawUpdate(Request $request, $connection_string){
+        
+        // validate request object contains all needed data
+        $data = $request->validate([
+            // Battleplan data
+            'drawData' => ['required']
+        ]);
+        
+        $lobby = Lobby::byConnection($connection_string)->first();
+        
+        // No lobby found
+        if(!$lobby){
+            abort(400);
+        }
+
+        event(new ReceiveDrawUpdate($lobby->connection_string,$data['drawData'],Auth::user()));
+        return response()->success();
+    }
+    
 
 }

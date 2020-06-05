@@ -5,13 +5,12 @@ var Redis = require('ioredis');
 var redis = new Redis();
 
 redis.subscribe('RequestBattleplan', function(err, count) {});
-redis.subscribe('RequestedBattleplan', function(err, count) {});
-redis.subscribe('RespondBattleplan', function(err, count) {});
+redis.subscribe('ResponseBattleplan', function(err, count) {});
+redis.subscribe('ReceiveDrawDelete', function(err, count) {});
+redis.subscribe('ReceiveDrawCreate', function(err, count) {});
+redis.subscribe('ReceiveOperatorSlotChange', function(err, count) {});
+redis.subscribe('ReceiveDrawUpdate', function(err, count) {});
 
-// redis.subscribe('BattleplanChange', function(err, count) {});
-// redis.subscribe('BattlefloorDraw', function(err, count) {});
-// redis.subscribe('BattlefloorDelete', function(err, count) {});
-// redis.subscribe('ChangeOperatorSlot', function(err, count) {});
 
 redis.on('message', function(channel, message) {
     console.log(message);

@@ -73,6 +73,13 @@ class Battleplan extends Model
     }
 
     /**
+     * Scopes
+     */
+    public function scopePublic($query){
+        return $query->where('public', true);
+    }
+
+    /**
      * Create new plan
      * Required ["map_id","notes","public"]  
      */

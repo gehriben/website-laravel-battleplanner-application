@@ -20,5 +20,13 @@ class UserSeeder extends Seeder
             'password' => bcrypt(env('ADMIN_PASSWORD')),
             'admin' => true,
         ]);
+
+        // admin user
+        User::create([
+            "username" => 'admin1',
+            "email" => env('ADMIN_EMAIL') . 1,
+            'password' => bcrypt(env('ADMIN_PASSWORD')),
+            'admin' => false,
+        ]);
     }
 }

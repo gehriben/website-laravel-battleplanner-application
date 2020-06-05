@@ -81,7 +81,7 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 2);
+/******/ 	return __webpack_require__(__webpack_require__.s = 1);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -22074,17 +22074,17 @@ function (_Tool) {
 
 /***/ }),
 
-/***/ "./resources/js/battleplan/edit/edit.js":
-/*!**********************************************!*\
-  !*** ./resources/js/battleplan/edit/edit.js ***!
-  \**********************************************/
+/***/ "./resources/js/lobby/show.js":
+/*!************************************!*\
+  !*** ./resources/js/lobby/show.js ***!
+  \************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function($) {/**************************
     Imports
 **************************/
-var App = __webpack_require__(/*! ./classes/App.js */ "./resources/js/battleplan/edit/classes/App.js")["default"];
+var App = __webpack_require__(/*! ../battleplan/edit/classes/App.js */ "./resources/js/battleplan/edit/classes/App.js")["default"];
 /**************************
     Setup Ajax CSRF
 **************************/
@@ -22100,7 +22100,6 @@ $.ajaxSetup({
 **************************/
 
 var app = new App(USER, LOBBY, SOCKET, $('#viewport'), [$('#operator-0'), $('#operator-1'), $('#operator-2'), $('#operator-3'), $('#operator-4')]);
-app.initializeByApi(BATTLEPLAN_ID);
 /**************************
    Give access to app object in main windows
 **************************/
@@ -22110,14 +22109,14 @@ window.app = app;
 
 /***/ }),
 
-/***/ 2:
-/*!****************************************************!*\
-  !*** multi ./resources/js/battleplan/edit/edit.js ***!
-  \****************************************************/
+/***/ 1:
+/*!******************************************!*\
+  !*** multi ./resources/js/lobby/show.js ***!
+  \******************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! D:\Repositories\website-laravel-battleplanner-v2\resources\js\battleplan\edit\edit.js */"./resources/js/battleplan/edit/edit.js");
+module.exports = __webpack_require__(/*! D:\Repositories\website-laravel-battleplanner-v2\resources\js\lobby\show.js */"./resources/js/lobby/show.js");
 
 
 /***/ })
