@@ -3,8 +3,12 @@
 @push('js')
 
 {{-- init --}}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
 <script type="text/javascript">
     const BATTLEPLAN_ID = {{ $battleplan->id}};
+    const SOCKET = io('{{$listenSocket}}');
+    const LOBBY = {!! json_encode($lobby->toArray(), JSON_HEX_TAG) !!}
+    const USER = {!! json_encode(Auth::user()->toArray(), JSON_HEX_TAG) !!}
 </script>
 
 <script src="{{asset("js/battleplan/edit.bundle.js")}}"></script>
@@ -62,7 +66,7 @@
 
 
       <div class="modal-footer">
-        <button type="button" class="btn btn-primary" onclick="app.SaveAs($('#bName').val(),$('#bDescription').val(),$('#bNotes').val(),$('#bPublic').val())" data-dismiss="modal">Save</button>
+        <button type="button" class="btn btn-primary" onclick="app.SaveAs()" data-dismiss="modal">Save</button>
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
       </div>
 

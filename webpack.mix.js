@@ -28,15 +28,15 @@ mix.sass('resources/sass/app.scss', 'public/css')
     //Admin
     mix.copy('resources/sass/admin/*', 'public/css/admin');
 
+    // Account
     mix.copy('resources/sass/account/*', 'public/css/account');
 
     // Auth
     mix.copy('resources/sass/authentication/*', 'public/css/authentication');
 
-    // Rooms
-    mix.js('resources/js/room/join.js', 'public/js/room/join.js')
-        .js('resources/js/room/index.js', 'public/js/room/index.js')
-        .copy('resources/sass/room/*', 'public/css/room');
+    // Lobby
+    mix.js('resources/js/lobby/show.js', 'public/js/lobby/show.bundle.js')
+        .copy('resources/sass/lobby/*', 'public/css/lobby');
 
     // Battleplan
     mix.copy('resources/js/battleplan', 'public/js/battleplan')

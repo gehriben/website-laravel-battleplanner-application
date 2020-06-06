@@ -1,4 +1,5 @@
 ## installation
-
+<!-- sudo apt-get install -y php-redis -->
+redis-server --port 3001
 php artisan passport:install
-php artisan passport:keys# website-react-battleplanner-v2
+node socket.js

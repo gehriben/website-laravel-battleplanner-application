@@ -74,6 +74,8 @@ class ToolSelect extends Tool {
             this.app.battleplan.floor.RemoveDraw(this.activeSelect);
             this.activeSelect.Select(this.app.canvas,this.app.battleplan.floor.draws);
             this.activeSelect = null;
+        } else{
+            this.broadcast();
         }
         this.app.canvas.Update();
     }
@@ -156,6 +158,26 @@ class ToolSelect extends Tool {
         draws.forEach(draw => {
             draw.highlighted = toggle;
         });
+    }
+    
+    broadcast() {
+        this.app.battleplan.floor.SelectedDraws().forEach(draw => {
+            $.ajax({
+                method: "POST",
+                url: `/lobby/${LOBBY["connection_string"]}/request-draw-update`,
+                data: {
+                    'drawData' : draw.ToJson()
+                },
+                success: function (result) {
+                    console.log(result);
+                }.bind(this),
+                
+                error: function (result) {
+                    console.log(result);
+                }
+            });
+        });
+        
     }
 
 }

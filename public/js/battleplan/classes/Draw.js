@@ -19,12 +19,10 @@ class Draw extends Databaseable{
     **************************/
    
     
-
-    // getType(draw){
-    //     var exploded = draw.drawable_type.split("\\");
-    //     return exploded[exploded.length -1];
-    // }
-
+    UpdateFromJson(json){
+        // Should be overriden in child
+    }
+    
     // Method to see if object is inside a given bounding box.
     // Used for the selection tool
     inBox(canvas,box){

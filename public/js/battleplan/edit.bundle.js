@@ -81,7 +81,7 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 3);
+/******/ 	return __webpack_require__(__webpack_require__.s = 2);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -18767,16 +18767,23 @@ var Canvas = __webpack_require__(/*! ./Canvas.js */ "./resources/js/battleplan/e
 
 var Keybinds = __webpack_require__(/*! ./Keybinds.js */ "./resources/js/battleplan/edit/classes/Keybinds.js")["default"];
 
+var SocketListener = __webpack_require__(/*! ./SocketListener.js */ "./resources/js/battleplan/edit/classes/SocketListener.js")["default"];
+
+var Lobby = __webpack_require__(/*! ./Lobby.js */ "./resources/js/battleplan/edit/classes/Lobby.js")["default"];
+
 var App =
 /*#__PURE__*/
 function () {
   /**************************
           Constructor
   **************************/
-  function App(id, viewport, slots) {
+  function App(user, lobbyData, socket, viewport, slots) {
     _classCallCheck(this, App);
 
-    this.id = id;
+    // this.id = id;
+    this.user = user;
+    this.lobbyData = lobbyData;
+    this.socket = socket;
     this.viewport = viewport;
     this.slots = slots; // Properties
 
@@ -18787,7 +18794,9 @@ function () {
     this.battleplan; // Saved battleplan instance
 
     this.keybinds; // Definition of keybind actions
-    //Drawing settings
+
+    this.lobby;
+    this.socketListener; //Drawing settings
 
     this.color = '#ffffff';
     this.opacity = 1;
@@ -18807,11 +18816,14 @@ function () {
         "active": false,
         "tool": null
       }
-    };
-    this.Start(id, viewport, slots);
+    }; // Initialize variables
+
+    this.keybinds = new Keybinds(this);
+    this.lobby = new Lobby(this.lobbyData);
+    this.socketListener = new SocketListener(this.socket, this);
   }
   /**
-   * Setup the battleplan data:
+   * Setup the battleplan from API data
    * - Initialize key eventlisteners
    * - Get Map data
    * - Initialize new battleplan
@@ -18819,13 +18831,27 @@ function () {
 
 
   _createClass(App, [{
-    key: "Start",
-    value: function Start(id, viewport, slots) {
-      // Make Keybind Listener class
-      this.keybinds = new Keybinds(this); // Initialize Battleplan hierarchy
+    key: "initializeByApi",
+    value: function initializeByApi(id) {
+      // Initialize Battleplan hierarchy
+      this.battleplan = new Battleplan(id);
+      this.battleplan.initializeByApi(this.slots, function () {
+        this.canvas = new Canvas(this, this.viewport); // Initialize canvas
 
-      this.battleplan = new Battleplan(id, slots, function () {
-        this.canvas = new Canvas(this, viewport); // Initialize canvas
+        this.DisplayOperators();
+      }.bind(this));
+    }
+    /**
+     * Setup the battleplan data from Json data
+     */
+
+  }, {
+    key: "initializeByJson",
+    value: function initializeByJson(json) {
+      // Initialize Battleplan hierarchy
+      this.battleplan = new Battleplan(json['id']);
+      this.battleplan.initializeByJson(json['appJson']['battleplan'], this.slots, function () {
+        this.canvas = new Canvas(this, this.viewport); // Initialize canvas
 
         this.DisplayOperators();
       }.bind(this));
@@ -18878,6 +18904,19 @@ function () {
       this.battleplan.operator.operator.operatorId = operatorId;
       this.battleplan.operator.operator.src = src;
       this.DisplayOperators();
+      $.ajax({
+        method: "POST",
+        url: "/lobby/".concat(LOBBY["connection_string"], "/request-operator-slot-change"),
+        data: {
+          'operatorSlotData': this.battleplan.operator.operator.ToJson()
+        },
+        success: function (result) {
+          console.log(result);
+        }.bind(this),
+        error: function error(result) {
+          console.log(result);
+        }
+      });
     }
     /**
      * Save
@@ -18885,22 +18924,15 @@ function () {
 
   }, {
     key: "SaveAs",
-    value: function SaveAs(name, description, notes, ispublic) {
-      var json = {
-        'battleplan': this.battleplan.ToJson(),
-        'name': name,
-        'description': description,
-        'notes': notes,
-        'public': ispublic
-      };
+    value: function SaveAs() {
       $.ajax({
         method: "POST",
         url: "/battleplan/".concat(this.battleplan.id),
-        data: json,
+        data: this.ToJson(),
         success: function (result) {
-          // alert("success");
           // Initialize Battleplan hierarchy
-          this.battleplan = new Battleplan(this.id, this.slots, function () {
+          this.battleplan = new Battleplan(this.battleplan.id);
+          this.battleplan.initializeByApi(this.slots, function () {
             this.canvas = new Canvas(this, this.viewport); // Initialize canvas
 
             this.DisplayOperators();
@@ -18910,6 +18942,17 @@ function () {
           console.log(result);
         }
       });
+    }
+  }, {
+    key: "ToJson",
+    value: function ToJson() {
+      return {
+        'battleplan': this.battleplan.ToJson(),
+        'name': $('#bName').val(),
+        'description': $('#bDescription').val(),
+        'notes': $('#bNotes').val(),
+        'public': $('#bPublic').val()
+      };
     }
   }]);
 
@@ -18963,34 +19006,35 @@ function (_Databaseable) {
   /**************************
           Constructor
   **************************/
-  function Battleplan(id, slots, callback) {
+  function Battleplan(id, slots) {
     var _this;
 
     _classCallCheck(this, Battleplan);
 
     // Properties
     _this = _possibleConstructorReturn(this, _getPrototypeOf(Battleplan).call(this, id));
+    _this.slots = slots;
     _this.floors = []; // Floors of the battleplan
 
     _this.floor; // Current Active Floor
 
-    _this.finishedCallback = callback;
+    _this.finishedCallback;
     _this.operators = []; // Operators
 
     _this.operator; // Operator slot being edited
-
-    _this.Initialize(id, slots, callback);
 
     return _this;
   }
 
   _createClass(Battleplan, [{
-    key: "Initialize",
-    value: function Initialize(id, slots, callback) {
-      this.Get(id, function (result) {
+    key: "initializeByApi",
+    value: function initializeByApi(slots, callback) {
+      this.finishedCallback = callback;
+      this.Get(this.id, function (result) {
         // Create floors
         for (var i = 0; i < result.battlefloors.length; i++) {
-          var floor = new Floor(result.battlefloors[i], this.ReadyCheck.bind(this));
+          var floor = new Floor(result.battlefloors[i]['id']);
+          floor.initializeByApi(result.battlefloors[i], this.ReadyCheck.bind(this));
           this.floors.push(floor); // First floor, set as default
 
           if (i == 0) {
@@ -19009,6 +19053,34 @@ function (_Databaseable) {
       }.bind(this));
     }
   }, {
+    key: "initializeByJson",
+    value: function initializeByJson(Json, slots, callback) {
+      this.finishedCallback = callback;
+
+      for (var i = 0; i < Json.floors.length; i++) {
+        var floorData = Json.floors[i];
+        var floor = new Floor(floorData['id']);
+        floor.initializeByJson(floorData, this.ReadyCheck.bind(this));
+        floor.localId = floorData['localId'];
+        this.floors.push(floor); // First floor, set as default
+
+        if (i == 0) {
+          this.floor = floor;
+        }
+      } // Create operator slots object
+
+
+      for (var _i2 = 0; _i2 < Json.operators.length; _i2++) {
+        var operatorData = Json.operators[_i2];
+        var operator = new Operator(operatorData.id, operatorData.operator_id, operatorData.src);
+        operator.localId = operatorData['localId'];
+        this.operators.push({
+          "operator": operator,
+          "slot": slots[_i2]
+        });
+      }
+    }
+  }, {
     key: "ChangeFloor",
     value: function ChangeFloor(increment) {
       var _this2 = this;
@@ -19025,6 +19097,40 @@ function (_Databaseable) {
         }
 
       return this.floor;
+    }
+  }, {
+    key: "getFloorByLocalId",
+    value: function getFloorByLocalId(localId) {
+      for (var i = 0; i < this.floors.length; i++) {
+        var floor = this.floors[i];
+
+        if (floor.localId == localId) {
+          return floor;
+        }
+      }
+    }
+  }, {
+    key: "getOperatorByLocalId",
+    value: function getOperatorByLocalId(localId) {
+      for (var i = 0; i < this.operators.length; i++) {
+        var operator = this.operators[i];
+
+        if (operator.operator.localId == localId) {
+          return operator;
+        }
+      }
+    }
+  }, {
+    key: "getDrawLocalId",
+    value: function getDrawLocalId(localId) {
+      for (var i = 0; i < this.floors.length; i++) {
+        var floor = this.floors[i];
+        var found = floor.getDrawLocalId(localId);
+
+        if (found) {
+          return found;
+        }
+      }
     } // Check that all sub assets have loaded
 
   }, {
@@ -19060,6 +19166,13 @@ function (_Databaseable) {
       });
     }
   }, {
+    key: "deleteDrawByLocalId",
+    value: function deleteDrawByLocalId(localId) {
+      this.floors.forEach(function (floor) {
+        floor.deleteDrawByLocalId(localId);
+      });
+    }
+  }, {
     key: "ToJson",
     value: function ToJson() {
       var operatorsJson = [];
@@ -19071,8 +19184,8 @@ function (_Databaseable) {
 
       var floorsJson = [];
 
-      for (var _i2 = 0; _i2 < this.floors.length; _i2++) {
-        var floor = this.floors[_i2];
+      for (var _i3 = 0; _i3 < this.floors.length; _i3++) {
+        var floor = this.floors[_i3];
         floorsJson.push(floor.ToJson());
       }
 
@@ -19476,10 +19589,10 @@ function (_Databaseable) {
     /**************************
         Helper functions
     **************************/
-    // getType(draw){
-    //     var exploded = draw.drawable_type.split("\\");
-    //     return exploded[exploded.length -1];
-    // }
+
+  }, {
+    key: "UpdateFromJson",
+    value: function UpdateFromJson(json) {} // Should be overriden in child
     // Method to see if object is inside a given bounding box.
     // Used for the selection tool
 
@@ -19546,28 +19659,31 @@ function (_Databaseable) {
   /**************************
           Constructor
   **************************/
-  function Floor(data, callback) {
+  function Floor(id) {
     var _this;
 
     _classCallCheck(this, Floor);
 
     // Properties
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Floor).call(this, data.id));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(Floor).call(this, id));
     _this.draws = [];
     _this.background;
     _this.image = new Image();
     _this.load;
-    _this.finishedCallback = callback; // map the possible classes for draws
+    _this.finishedCallback; // map the possible classes for draws
 
-    _this.Line = __webpack_require__(/*! ./Line.js */ "./resources/js/battleplan/edit/classes/Line.js")["default"], _this.Square = __webpack_require__(/*! ./Square.js */ "./resources/js/battleplan/edit/classes/Square.js")["default"], _this.Icon = __webpack_require__(/*! ./Icon.js */ "./resources/js/battleplan/edit/classes/Icon.js")["default"], _this.Initialize(data);
+    _this.Line = __webpack_require__(/*! ./Line.js */ "./resources/js/battleplan/edit/classes/Line.js")["default"];
+    _this.Square = __webpack_require__(/*! ./Square.js */ "./resources/js/battleplan/edit/classes/Square.js")["default"];
+    _this.Icon = __webpack_require__(/*! ./Icon.js */ "./resources/js/battleplan/edit/classes/Icon.js")["default"];
     return _this;
   }
 
   _createClass(Floor, [{
-    key: "Initialize",
-    value: function Initialize(data) {
+    key: "initializeByApi",
+    value: function initializeByApi(data, callback) {
       var _this2 = this;
 
+      this.finishedCallback = callback;
       this.background = data.floor.source.url;
 
       for (var i = 0; i < data.draws.length; i++) {
@@ -19612,6 +19728,86 @@ function (_Databaseable) {
       }.bind(this);
     }
   }, {
+    key: "initializeByJson",
+    value: function initializeByJson(json, callback) {
+      this.finishedCallback = callback;
+      this.background = json.background;
+
+      if (json.draws) {
+        for (var i = 0; i < json.draws.length; i++) {
+          var drawData = json.draws[i];
+          this.draws.push(this.createDrawFromJson(drawData));
+        }
+      } // acquire image
+
+
+      this.image.src = this.background; // Load the image in memory
+
+      this.image.onload = function () {
+        this.load = this.image;
+        this.finishedCallback(this);
+      }.bind(this);
+    }
+  }, {
+    key: "createDrawFromJson",
+    value: function createDrawFromJson(drawData) {
+      switch (drawData['type']) {
+        case 'Line':
+          var line = new this.Line(drawData.id, drawData.color, drawData.opacity, drawData.size);
+          line.localId = drawData.localId;
+          var exploded = drawData.points.split(",");
+
+          for (var i = 0; i < exploded.length; i++) {
+            line.points.push({
+              'x': exploded[i],
+              'y': exploded[++i]
+            });
+          }
+
+          return line;
+
+        case 'Square':
+          var square = new this.Square(drawData.id, drawData.origin, drawData.destination, drawData.color, drawData.opacity);
+          square.localId = drawData.localId;
+          return square;
+
+        case 'Icon':
+          var icon = new this.Icon(drawData.id, {
+            'x': drawData.origin.x,
+            'y': drawData.origin.y
+          }, drawData.size, drawData.opacity, drawData.source);
+          icon.localId = drawData.localId;
+          return icon;
+        // Do default
+
+        default:
+          console.error(' Invalid Draw Type');
+          break;
+      }
+    }
+  }, {
+    key: "getDrawLocalId",
+    value: function getDrawLocalId(localId) {
+      for (var i = 0; i < this.draws.length; i++) {
+        var draw = this.draws[i];
+
+        if (draw.localId == localId) {
+          return draw;
+        }
+      }
+    }
+  }, {
+    key: "deleteDrawByLocalId",
+    value: function deleteDrawByLocalId(localId) {
+      var _this3 = this;
+
+      this.draws.forEach(function (draw) {
+        if (draw.localId == localId) {
+          _this3.RemoveDraw(draw);
+        }
+      });
+    }
+  }, {
     key: "AddDraw",
     value: function AddDraw(draw) {
       this.draws.push(draw);
@@ -19642,6 +19838,7 @@ function (_Databaseable) {
 
       return {
         'id': this.id,
+        'background': this.background,
         'localId': this.localId,
         'draws': drawsJson
       };
@@ -19666,6 +19863,8 @@ function (_Databaseable) {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Icon; });
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -19709,9 +19908,13 @@ function (_Draw) {
     _this.SelectBox = __webpack_require__(/*! ./SelectBox.js */ "./resources/js/battleplan/edit/classes/SelectBox.js")["default"];
     _this.size = size;
     _this.opacity = opacity;
-    _this.origin = origin;
+    _this.origin = {
+      'x': parseFloat(origin.x),
+      'y': parseFloat(origin.y)
+    };
     _this.src = src;
     _this.img = null;
+    _this.type = 'Icon';
     return _this;
   }
 
@@ -19821,9 +20024,17 @@ function (_Draw) {
     **************************/
 
   }, {
+    key: "UpdateFromJson",
+    value: function UpdateFromJson(json) {
+      this.origin = {
+        'x': parseFloat(json.origin.x),
+        'y': parseFloat(json.origin.y)
+      };
+    }
+  }, {
     key: "ToJson",
     value: function ToJson() {
-      return {
+      return _defineProperty({
         'localId': this.localId,
         'type': 'Icon',
         'id': this.id,
@@ -19832,7 +20043,7 @@ function (_Draw) {
         'size': this.size,
         'opacity': this.opacity,
         'updated': this.updated
-      };
+      }, "type", this.type);
     }
   }]);
 
@@ -19927,19 +20138,28 @@ function () {
     this.keyEvents.push({
       "keys": [46],
       "event": function (ev) {
+        var _this = this;
+
         app.battleplan.floor.SelectedDraws().forEach(function (draw) {
           app.battleplan.floor.RemoveDraw(draw);
+          $.ajax({
+            method: "POST",
+            url: "/lobby/".concat(LOBBY["connection_string"], "/request-draw-delete"),
+            data: {
+              'localId': draw.localId
+            },
+            success: function (result) {
+              console.log(result);
+            }.bind(_this),
+            error: function error(result) {
+              console.log(result);
+            }
+          });
         });
         this.app.canvas.Update();
         ev.preventDefault();
       }.bind(this)
-    }); // this.keyEvents.push({ "keys": [40], "event": this.floorDown }); // down arrow
-    // this.keyEvents.push({ "keys": [17,83], "event": this.save }); // down arrow
-    // this.keyEvents.push({ "keys": [17,68], "event": this.load }); // down arrow
-    // this.keyEvents.push({ "keys": [81], "event": this.toolPencil }); // down arrow
-    // this.keyEvents.push({ "keys": [87], "event": this.toolSquare }); // down arrow
-    // this.keyEvents.push({ "keys": [90], "event": this.toolEraser }); // down arrow
-
+    });
     /**
      * Event listeners
      */
@@ -20176,6 +20396,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Line; });
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
@@ -20220,6 +20442,7 @@ function (_Draw) {
     _this.opacity = opacity;
     _this.size = size;
     _this.points = [];
+    _this.type = 'Line';
     return _this;
   }
 
@@ -20241,10 +20464,10 @@ function (_Draw) {
       canvas.ctx.lineWidth = this.size;
       canvas.ctx.lineCap = 'round';
       canvas.ctx.beginPath();
-      canvas.ctx.moveTo(this.points[0].x + canvas.offset.x, this.points[0].y + canvas.offset.y); // Itterate each point
+      canvas.ctx.moveTo(parseFloat(this.points[0].x) + canvas.offset.x, parseFloat(this.points[0].y) + canvas.offset.y); // Itterate each point
 
       for (var i = 0; i < this.points.length; i++) {
-        canvas.ctx.lineTo(this.points[i].x + canvas.offset.x, this.points[i].y + canvas.offset.y);
+        canvas.ctx.lineTo(parseFloat(this.points[i].x) + canvas.offset.x, parseFloat(this.points[i].y) + canvas.offset.y);
       }
 
       canvas.ctx.stroke();
@@ -20260,8 +20483,8 @@ function (_Draw) {
       for (var i = 0; i < this.points.length; i++) {
         var point = this.points[i];
         var coors = {
-          "x": point.x + canvas.offset.x,
-          "y": point.y + canvas.offset.y
+          "x": parseFloat(point.x) + canvas.offset.x,
+          "y": parseFloat(point.y) + canvas.offset.y
         };
 
         if (this.SelectBox.PointInBox(canvas, coors, box)) {
@@ -20278,8 +20501,21 @@ function (_Draw) {
 
 
       for (var i = 0; i < this.points.length; i++) {
-        this.points[i].x += dX;
-        this.points[i].y += dY;
+        this.points[i].x = parseFloat(this.points[i].x) + dX;
+        this.points[i].y = parseFloat(this.points[i].y) + dY;
+      }
+    }
+  }, {
+    key: "UpdateFromJson",
+    value: function UpdateFromJson(json) {
+      this.points = [];
+      var exploded = json.points.split(",");
+
+      for (var i = 0; i < exploded.length; i++) {
+        this.points.push({
+          'x': exploded[i],
+          'y': exploded[++i]
+        });
       }
     }
     /**************************
@@ -20289,27 +20525,24 @@ function (_Draw) {
   }, {
     key: "ToJson",
     value: function ToJson() {
-      return {
+      var _ref;
+
+      return _ref = {
         'localId': this.localId,
         'type': 'Line',
         'id': this.id,
         'color': this.color,
         'size': this.size,
         'opacity': this.opacity,
-        'updated': this.updated,
-        // we need to optimize the compressions of objects or else we go over the alloted php POST size limit.
-        // Serialization is a 2n array where all 1n are x and 2n are y coordinates
-        'points': this.CompressPoints(this.points) // This is too unoptimized
-        // 'points' : this.points
-
-      };
+        'updated': this.updated
+      }, _defineProperty(_ref, "type", this.type), _defineProperty(_ref, 'points', this.CompressPoints(this.points)), _ref;
     }
   }, {
     key: "CompressPoints",
     value: function CompressPoints(points) {
       var compressed = "";
       points.forEach(function (point) {
-        compressed += "".concat(point.x, ",").concat(point.y, ",");
+        compressed += "".concat(parseFloat(point.x), ",").concat(parseFloat(point.y), ",");
       }); // remove trailling ','
 
       compressed = compressed.substring(0, compressed.length - 1);
@@ -20337,6 +20570,53 @@ function (_Draw) {
 
   return Line;
 }(Draw);
+
+
+
+/***/ }),
+
+/***/ "./resources/js/battleplan/edit/classes/Lobby.js":
+/*!*******************************************************!*\
+  !*** ./resources/js/battleplan/edit/classes/Lobby.js ***!
+  \*******************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Lobby; });
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+var Lobby =
+/*#__PURE__*/
+function () {
+  /**************************
+          Constructor
+  **************************/
+  function Lobby(data) {
+    _classCallCheck(this, Lobby);
+
+    this.id;
+    this.connectionString;
+    this.owner;
+    this.initialize(data);
+  }
+
+  _createClass(Lobby, [{
+    key: "initialize",
+    value: function initialize(data) {
+      this.id = data["id"];
+      this.connectionString = data["connection_string"];
+      this.owner = data["owner"];
+    }
+  }]);
+
+  return Lobby;
+}();
 
 
 
@@ -20539,6 +20819,115 @@ function (_Draw) {
 
 /***/ }),
 
+/***/ "./resources/js/battleplan/edit/classes/SocketListener.js":
+/*!****************************************************************!*\
+  !*** ./resources/js/battleplan/edit/classes/SocketListener.js ***!
+  \****************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* WEBPACK VAR INJECTION */(function($) {/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return SocketListener; });
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var SocketListener =
+/**************************
+        Constructor
+**************************/
+function SocketListener(LISTEN_SOCKET, app) {
+  _classCallCheck(this, SocketListener);
+
+  this.waitingForJson = false;
+  this.app = app;
+  LISTEN_SOCKET.on("RequestBattleplan.".concat(app.lobby.connection_string, ":App\\Events\\Lobby\\RequestBattleplan"), function (message) {
+    if (app.lobby.owner['id'] == app.user['id']) {
+      $.ajax({
+        method: "POST",
+        url: "/lobby/".concat(LOBBY["connection_string"], "/response-battleplan"),
+        data: {
+          'appJson': app.ToJson()
+        },
+        success: function (result) {
+          console.log(result);
+        }.bind(this),
+        error: function error(result) {
+          console.log(result);
+        }
+      });
+    }
+  });
+  LISTEN_SOCKET.on("ResponseBattleplan.".concat(app.lobby.connection_string, ":App\\Events\\Lobby\\ResponseBattleplan"), function (message) {
+    if (this.waitingForJson) {
+      app.initializeByJson(message);
+    }
+  }.bind(this));
+  LISTEN_SOCKET.on("ReceiveDrawCreate.".concat(app.lobby.connection_string, ":App\\Events\\Lobby\\ReceiveDrawCreate"), function (message) {
+    if (this.app.user['id'] != message['requester']['id']) {
+      var floor = app.battleplan.getFloorByLocalId(message['floorData']['localId']);
+      floor.AddDraw(floor.createDrawFromJson(message['drawData']));
+      app.canvas.Update();
+    }
+  }.bind(this));
+  LISTEN_SOCKET.on("ReceiveDrawDelete.".concat(app.lobby.connection_string, ":App\\Events\\Lobby\\ReceiveDrawDelete"), function (message) {
+    if (this.app.user['id'] != message['requester']['id']) {
+      app.battleplan.deleteDrawByLocalId(message['localId']);
+      app.canvas.Update();
+    }
+  }.bind(this));
+  LISTEN_SOCKET.on("ReceiveDrawDelete.".concat(app.lobby.connection_string, ":App\\Events\\Lobby\\ReceiveDrawDelete"), function (message) {
+    if (this.app.user['id'] != message['requester']['id']) {
+      app.battleplan.deleteDrawByLocalId(message['localId']);
+      app.canvas.Update();
+    }
+  }.bind(this));
+  LISTEN_SOCKET.on("ReceiveOperatorSlotChange.".concat(app.lobby.connection_string, ":App\\Events\\Lobby\\ReceiveOperatorSlotChange"), function (message) {
+    if (this.app.user['id'] != message['requester']['id']) {
+      var operator = app.battleplan.getOperatorByLocalId(message['operatorSlotData']['localId']);
+      operator.operator.id = message['operatorSlotData']["operator_id"];
+      operator.operator.src = message['operatorSlotData']["src"];
+      app.DisplayOperators();
+    }
+  }.bind(this));
+  LISTEN_SOCKET.on("ReceiveDrawUpdate.".concat(app.lobby.connection_string, ":App\\Events\\Lobby\\ReceiveDrawUpdate"), function (message) {
+    if (this.app.user['id'] != message['requester']['id']) {
+      var found = this.app.battleplan.getDrawLocalId(message['drawData']['localId']);
+      found.UpdateFromJson(message['drawData']); // if(this.app.user['id'] != message['requester']['id']){
+      //     var operator = app.battleplan.getOperatorByLocalId(message['operatorSlotData']['localId']);
+      //     operator.operator.id = message['operatorSlotData']["operator_id"]
+      //     operator.operator.src = message['operatorSlotData']["src"];
+      //     app.DisplayOperators();
+      // }
+
+      app.canvas.Update();
+    }
+  }.bind(this));
+};
+
+ // function init(LISTEN_SOCKET, ROOM_CONN_STRING ,app){
+//     LISTEN_SOCKET.on(`RequestBattleplan.${ROOM_CONN_STRING}:App\\Events\\Lobby\\RequestBattleplan`, function(message){
+//         alert('Request Received!');
+//     });
+//     LISTEN_SOCKET.on(`ResponseBattleplan.${ROOM_CONN_STRING}:App\\Events\\Lobby\\ResponseBattleplan`, function(message){
+//         alert('Response Received!');
+//     });
+//     // //listen for someone elses draws
+//     // LISTEN_SOCKET.on(`BattlefloorDraw.${ROOM_CONN_STRING}:App\\Events\\Battlefloor\\CreateDraws`, function(message){
+//     //     app.serverDraw(message);
+//     // });
+//     // //listen for someone elses draws
+//     // LISTEN_SOCKET.on(`BattlefloorDelete.${ROOM_CONN_STRING}:App\\Events\\Battlefloor\\DeleteDraws`, function(message){
+//     //     app.serverDelete(message);
+//     // });
+//     // //listen for someone elses draws
+//     // LISTEN_SOCKET.on(`ChangeOperatorSlot.${ROOM_CONN_STRING}:App\\Events\\Battleplan\\ChangeOperatorSlot`, function(message){
+//     //     app.changeOperatorSlotDom(message.operatorSlot.id,message.operator);
+//     // }); 
+// }
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js")))
+
+/***/ }),
+
 /***/ "./resources/js/battleplan/edit/classes/Square.js":
 /*!********************************************************!*\
   !*** ./resources/js/battleplan/edit/classes/Square.js ***!
@@ -20550,6 +20939,8 @@ function (_Draw) {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Square; });
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -20593,8 +20984,15 @@ function (_Draw) {
     _this.SelectBox = __webpack_require__(/*! ./SelectBox.js */ "./resources/js/battleplan/edit/classes/SelectBox.js")["default"];
     _this.color = color;
     _this.opacity = opacity;
-    _this.origin = origin;
-    _this.destination = destination;
+    _this.origin = {
+      'x': parseFloat(origin.x),
+      'y': parseFloat(origin.y)
+    };
+    _this.destination = {
+      'x': parseFloat(destination.x),
+      'y': parseFloat(destination.y)
+    };
+    _this.type = 'Square';
     return _this;
   }
 
@@ -20705,9 +21103,21 @@ function (_Draw) {
       canvas.ctx.strokeStyle = defaultColor;
     }
   }, {
+    key: "UpdateFromJson",
+    value: function UpdateFromJson(json) {
+      this.origin = {
+        'x': parseFloat(json.origin.x),
+        'y': parseFloat(json.origin.y)
+      };
+      this.destination = {
+        'x': parseFloat(json.destination.x),
+        'y': parseFloat(json.destination.y)
+      };
+    }
+  }, {
     key: "ToJson",
     value: function ToJson() {
-      return {
+      return _defineProperty({
         'localId': this.localId,
         'type': 'Square',
         'id': this.id,
@@ -20716,7 +21126,7 @@ function (_Draw) {
         'destination': this.destination,
         'opacity': this.opacity,
         'updated': this.updated
-      };
+      }, "type", this.type);
     }
   }], [{
     key: "checkSides",
@@ -20823,7 +21233,7 @@ function () {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return ToolEraser; });
+/* WEBPACK VAR INJECTION */(function($) {/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return ToolEraser; });
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -20879,6 +21289,8 @@ function (_Tool) {
       this.app.battleplan.floor.draws.forEach(function (draw) {
         if (draw.inBox(app.canvas, _this2.getBox())) {
           _this2.app.battleplan.floor.RemoveDraw(draw);
+
+          _this2.sendBroadcast(draw.localId);
         }
       });
       this.app.canvas.Update();
@@ -20893,10 +21305,29 @@ function (_Tool) {
       this.app.battleplan.floor.draws.forEach(function (draw) {
         if (draw.inBox(app.canvas, _this3.getBox())) {
           _this3.app.battleplan.floor.RemoveDraw(draw);
+
+          _this3.sendBroadcast(draw.localId);
         }
       });
       this.app.canvas.Update();
       this.getBox();
+    }
+  }, {
+    key: "sendBroadcast",
+    value: function sendBroadcast(drawLocalId) {
+      $.ajax({
+        method: "POST",
+        url: "/lobby/".concat(LOBBY["connection_string"], "/request-draw-delete"),
+        data: {
+          'localId': drawLocalId
+        },
+        success: function (result) {
+          console.log(result);
+        }.bind(this),
+        error: function error(result) {
+          console.log(result);
+        }
+      });
     }
     /**
      * Private Helpers
@@ -20923,6 +21354,7 @@ function (_Tool) {
 }(Tool);
 
 
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js")))
 
 /***/ }),
 
@@ -20935,7 +21367,7 @@ function (_Tool) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return ToolIcon; });
+/* WEBPACK VAR INJECTION */(function($) {/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return ToolIcon; });
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -20983,6 +21415,7 @@ function (_Tool) {
     value: function actionDrop(coordinates, src) {
       if (src) {
         var icon = new this.Icon(null, this.AddOffsetCoordinates(coordinates), this.app.iconSizeModifier, this.app.opacity, src);
+        this.sendBroadcast(icon);
         this.app.battleplan.floor.AddDraw(icon);
         this.app.canvas.Update();
       }
@@ -20995,12 +21428,31 @@ function (_Tool) {
         "y": coor.y / this.app.canvas.scale - this.app.canvas.offset.y
       };
     }
+  }, {
+    key: "sendBroadcast",
+    value: function sendBroadcast(draw) {
+      $.ajax({
+        method: "POST",
+        url: "/lobby/".concat(LOBBY["connection_string"], "/request-draw-create"),
+        data: {
+          'drawData': draw.ToJson(),
+          'floorData': this.app.battleplan.floor.ToJson()
+        },
+        success: function (result) {
+          console.log(result);
+        }.bind(this),
+        error: function error(result) {
+          console.log(result);
+        }
+      });
+    }
   }]);
 
   return ToolIcon;
 }(Tool);
 
 
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js")))
 
 /***/ }),
 
@@ -21013,7 +21465,7 @@ function (_Tool) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return ToolLine; });
+/* WEBPACK VAR INJECTION */(function($) {/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return ToolLine; });
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -21060,6 +21512,10 @@ function (_Tool) {
   _createClass(ToolLine, [{
     key: "actionDown",
     value: function actionDown(coordinates) {
+      if (this.activeLine) {
+        this.sendBroadcast(this.activeLine);
+      }
+
       this.activeLine = new this.Line(null, this.app.color, this.app.opacity, this.app.lineSize);
       this.activeLine.points.push(this.AddOffsetCoordinates(coordinates));
       this.app.battleplan.floor.AddDraw(this.activeLine);
@@ -21067,12 +21523,20 @@ function (_Tool) {
   }, {
     key: "actionUp",
     value: function actionUp(coordinates) {
+      if (this.activeLine) {
+        this.sendBroadcast(this.activeLine);
+      }
+
       this.activeLine = null;
       this.app.canvas.Update();
     }
   }, {
     key: "actionLeave",
     value: function actionLeave(coordinates) {
+      if (this.activeLine) {
+        this.sendBroadcast(this.activeLine);
+      }
+
       this.activeLine = null;
     }
   }, {
@@ -21091,12 +21555,31 @@ function (_Tool) {
         "y": coor.y / this.app.canvas.scale - this.app.canvas.offset.y
       };
     }
+  }, {
+    key: "sendBroadcast",
+    value: function sendBroadcast(draw) {
+      $.ajax({
+        method: "POST",
+        url: "/lobby/".concat(LOBBY["connection_string"], "/request-draw-create"),
+        data: {
+          'drawData': draw.ToJson(),
+          'floorData': this.app.battleplan.floor.ToJson()
+        },
+        success: function (result) {
+          console.log(result);
+        }.bind(this),
+        error: function error(result) {
+          console.log(result);
+        }
+      });
+    }
   }]);
 
   return ToolLine;
 }(Tool);
 
 
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js")))
 
 /***/ }),
 
@@ -21186,7 +21669,7 @@ function (_Tool) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return ToolSelect; });
+/* WEBPACK VAR INJECTION */(function($) {/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return ToolSelect; });
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -21278,6 +21761,8 @@ function (_Tool) {
         this.app.battleplan.floor.RemoveDraw(this.activeSelect);
         this.activeSelect.Select(this.app.canvas, this.app.battleplan.floor.draws);
         this.activeSelect = null;
+      } else {
+        this.broadcast();
       }
 
       this.app.canvas.Update();
@@ -21366,12 +21851,34 @@ function (_Tool) {
         draw.highlighted = toggle;
       });
     }
+  }, {
+    key: "broadcast",
+    value: function broadcast() {
+      var _this2 = this;
+
+      this.app.battleplan.floor.SelectedDraws().forEach(function (draw) {
+        $.ajax({
+          method: "POST",
+          url: "/lobby/".concat(LOBBY["connection_string"], "/request-draw-update"),
+          data: {
+            'drawData': draw.ToJson()
+          },
+          success: function (result) {
+            console.log(result);
+          }.bind(_this2),
+          error: function error(result) {
+            console.log(result);
+          }
+        });
+      });
+    }
   }]);
 
   return ToolSelect;
 }(Tool);
 
 
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js")))
 
 /***/ }),
 
@@ -21384,7 +21891,7 @@ function (_Tool) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return ToolSquare; });
+/* WEBPACK VAR INJECTION */(function($) {/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return ToolSquare; });
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -21431,18 +21938,30 @@ function (_Tool) {
   _createClass(ToolSquare, [{
     key: "actionDown",
     value: function actionDown(coordinates) {
+      if (this.activeSquare) {
+        this.sendBroadcast(this.activeSquare);
+      }
+
       this.activeSquare = new this.Square(null, this.AddOffsetCoordinates(coordinates), this.AddOffsetCoordinates(coordinates), this.app.color, this.app.opacity);
       this.app.battleplan.floor.AddDraw(this.activeSquare);
     }
   }, {
     key: "actionUp",
     value: function actionUp(coordinates) {
+      if (this.activeSquare) {
+        this.sendBroadcast(this.activeSquare);
+      }
+
       this.activeSquare = null;
       this.app.canvas.Update();
     }
   }, {
     key: "actionLeave",
     value: function actionLeave(coordinates) {
+      if (this.activeSquare) {
+        this.sendBroadcast(this.activeSquare);
+      }
+
       this.activeSquare = null;
     }
   }, {
@@ -21461,12 +21980,31 @@ function (_Tool) {
         "y": coor.y / this.app.canvas.scale - this.app.canvas.offset.y
       };
     }
+  }, {
+    key: "sendBroadcast",
+    value: function sendBroadcast(draw) {
+      $.ajax({
+        method: "POST",
+        url: "/lobby/".concat(LOBBY["connection_string"], "/request-draw-create"),
+        data: {
+          'drawData': draw.ToJson(),
+          'floorData': this.app.battleplan.floor.ToJson()
+        },
+        success: function (result) {
+          console.log(result);
+        }.bind(this),
+        error: function error(result) {
+          console.log(result);
+        }
+      });
+    }
   }]);
 
   return ToolSquare;
 }(Tool);
 
 
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js")))
 
 /***/ }),
 
@@ -21561,7 +22099,8 @@ $.ajaxSetup({
     Constant declarations
 **************************/
 
-var app = new App(BATTLEPLAN_ID, $('#viewport'), [$('#operator-0'), $('#operator-1'), $('#operator-2'), $('#operator-3'), $('#operator-4')]);
+var app = new App(USER, LOBBY, SOCKET, $('#viewport'), [$('#operator-0'), $('#operator-1'), $('#operator-2'), $('#operator-3'), $('#operator-4')]);
+app.initializeByApi(BATTLEPLAN_ID);
 /**************************
    Give access to app object in main windows
 **************************/
@@ -21571,7 +22110,7 @@ window.app = app;
 
 /***/ }),
 
-/***/ 3:
+/***/ 2:
 /*!****************************************************!*\
   !*** multi ./resources/js/battleplan/edit/edit.js ***!
   \****************************************************/

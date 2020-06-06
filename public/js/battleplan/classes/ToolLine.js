@@ -17,6 +17,11 @@ class ToolLine extends Tool {
     }
     
     actionDown(coordinates){
+        
+        if(this.activeLine){
+            this.sendBroadcast(this.activeLine);
+        }
+        
         this.activeLine = new this.Line(
             null,
             this.app.color,
@@ -32,11 +37,19 @@ class ToolLine extends Tool {
     }
 
     actionUp(coordinates){
+        if(this.activeLine){
+            this.sendBroadcast(this.activeLine);
+        }
         this.activeLine = null;
         this.app.canvas.Update();
     }
 
     actionLeave(coordinates){
+        
+        if(this.activeLine){
+            this.sendBroadcast(this.activeLine);
+        }
+
         this.activeLine = null;
     }
 
@@ -56,6 +69,25 @@ class ToolLine extends Tool {
             "x" : (coor.x) / this.app.canvas.scale - this.app.canvas.offset.x,
             "y" : (coor.y) / this.app.canvas.scale - this.app.canvas.offset.y
         }
+    }
+
+    sendBroadcast(draw){
+        $.ajax({
+            method: "POST",
+            url: `/lobby/${LOBBY["connection_string"]}/request-draw-create`,
+            data: {
+                'drawData' : draw.ToJson(),
+                'floorData' : this.app.battleplan.floor.ToJson(),
+            },
+            success: function (result) {
+                console.log(result);
+            }.bind(this),
+            
+            error: function (result) {
+                console.log(result);
+            }
+    
+        });
     }
 }
 export {

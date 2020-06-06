@@ -50,24 +50,38 @@ class Keybinds {
         this.keyEvents.push({ "keys": [40], "event": function(ev){
             app.ChangeFloor(-1);
             ev.preventDefault();
-        } });
+        }});
         
         // Delete key
         this.keyEvents.push({ "keys": [46], "event": function(ev){
             
             app.battleplan.floor.SelectedDraws().forEach(draw => {
                 app.battleplan.floor.RemoveDraw(draw);
+
+                $.ajax({
+                    method: "POST",
+                    url: `/lobby/${LOBBY["connection_string"]}/request-draw-delete`,
+                    data: {
+                        'localId' : draw.localId
+                    },
+
+                    success: function (result) {
+                        console.log(result);
+                    }.bind(this),
+                    
+                    error: function (result) {
+                        console.log(result);
+                    }
+            
+                });
+
             });
+
+            
+
             this.app.canvas.Update();
             ev.preventDefault();
         }.bind(this)});
-
-        // this.keyEvents.push({ "keys": [40], "event": this.floorDown }); // down arrow
-        // this.keyEvents.push({ "keys": [17,83], "event": this.save }); // down arrow
-        // this.keyEvents.push({ "keys": [17,68], "event": this.load }); // down arrow
-        // this.keyEvents.push({ "keys": [81], "event": this.toolPencil }); // down arrow
-        // this.keyEvents.push({ "keys": [87], "event": this.toolSquare }); // down arrow
-        // this.keyEvents.push({ "keys": [90], "event": this.toolEraser }); // down arrow
 
         /**
          * Event listeners

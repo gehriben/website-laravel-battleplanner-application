@@ -69,12 +69,24 @@ Route::prefix('/battleplan')->group(function () {
     Route::get('/', 'BattleplanController@index')->name("Battleplan.index");
     Route::get('new', 'BattleplanController@new')->name("Battleplan.new");
     Route::get('{battleplan}', 'BattleplanController@show')->name("Battleplan.show");
-    Route::get('{battleplan}/edit', 'BattleplanController@edit')->name("Battleplan.edit");
+    Route::get('{battleplan}/edit', 'BattleplanController@editGenerateRoom')->name("Battleplan.editGenerateRoom");
+    Route::get('{battleplan}/edit/{connection_string}', 'BattleplanController@edit')->name("Battleplan.edit");
 
     // API's
     Route::post('/', 'BattleplanController@create')->name("Battleplan.create");
     Route::post('{battleplan}', 'BattleplanController@update')->name("Battleplan.update");
 
+});
+
+Route::prefix('/lobby')->group(function () {
+    Route::get('{connection_string}', 'LobbyController@show')->name("Lobby.show");
+    Route::post('{connection_string}/request-battleplan', 'LobbyController@requestBattleplan')->name("Lobby.requestBattleplan");
+    Route::post('{connection_string}/response-battleplan', 'LobbyController@responseBattleplan')->name("Lobby.responseBattleplan");
+    Route::post('{connection_string}/request-draw-delete', 'LobbyController@requestDrawDelete')->name("Lobby.requestDrawDelete");
+    Route::post('{connection_string}/request-draw-create', 'LobbyController@requestDrawCreate')->name("Lobby.requestDrawCreate");
+    Route::post('{connection_string}/request-operator-slot-change', 'LobbyController@requestOperatorSlotChange')->name("Lobby.requestOperatorSlotChange");
+    Route::post('{connection_string}/request-draw-update', 'LobbyController@requestDrawUpdate')->name("Lobby.requestDrawUpdate");
+    
 });
 
 Route::prefix('/room')->group(function () {

@@ -16,6 +16,7 @@ use App\Models\Coordinate;
 use App\Models\Operator;
 use App\Models\OperatorSlot;
 use App\Models\Gadget;
+use App\Models\Lobby;
 
 use Auth;
 class BattleplanController extends Controller
@@ -77,24 +78,48 @@ class BattleplanController extends Controller
     /**
      * Show a battleplan
      */
-    public function edit(Request $request, Battleplan $battleplan){
+    public function editGenerateRoom(Request $request, Battleplan $battleplan){
 
         if (
             Auth::user() && Auth::user() == $battleplan->owner ||   // Owner of the private plan
             Auth::user() && Auth::user()->admin                     // Admin can always see the plan
         ) {
+            $lobby = Lobby::create([
+                'owner_id' => Auth::user()->id
+            ]);
+
+            return redirect("battleplan/{$battleplan->id}/edit/{$lobby->connection_string}");
+        }
+
+        // Insufficient permissions
+        abort(403);
+    }
+
+    public function edit(Request $request, Battleplan $battleplan, $connection_string){
+
+        if (
+            Auth::user() && Auth::user() == $battleplan->owner ||   // Owner of the private plan
+            Auth::user() && Auth::user()->admin                     // Admin can always see the plan
+        ) {
+            
+            $lobby = Lobby::ByConnection($connection_string)->first();
+
+            // no lobby or not the owner of said lobby, generate new lobby
+            if(!$lobby || $lobby->owner->id != Auth::user()->id){
+                return redirect("battleplan/{$battleplan->id}/edit");
+            }
 
             $battleplan = Battleplan::with(Battleplan::$printWith)->find($battleplan->id);
             $attackers = Operator::attackers()->get();
             $defenders = Operator::defenders()->get();
             $gadgets = Gadget::all();
-
+            $listenSocket = env("LISTEN_SOCKET");
 
             if ($request->expectsJson()) {
                 return $battleplan;
             }
             
-            return view("battleplan.edit", compact("battleplan", "attackers", "defenders",'gadgets'));
+            return view("battleplan.edit", compact("battleplan", "attackers", "defenders",'gadgets','lobby','listenSocket'));
         }
 
         // Insufficient permissions
@@ -140,29 +165,6 @@ class BattleplanController extends Controller
         return redirect("battleplan/$battleplan->id/edit");
     }
 
-    /**
-     * Retrieve a battleplan
-     */
-    // public function read(Request $request, Battleplan $battleplan){
-
-    //     // Return immediately if plan is public
-    //     if ($battleplan->public) {
-    //         return response()->success($this->fullPlanData($battleplan));
-    //     }
-
-    //     // Owner of the private plan
-    //     if (Auth::user() && Auth::user()->id == $battleplan->owner) {
-    //         return response()->success($this->fullPlanData($battleplan));
-    //     }
-
-    //     // Admin can always see the plan
-    //     if(Auth::user() && Auth::user()->admin){
-    //         return response()->success($this->fullPlanData($battleplan));
-    //     }
-
-    //     return response()->error("Unauthorized", [], 403);
-    // }
-    
     /**
      * Update a battleplan values
      */
@@ -254,24 +256,6 @@ class BattleplanController extends Controller
 
         // Return successfull operation
         return response()->success();
-    }
-
-    /**
-     * Make a copy of the battleplan
-     */
-    public function copy(Request $request, Battleplan $battleplan){
-        
-        // validate request object contains all needed data
-        $data = $request->validate([
-            'name' => 'required',
-        ]);
-
-        $data['user_id'] = Auth::user()->id;
-
-        $copy = Battleplan::copy($battleplan,$data);
-        
-        // Create the copy and respond with the new instance
-        return response()->success($copy);
     }
     
     /**

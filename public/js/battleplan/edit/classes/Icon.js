@@ -14,9 +14,10 @@ class Icon extends Draw {
         this.SelectBox = require('./SelectBox.js').default;
         this.size = size;
         this.opacity = opacity;
-        this.origin = origin;
+        this.origin = {'x':parseFloat(origin.x),'y':parseFloat(origin.y)};
         this.src = src;
         this.img = null;
+        this.type = 'Icon';
     }
 
     draw(canvas){
@@ -142,6 +143,10 @@ class Icon extends Draw {
         Helper functions
     **************************/
 
+    UpdateFromJson(json){
+        this.origin = {'x':parseFloat(json.origin.x),'y':parseFloat(json.origin.y)};
+    }
+
    ToJson(){
         return {
             'localId' : this.localId,
@@ -151,7 +156,8 @@ class Icon extends Draw {
             'source' : this.src,
             'size' : this.size,
             'opacity': this.opacity,
-            'updated' : this.updated
+            'updated' : this.updated,
+            'type' : this.type,
         }
     }
 }
