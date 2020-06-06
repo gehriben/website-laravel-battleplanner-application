@@ -10,5 +10,8 @@
     "/css/account/account.css": "/css/account/account.css",
     "/css/authentication/authentication.css": "/css/authentication/authentication.css",
     "/css/battleplan/index.css": "/css/battleplan/index.css",
-    "/css/battleplan/show.css": "/css/battleplan/show.css"
+    "/css/battleplan/show.css": "/css/battleplan/show.css",
+    "/css/battleplan/edit.css": "/css/battleplan/edit.css",
+    "/css/battleplan/new.css": "/css/battleplan/new.css",
+    "/css/battleplan/sidebars.css": "/css/battleplan/sidebars.css"
 }

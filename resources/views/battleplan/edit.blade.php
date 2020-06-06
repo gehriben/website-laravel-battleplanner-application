@@ -52,12 +52,13 @@
         text-shadow: 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;
     }
 </style>
+<link rel="stylesheet" href="{{asset("css/battleplan/edit.css")}}">
 @endpush
 @section('content')
 @include('battleplan.left-sidebar', ["gadgets" => $gadgets])
 @include('battleplan.right-sidebar')
 <div class="wrapper">
-    <canvas id="viewport"></canvas>
+  <canvas id="viewport"></canvas>
 </div>
 <div id="host-left-lobby">
     <div class="container h-100">

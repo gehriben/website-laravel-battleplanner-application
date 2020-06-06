@@ -1,0 +1,21 @@
+body {
+  background: black;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body h1 {
+  color: white;
+}
+
+.wrapper{
+    height: 100%;
+    width:  100%;
+}
+canvas{
+    margin-top: 60px;
+    z-index: -1;
+    top: 0px;
+    bottom: 0px;
+    position: fixed;
+}
