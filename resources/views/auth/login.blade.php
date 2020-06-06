@@ -9,7 +9,7 @@
   <div class="row">
     <div class="form card col-12 col-xl-4">
         {{-- Login --}}
-        <form class="login-form col-12" method="POST" action="{{ route('login') }}" >
+        <form class="login-form col-12" method="POST" action="/login" >
           @csrf
           <input placeholder="Username" id="username" type="username" class="form-control{{ $errors->has('username') ? ' is-invalid' : '' }} padded" name="username" value="{{ old('username') }}" required>
 

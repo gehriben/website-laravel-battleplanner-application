@@ -117,7 +117,7 @@
     /**
         Toolbox
      */
-     #tool-box, #tool-options,#icon-box{
+     #tool-box, #tool-options,#icon-box,#tool-lobby{
         background-color: white;
         /* margin: 10px;
         padding: 10px; */
@@ -139,6 +139,26 @@
 </div>
 
 <div id="sidebar-left" class="sidebar-left">
+    <div class="sidebar-title col-12 text-center">Lobby</div>
+    
+        <div id="tool-lobby" class="col-12 align-center">
+
+            <div class="row">
+                <div class="col-4">Invite Link</div>
+                <input type="text" class="col-8" value="{{env('APP_URL')}}lobby/{{$lobby->connection_string}}"/>
+            </div>
+
+            
+            <div class="row">
+                <div class="col-4">
+                    In Lobby:
+                </div>
+                <ul id="lobbyList" class="list-group col-8 ">
+                    <li class="list-group-item" id="lobby-user-{{Auth::user()->id}}">{{Auth::user()->username}}</li>
+                </ul>
+            </div>
+        </div>
+
         <div class="sidebar-title col-12 text-center">Options</div>
     
         <div id="tool-options" class="col-12 align-center">
@@ -171,11 +191,11 @@
                 <input type="number" id='icon-size-value' value='1' min="0" step="0.25" onchange="app.ChangeIconSizeModifier(this.value);"\>
             </div>
 
-    </div>
+        </div>
     
         <div class="sidebar-title col-12 text-center">Tools</div>
 
-    <div id="tool-box" class="col-12 align-center">
+        <div id="tool-box" class="col-12 align-center">
 
         <!-- Populate tools -->
         <div class="row">

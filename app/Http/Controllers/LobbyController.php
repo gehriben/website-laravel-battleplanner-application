@@ -12,6 +12,8 @@ use App\Events\Lobby\ReceiveDrawDelete;
 use App\Events\Lobby\ReceiveDrawCreate;
 use App\Events\Lobby\ReceiveOperatorSlotChange;
 use App\Events\Lobby\ReceiveDrawUpdate;
+use App\Events\Lobby\ReceiveConnected;
+use App\Events\Lobby\ReceiveReload;
 
 // Models
 use App\Models\Lobby;
@@ -150,6 +152,40 @@ class LobbyController extends Controller
         event(new ReceiveDrawUpdate($lobby->connection_string,$data['drawData'],Auth::user()));
         return response()->success();
     }
-    
 
+    public function connected(Request $request, $connection_string){
+        // validate request object contains all needed data
+        $data = $request->validate([
+            'socketId' => ['required','string']
+        ]);
+        
+        $lobby = Lobby::byConnection($connection_string)->first();
+        
+        // No lobby found
+        if(!$lobby){
+            abort(400);
+        }
+
+        event(new ReceiveConnected($lobby->connection_string, Auth::user(), $data['socketId']));
+
+        return response()->success();
+    }
+
+    public function requestReload(Request $request, $connection_string){
+        // validate request object contains all needed data
+        $data = $request->validate([
+            
+        ]);
+        
+        $lobby = Lobby::byConnection($connection_string)->first();
+        
+        // No lobby found
+        if(!$lobby){
+            abort(400);
+        }
+
+        event(new ReceiveReload($lobby->connection_string, Auth::user()));
+
+        return response()->success();
+    }
 }

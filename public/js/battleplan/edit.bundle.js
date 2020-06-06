@@ -18777,7 +18777,7 @@ function () {
   /**************************
           Constructor
   **************************/
-  function App(user, lobbyData, socket, viewport, slots) {
+  function App(user, lobbyData, socket, viewport, slots, lobbyList, hostLeftSceen, savingScreen) {
     _classCallCheck(this, App);
 
     // this.id = id;
@@ -18785,7 +18785,10 @@ function () {
     this.lobbyData = lobbyData;
     this.socket = socket;
     this.viewport = viewport;
-    this.slots = slots; // Properties
+    this.slots = slots;
+    this.lobbyList = lobbyList;
+    this.hostLeftSceen = hostLeftSceen;
+    this.savingScreen = savingScreen; // Properties
 
     this.canvas; // Canvas data and logic
 
@@ -18819,8 +18822,8 @@ function () {
     }; // Initialize variables
 
     this.keybinds = new Keybinds(this);
-    this.lobby = new Lobby(this.lobbyData);
-    this.socketListener = new SocketListener(this.socket, this);
+    this.lobby = new Lobby(lobbyData);
+    this.socketListener = new SocketListener(this.socket, this, hostLeftSceen);
   }
   /**
    * Setup the battleplan from API data
@@ -18855,6 +18858,8 @@ function () {
 
         this.DisplayOperators();
       }.bind(this));
+      this.lobby.initializeByJson(json.appJson.lobby);
+      this.LobbyDisplayUsers();
     }
   }, {
     key: "ChangeFloor",
@@ -18887,6 +18892,20 @@ function () {
     value: function ChangeIconSizeModifier(size) {
       this.iconSizeModifier = size;
     }
+  }, {
+    key: "LobbyDisplayUsers",
+    value: function LobbyDisplayUsers() {
+      var _this = this;
+
+      var masterClone = this.lobbyList.children().first().clone();
+      this.lobbyList.empty();
+      this.lobby.users.forEach(function (lobbyUser) {
+        var clone = masterClone.clone();
+        clone.text(lobbyUser['user']['username']);
+
+        _this.lobbyList.append(clone);
+      });
+    }
     /**
      * Operator Logic
      */
@@ -18918,6 +18937,37 @@ function () {
         }
       });
     }
+  }, {
+    key: "requestBattleplanJson",
+    value: function requestBattleplanJson() {
+      app.socketListener.waitingForJson = true;
+      $.ajax({
+        method: "POST",
+        url: "/lobby/".concat(LOBBY["connection_string"], "/request-battleplan"),
+        data: {},
+        success: function (result) {
+          console.log('awaiting json');
+        }.bind(this),
+        error: function error(result) {
+          console.log(result);
+        }
+      });
+    }
+  }, {
+    key: "requestReload",
+    value: function requestReload() {
+      $.ajax({
+        method: "POST",
+        url: "/lobby/".concat(LOBBY["connection_string"], "/request-reload"),
+        data: {},
+        success: function (result) {
+          console.log(result);
+        }.bind(this),
+        error: function error(result) {
+          console.log(result);
+        }
+      });
+    }
     /**
      * Save
      */
@@ -18925,6 +18975,7 @@ function () {
   }, {
     key: "SaveAs",
     value: function SaveAs() {
+      this.savingScreen.show();
       $.ajax({
         method: "POST",
         url: "/battleplan/".concat(this.battleplan.id),
@@ -18936,6 +18987,8 @@ function () {
             this.canvas = new Canvas(this, this.viewport); // Initialize canvas
 
             this.DisplayOperators();
+            this.savingScreen.hide();
+            this.requestReload();
           }.bind(this));
         }.bind(this),
         error: function error(result) {
@@ -18951,7 +19004,8 @@ function () {
         'name': $('#bName').val(),
         'description': $('#bDescription').val(),
         'notes': $('#bNotes').val(),
-        'public': $('#bPublic').val()
+        'public': $('#bPublic').val(),
+        'lobby': this.lobby.ToJson()
       };
     }
   }]);
@@ -20603,6 +20657,7 @@ function () {
     this.id;
     this.connectionString;
     this.owner;
+    this.users = [];
     this.initialize(data);
   }
 
@@ -20612,6 +20667,61 @@ function () {
       this.id = data["id"];
       this.connectionString = data["connection_string"];
       this.owner = data["owner"];
+    }
+  }, {
+    key: "initializeByJson",
+    value: function initializeByJson(json) {
+      var _this = this;
+
+      json.users.forEach(function (userData) {
+        _this.AddUser(userData['user'], userData['socketId']);
+      });
+    }
+  }, {
+    key: "getUserBySocket",
+    value: function getUserBySocket(socketId) {
+      for (var i = 0; i < this.users.length; i++) {
+        var user = this.users[i];
+
+        if (user.socketId == socketId) {
+          return user;
+        }
+      }
+    }
+  }, {
+    key: "AddUser",
+    value: function AddUser(user, socketId) {
+      // user already in session
+      if (this.getUserBySocket(socketId)) {
+        return;
+      } // user does not exist yet, add them
+
+
+      this.users.push({
+        'user': user,
+        'socketId': socketId
+      });
+    }
+  }, {
+    key: "RemoveUser",
+    value: function RemoveUser(socketId) {
+      for (var i = 0; i < this.users.length; i++) {
+        var lobbyUser = this.users[i];
+
+        if (lobbyUser.socketId == socketId) {
+          this.users.splice(i, 1);
+        }
+      }
+    }
+  }, {
+    key: "ToJson",
+    value: function ToJson() {
+      return {
+        'id': this.id,
+        'connectionString': this.connectionString,
+        'owner': this.owner,
+        'users': this.users
+      };
     }
   }]);
 
@@ -20835,16 +20945,42 @@ var SocketListener =
 /**************************
         Constructor
 **************************/
-function SocketListener(LISTEN_SOCKET, app) {
+function SocketListener(LISTEN_SOCKET, app, hostLeftSceen) {
   _classCallCheck(this, SocketListener);
 
   this.waitingForJson = false;
   this.app = app;
-  LISTEN_SOCKET.on("RequestBattleplan.".concat(app.lobby.connection_string, ":App\\Events\\Lobby\\RequestBattleplan"), function (message) {
+  this.hostLeftSceen = hostLeftSceen;
+  /**
+   * Alert clients you're connected
+   */
+
+  LISTEN_SOCKET.on('connect', function onConnect(socket) {
+    console.log(LISTEN_SOCKET.id);
+    $.ajax({
+      method: "POST",
+      url: "/lobby/".concat(app.lobby.connectionString, "/connected"),
+      data: {
+        'socketId': LISTEN_SOCKET.id
+      },
+      success: function (result) {
+        console.log(result);
+      }.bind(this),
+      error: function error(result) {
+        console.log(result);
+      }
+    });
+  }.bind(this));
+  /**
+   * Request Json State of current Battleplan from host
+   */
+
+  LISTEN_SOCKET.on("RequestBattleplan.".concat(app.lobby.connectionString, ":App\\Events\\Lobby\\RequestBattleplan"), function (message) {
     if (app.lobby.owner['id'] == app.user['id']) {
+      var tmp = app.ToJson();
       $.ajax({
         method: "POST",
-        url: "/lobby/".concat(LOBBY["connection_string"], "/response-battleplan"),
+        url: "/lobby/".concat(app.lobby.connectionString, "/response-battleplan"),
         data: {
           'appJson': app.ToJson()
         },
@@ -20856,32 +20992,36 @@ function SocketListener(LISTEN_SOCKET, app) {
         }
       });
     }
-  });
-  LISTEN_SOCKET.on("ResponseBattleplan.".concat(app.lobby.connection_string, ":App\\Events\\Lobby\\ResponseBattleplan"), function (message) {
+  }.bind(this));
+  /**
+   * Listeners
+   */
+
+  LISTEN_SOCKET.on("ResponseBattleplan.".concat(app.lobby.connectionString, ":App\\Events\\Lobby\\ResponseBattleplan"), function (message) {
     if (this.waitingForJson) {
       app.initializeByJson(message);
     }
   }.bind(this));
-  LISTEN_SOCKET.on("ReceiveDrawCreate.".concat(app.lobby.connection_string, ":App\\Events\\Lobby\\ReceiveDrawCreate"), function (message) {
+  LISTEN_SOCKET.on("ReceiveDrawCreate.".concat(app.lobby.connectionString, ":App\\Events\\Lobby\\ReceiveDrawCreate"), function (message) {
     if (this.app.user['id'] != message['requester']['id']) {
       var floor = app.battleplan.getFloorByLocalId(message['floorData']['localId']);
       floor.AddDraw(floor.createDrawFromJson(message['drawData']));
       app.canvas.Update();
     }
   }.bind(this));
-  LISTEN_SOCKET.on("ReceiveDrawDelete.".concat(app.lobby.connection_string, ":App\\Events\\Lobby\\ReceiveDrawDelete"), function (message) {
+  LISTEN_SOCKET.on("ReceiveDrawDelete.".concat(app.lobby.connectionString, ":App\\Events\\Lobby\\ReceiveDrawDelete"), function (message) {
     if (this.app.user['id'] != message['requester']['id']) {
       app.battleplan.deleteDrawByLocalId(message['localId']);
       app.canvas.Update();
     }
   }.bind(this));
-  LISTEN_SOCKET.on("ReceiveDrawDelete.".concat(app.lobby.connection_string, ":App\\Events\\Lobby\\ReceiveDrawDelete"), function (message) {
+  LISTEN_SOCKET.on("ReceiveDrawDelete.".concat(app.lobby.connectionString, ":App\\Events\\Lobby\\ReceiveDrawDelete"), function (message) {
     if (this.app.user['id'] != message['requester']['id']) {
       app.battleplan.deleteDrawByLocalId(message['localId']);
       app.canvas.Update();
     }
   }.bind(this));
-  LISTEN_SOCKET.on("ReceiveOperatorSlotChange.".concat(app.lobby.connection_string, ":App\\Events\\Lobby\\ReceiveOperatorSlotChange"), function (message) {
+  LISTEN_SOCKET.on("ReceiveOperatorSlotChange.".concat(app.lobby.connectionString, ":App\\Events\\Lobby\\ReceiveOperatorSlotChange"), function (message) {
     if (this.app.user['id'] != message['requester']['id']) {
       var operator = app.battleplan.getOperatorByLocalId(message['operatorSlotData']['localId']);
       operator.operator.id = message['operatorSlotData']["operator_id"];
@@ -20889,41 +21029,47 @@ function SocketListener(LISTEN_SOCKET, app) {
       app.DisplayOperators();
     }
   }.bind(this));
-  LISTEN_SOCKET.on("ReceiveDrawUpdate.".concat(app.lobby.connection_string, ":App\\Events\\Lobby\\ReceiveDrawUpdate"), function (message) {
+  LISTEN_SOCKET.on("ReceiveDrawUpdate.".concat(app.lobby.connectionString, ":App\\Events\\Lobby\\ReceiveDrawUpdate"), function (message) {
     if (this.app.user['id'] != message['requester']['id']) {
       var found = this.app.battleplan.getDrawLocalId(message['drawData']['localId']);
-      found.UpdateFromJson(message['drawData']); // if(this.app.user['id'] != message['requester']['id']){
-      //     var operator = app.battleplan.getOperatorByLocalId(message['operatorSlotData']['localId']);
-      //     operator.operator.id = message['operatorSlotData']["operator_id"]
-      //     operator.operator.src = message['operatorSlotData']["src"];
-      //     app.DisplayOperators();
-      // }
-
+      found.UpdateFromJson(message['drawData']);
       app.canvas.Update();
     }
   }.bind(this));
+  LISTEN_SOCKET.on("ReceiveReload.".concat(app.lobby.connectionString, ":App\\Events\\Lobby\\ReceiveReload"), function (message) {
+    if (this.app.user['id'] != message['requester']['id']) {
+      window.location.reload();
+    }
+  }.bind(this));
+  /**
+   * User (dis)connections
+   */
+
+  LISTEN_SOCKET.on("ReceiveConnected.".concat(app.lobby.connectionString, ":App\\Events\\Lobby\\ReceiveConnected"), function (message) {
+    // lobby owner rejoined and am not owner, reload Battleplan
+    if (message.user.id == this.app.lobby.owner.id && this.app.user.id != this.app.lobby.owner.id) {
+      window.location.reload();
+    } // random user join, add to list
+    else {
+        this.app.lobby.AddUser(message['user'], message['socketId']);
+        this.app.LobbyDisplayUsers();
+      }
+  }.bind(this));
+  LISTEN_SOCKET.on("ReceiveLobbyLeave:".concat(app.lobby.connectionString), function (message) {
+    // lobby owner left, pause screen
+    var userLeft = this.app.lobby.getUserBySocket(message['socketId']);
+
+    if (userLeft && userLeft.user.id == this.app.lobby.owner.id) {
+      this.hostLeftSceen.show();
+    } // random user join, remove from list
+    else {
+        this.app.lobby.RemoveUser(message['socketId']);
+        this.app.LobbyDisplayUsers();
+      }
+  }.bind(this));
 };
 
- // function init(LISTEN_SOCKET, ROOM_CONN_STRING ,app){
-//     LISTEN_SOCKET.on(`RequestBattleplan.${ROOM_CONN_STRING}:App\\Events\\Lobby\\RequestBattleplan`, function(message){
-//         alert('Request Received!');
-//     });
-//     LISTEN_SOCKET.on(`ResponseBattleplan.${ROOM_CONN_STRING}:App\\Events\\Lobby\\ResponseBattleplan`, function(message){
-//         alert('Response Received!');
-//     });
-//     // //listen for someone elses draws
-//     // LISTEN_SOCKET.on(`BattlefloorDraw.${ROOM_CONN_STRING}:App\\Events\\Battlefloor\\CreateDraws`, function(message){
-//     //     app.serverDraw(message);
-//     // });
-//     // //listen for someone elses draws
-//     // LISTEN_SOCKET.on(`BattlefloorDelete.${ROOM_CONN_STRING}:App\\Events\\Battlefloor\\DeleteDraws`, function(message){
-//     //     app.serverDelete(message);
-//     // });
-//     // //listen for someone elses draws
-//     // LISTEN_SOCKET.on(`ChangeOperatorSlot.${ROOM_CONN_STRING}:App\\Events\\Battleplan\\ChangeOperatorSlot`, function(message){
-//     //     app.changeOperatorSlotDom(message.operatorSlot.id,message.operator);
-//     // }); 
-// }
+
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js")))
 
 /***/ }),
@@ -22099,7 +22245,7 @@ $.ajaxSetup({
     Constant declarations
 **************************/
 
-var app = new App(USER, LOBBY, SOCKET, $('#viewport'), [$('#operator-0'), $('#operator-1'), $('#operator-2'), $('#operator-3'), $('#operator-4')]);
+var app = new App(USER, LOBBY, SOCKET, $('#viewport'), [$('#operator-0'), $('#operator-1'), $('#operator-2'), $('#operator-3'), $('#operator-4')], $('#lobbyList'), $('#host-left-lobby'), $('#saving-screen'));
 app.initializeByApi(BATTLEPLAN_ID);
 /**************************
    Give access to app object in main windows

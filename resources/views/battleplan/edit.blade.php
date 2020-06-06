@@ -29,14 +29,56 @@
         bottom: 0px;
         position: fixed;
     }
+    #host-left-lobby{
+        display: none;
+        position: absolute;
+        height:100%;
+        width:100%;
+        background-color: rgba(255, 0, 0, 0.3);
+        color: white;
+        z-index: 10;
+        size: 20px;
+        text-shadow: 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;
+    }
+    #saving-screen{
+        display: none;
+        position: absolute;
+        height:100%;
+        width:100%;
+        background-color: rgba(0, 255, 0, 0.3);
+        color: white;
+        z-index: 10;
+        size: 40px;
+        text-shadow: 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;
+    }
 </style>
 @endpush
-
 @section('content')
 @include('battleplan.left-sidebar', ["gadgets" => $gadgets])
 @include('battleplan.right-sidebar')
 <div class="wrapper">
     <canvas id="viewport"></canvas>
+</div>
+<div id="host-left-lobby">
+    <div class="container h-100">
+        <div class="row h-100 justify-content-center text-center align-items-center">
+                <p>
+                    Uh Oh! Looks like the host has left! <br>
+                    Please wait!
+                </p>
+        </div>
+    </div>
+</div>
+
+<div id="saving-screen">
+    <div class="container h-100">
+        <div class="row h-100 justify-content-center text-center align-items-center">
+                <p>
+                    Saving! <br>
+                    Please Wait
+                </p>
+        </div>
+    </div>
 </div>
 @endsection
 
