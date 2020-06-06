@@ -14,5 +14,8 @@
     "/css/room/join.css": "/css/room/join.css",
     "/css/room/show.css": "/css/room/show.css",
     "/css/battleplan/index.css": "/css/battleplan/index.css",
-    "/css/battleplan/show.css": "/css/battleplan/show.css"
+    "/css/battleplan/show.css": "/css/battleplan/show.css",
+    "/css/battleplan/edit.css": "/css/battleplan/edit.css",
+    "/css/battleplan/new.css": "/css/battleplan/new.css",
+    "/css/battleplan/sidebars.css": "/css/battleplan/sidebars.css"
 }

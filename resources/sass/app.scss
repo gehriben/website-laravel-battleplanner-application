@@ -11,7 +11,6 @@
   border-color: $highlight-color;
   color: $standard-text-color;
   font-size: 16px;
-  // max-width: 75px;
 }
 
 .btn-primary:hover{
@@ -19,7 +18,7 @@
   border-color: $highlight-hover-color;
 }
 
-.btn-primary:focus, .btn-primary:active {
+.btn-primary:focus, .btn-primary:active, .btn-primary.active {
   outline: none !important;
   box-shadow: none !important;
   background-color: $highlight-hover-color !important;
@@ -38,7 +37,7 @@
   border-color: $light-highlight-hover-color;
 }
 
-.btn-success:focus, .btn-success:active {
+.btn-success:focus, .btn-success:active, .btn-success.active {
   outline: none !important;
   box-shadow: none !important;
   background-color: $light-highlight-hover-color !important;
@@ -56,7 +55,7 @@
   border-color: $dark-highlight-hover-color;
 }
 
-.btn-secondary:focus, .btn-secondary:active {
+.btn-secondary:focus, .btn-secondary:active, .btn-secondary.active {
   outline: none !important;
   box-shadow: none !important;
   background-color: $dark-highlight-hover-color !important;
@@ -72,6 +71,10 @@
 
 .fa, .fas{
   color: $light-highlight-color;
+}
+
+.standard-text {
+  color: $standard-text-color;
 }
 
 .custom-select:focus {

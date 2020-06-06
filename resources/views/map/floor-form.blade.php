@@ -4,7 +4,7 @@
 <li class="text-center row justify-content-center mb-2" id="floor-0">
 @endif
   @if($floorPreview)
-  <img class="col-auto d-none d-md-block floor-thumbnail-preview" src="{{$floorPreview}}" alt="">
+  <img class="col-auto d-none d-xl-block floor-thumbnail-preview" src="{{$floorPreview}}" alt="">
   @endif
   <input type="hidden" name="floor-ids[]" value="{{$floorId}}">
   <input type="file" class="col-6 col-xl-3 form-control" id="add-floor-file" name="floor-files[]">
