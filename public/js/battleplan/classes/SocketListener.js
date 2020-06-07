@@ -3,15 +3,44 @@ class SocketListener {
     /**************************
             Constructor
     **************************/
-   constructor(LISTEN_SOCKET, app) {
-       this.waitingForJson = false;
-       this.app = app;
-       
-        LISTEN_SOCKET.on(`RequestBattleplan.${app.lobby.connection_string}:App\\Events\\Lobby\\RequestBattleplan`, function(message){
+   constructor(LISTEN_SOCKET, app, hostLeftSceen) {
+        this.waitingForJson = false;
+        this.app = app;
+        this.hostLeftSceen=hostLeftSceen;
+
+        /**
+         * Alert clients you're connected
+         */
+        LISTEN_SOCKET.on('connect', function onConnect(socket){
+            console.log(LISTEN_SOCKET.id);
+            
+            $.ajax({
+                method: "POST",
+                url: `/lobby/${app.lobby.connectionString}/connected`,
+                data: {
+                    'socketId' : LISTEN_SOCKET.id
+                },
+                success: function (result) {
+                    console.log(result);
+                }.bind(this),
+                
+                error: function (result) {
+                    console.log(result);
+                }
+            });
+
+        }.bind(this));
+        
+
+        /**
+         * Request Json State of current Battleplan from host
+         */
+        LISTEN_SOCKET.on(`RequestBattleplan.${app.lobby.connectionString}:App\\Events\\Lobby\\RequestBattleplan`, function(message){
             if(app.lobby.owner['id'] == app.user['id']){
+                var tmp = app.ToJson();
                 $.ajax({
                     method: "POST",
-                    url: `/lobby/${LOBBY["connection_string"]}/response-battleplan`,
+                    url: `/lobby/${app.lobby.connectionString}/response-battleplan`,
                     data: {
                         'appJson' : app.ToJson()
                     },
@@ -24,15 +53,18 @@ class SocketListener {
                     }
                 });
             }
-        });
+        }.bind(this));
 
-        LISTEN_SOCKET.on(`ResponseBattleplan.${app.lobby.connection_string}:App\\Events\\Lobby\\ResponseBattleplan`, function(message){
+        /**
+         * Listeners
+         */
+        LISTEN_SOCKET.on(`ResponseBattleplan.${app.lobby.connectionString}:App\\Events\\Lobby\\ResponseBattleplan`, function(message){
             if(this.waitingForJson){
                 app.initializeByJson(message);
             }
         }.bind(this));
         
-        LISTEN_SOCKET.on(`ReceiveDrawCreate.${app.lobby.connection_string}:App\\Events\\Lobby\\ReceiveDrawCreate`, function(message){
+        LISTEN_SOCKET.on(`ReceiveDrawCreate.${app.lobby.connectionString}:App\\Events\\Lobby\\ReceiveDrawCreate`, function(message){
             if(this.app.user['id'] != message['requester']['id']){
                 var floor = app.battleplan.getFloorByLocalId(message['floorData']['localId'])
                 floor.AddDraw(floor.createDrawFromJson(message['drawData']));
@@ -40,21 +72,21 @@ class SocketListener {
             }
         }.bind(this));
 
-        LISTEN_SOCKET.on(`ReceiveDrawDelete.${app.lobby.connection_string}:App\\Events\\Lobby\\ReceiveDrawDelete`, function(message){
+        LISTEN_SOCKET.on(`ReceiveDrawDelete.${app.lobby.connectionString}:App\\Events\\Lobby\\ReceiveDrawDelete`, function(message){
             if(this.app.user['id'] != message['requester']['id']){
                 app.battleplan.deleteDrawByLocalId(message['localId']);
                 app.canvas.Update();
             }
         }.bind(this));
 
-        LISTEN_SOCKET.on(`ReceiveDrawDelete.${app.lobby.connection_string}:App\\Events\\Lobby\\ReceiveDrawDelete`, function(message){
+        LISTEN_SOCKET.on(`ReceiveDrawDelete.${app.lobby.connectionString}:App\\Events\\Lobby\\ReceiveDrawDelete`, function(message){
             if(this.app.user['id'] != message['requester']['id']){
                 app.battleplan.deleteDrawByLocalId(message['localId']);
                 app.canvas.Update();
             }
         }.bind(this));
 
-        LISTEN_SOCKET.on(`ReceiveOperatorSlotChange.${app.lobby.connection_string}:App\\Events\\Lobby\\ReceiveOperatorSlotChange`, function(message){
+        LISTEN_SOCKET.on(`ReceiveOperatorSlotChange.${app.lobby.connectionString}:App\\Events\\Lobby\\ReceiveOperatorSlotChange`, function(message){
             if(this.app.user['id'] != message['requester']['id']){
                 var operator = app.battleplan.getOperatorByLocalId(message['operatorSlotData']['localId']);
                 operator.operator.id = message['operatorSlotData']["operator_id"]
@@ -63,20 +95,54 @@ class SocketListener {
             }
         }.bind(this));
 
-        LISTEN_SOCKET.on(`ReceiveDrawUpdate.${app.lobby.connection_string}:App\\Events\\Lobby\\ReceiveDrawUpdate`, function(message){
+        LISTEN_SOCKET.on(`ReceiveDrawUpdate.${app.lobby.connectionString}:App\\Events\\Lobby\\ReceiveDrawUpdate`, function(message){
             if(this.app.user['id'] != message['requester']['id']){
                 var found = this.app.battleplan.getDrawLocalId(message['drawData']['localId']);
                 found.UpdateFromJson(message['drawData']);
-                // if(this.app.user['id'] != message['requester']['id']){
-                //     var operator = app.battleplan.getOperatorByLocalId(message['operatorSlotData']['localId']);
-                //     operator.operator.id = message['operatorSlotData']["operator_id"]
-                //     operator.operator.src = message['operatorSlotData']["src"];
-                //     app.DisplayOperators();
-                // }
                 app.canvas.Update();
             }
         }.bind(this));
 
+
+        LISTEN_SOCKET.on(`ReceiveReload.${app.lobby.connectionString}:App\\Events\\Lobby\\ReceiveReload`, function(message){
+            if(this.app.user['id'] != message['requester']['id']){
+                window.location.reload();
+            }
+        }.bind(this));
+        
+        /**
+         * User (dis)connections
+         */
+        
+        LISTEN_SOCKET.on(`ReceiveConnected.${app.lobby.connectionString}:App\\Events\\Lobby\\ReceiveConnected`, function(message){
+            // lobby owner rejoined and am not owner, reload Battleplan
+            if(message.user.id == this.app.lobby.owner.id && this.app.user.id != this.app.lobby.owner.id){
+                window.location.reload();
+            }
+
+            // random user join, add to list
+            else{
+                this.app.lobby.AddUser(message['user'], message['socketId']);
+                this.app.LobbyDisplayUsers();
+            }
+        }.bind(this));
+
+        LISTEN_SOCKET.on(`ReceiveLobbyLeave:${app.lobby.connectionString}`, function (message){
+            // lobby owner left, pause screen
+            var userLeft = this.app.lobby.getUserBySocket(message['socketId'])
+            if(userLeft && userLeft.user.id == this.app.lobby.owner.id){
+                this.hostLeftSceen.show();
+            }
+
+            // random user join, remove from list
+            else{
+                this.app.lobby.RemoveUser(message['socketId']);
+                this.app.LobbyDisplayUsers();
+            }
+
+        }.bind(this));
+
+        
         
    }
 
@@ -84,28 +150,3 @@ class SocketListener {
     SocketListener as
         default
 }
-
-// function init(LISTEN_SOCKET, ROOM_CONN_STRING ,app){
-
-//     LISTEN_SOCKET.on(`RequestBattleplan.${ROOM_CONN_STRING}:App\\Events\\Lobby\\RequestBattleplan`, function(message){
-//         alert('Request Received!');
-//     });
-
-//     LISTEN_SOCKET.on(`ResponseBattleplan.${ROOM_CONN_STRING}:App\\Events\\Lobby\\ResponseBattleplan`, function(message){
-//         alert('Response Received!');
-//     });
-//     // //listen for someone elses draws
-//     // LISTEN_SOCKET.on(`BattlefloorDraw.${ROOM_CONN_STRING}:App\\Events\\Battlefloor\\CreateDraws`, function(message){
-//     //     app.serverDraw(message);
-//     // });
-
-//     // //listen for someone elses draws
-//     // LISTEN_SOCKET.on(`BattlefloorDelete.${ROOM_CONN_STRING}:App\\Events\\Battlefloor\\DeleteDraws`, function(message){
-//     //     app.serverDelete(message);
-//     // });
-
-//     // //listen for someone elses draws
-//     // LISTEN_SOCKET.on(`ChangeOperatorSlot.${ROOM_CONN_STRING}:App\\Events\\Battleplan\\ChangeOperatorSlot`, function(message){
-//     //     app.changeOperatorSlotDom(message.operatorSlot.id,message.operator);
-//     // }); 
-// }

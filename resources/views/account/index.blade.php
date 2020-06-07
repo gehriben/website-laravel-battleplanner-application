@@ -17,20 +17,42 @@
   </div>
 
   <div class="row">
-    <div class="col-6 col-xl-2 padded">
+
+    <div class="col-12 col-xl-6 padded align-content-center">
       <img id="profile-pic" src="https://via.placeholder.com/150?text=PFP">
     </div>
-    <div class="col-6 col-xl-2 padded">
-      <h2 id="username">Username</h2>
-      <h2 id="email">Email</h2>
+
+    <div class="col-12 col-xl-6 padded">
+      <div class='row'>
+        <div class="label col-6">Username:</div>
+        <div id="username" class='label col-6'>{{$user->username}}</div>
+      </div>
+      <div class='row'>
+        <div class="label col-6">Email:</div>
+        <div id="email" class='label col-6'>{{$user->email}}</div>
+      </div>
     </div>
-    <div id="battleplan-list" class="list-group col-12 col-xl-8 padded">
-      <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
+  </div>
+  <div class="row text-center">
+    <h2 class="col-12">My Battleplans</h2>
+  </div>
+
+  <div class="row">
+    <div id="battleplan-list" class="list-group col-12 col-xl-12 padded">
+
+    @foreach($battleplans as $battleplan)
+      <a href="/battleplan/{{$battleplan->id}}" class="list-group-item list-group-item-action flex-column align-items-start">
         <div class="d-flex w-100 justify-content-between">
-          <h5 class="mb-1">Placeholder Name</h5>
+          <h5 id="plan-title" class="mb-1">{{$battleplan->name}}</h5>
+          <small id="plan-date">{{$battleplan->updated_at}}</small>
         </div>
-        <p class="mb-1">Placeholder description</p>
+        <div class="d-flex w-100 justify-content-between">
+          <p id="plan-description" class="mb-1">&nbsp{{$battleplan->description}}</p>
+          <small id="plan-map">{{$battleplan->map->name}}</small>
+        </div>
       </a>
+    @endforeach
+
     </div>
   </div>
 </div>

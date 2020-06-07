@@ -84,7 +84,7 @@ class Battleplan extends Model
      * Required ["map_id","notes","public"]  
      */
     public static function create(array $attributes = [])
-    {        
+    {
         // Defaults
         $attributes["name"] = isset($attributes["name"]) ? $attributes["name"] : self::DEFAULT_NAME;
         $attributes["description"] = isset($attributes["description"]) ? $attributes["description"] : self::DEFAULT_DESCRIPTION;

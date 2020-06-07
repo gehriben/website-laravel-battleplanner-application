@@ -35,8 +35,7 @@ class Vote extends Model
      */
     public static function ScopeAlreadyVoted($query, $userId,$battleplanId){
         return $query->where("user_id", $userId)
-            ->where("battleplan_id", $battleplanId)
-            ->first();
+            ->where("battleplan_id", $battleplanId);
     }
 
     /**
@@ -55,7 +54,7 @@ class Vote extends Model
         }
 
         // Find pre-existing vote
-        $vote = Vote::AlreadyVoted($attributes['user_id'],$attributes['battleplan_id']);
+        $vote = Vote::AlreadyVoted($attributes['user_id'],$attributes['battleplan_id'])->first();
 
         // Modify existing vote
         if($vote){

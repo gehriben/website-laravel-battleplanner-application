@@ -25,6 +25,10 @@ Route::prefix('/account')->group(function () {
   Route::get('/', 'AccountController@index')->name("Account.index");
 });
 
+Route::prefix('/vote')->group(function () {
+    Route::post('/', 'VoteController@create')->name("Vote.index");
+});
+
 Route::prefix('/map')->group(function () {
     Route::get('/', 'MapController@index')->name("Map.index");
     Route::get('new', 'MapController@new')->name("Map.new");
@@ -86,12 +90,7 @@ Route::prefix('/lobby')->group(function () {
     Route::post('{connection_string}/request-draw-create', 'LobbyController@requestDrawCreate')->name("Lobby.requestDrawCreate");
     Route::post('{connection_string}/request-operator-slot-change', 'LobbyController@requestOperatorSlotChange')->name("Lobby.requestOperatorSlotChange");
     Route::post('{connection_string}/request-draw-update', 'LobbyController@requestDrawUpdate')->name("Lobby.requestDrawUpdate");
-    
-});
-
-Route::prefix('/room')->group(function () {
-    Route::get('/', 'RoomController@index')->name("Room.index");
-    Route::get('/create', 'RoomController@create')->name("Room.create");
-    Route::get('/{conn_string}', 'RoomController@show')->name("Room.show");
-    Route::get('/{conn_string}/getBattleplan', 'RoomController@getBattleplan')->name("Room.getBattleplan");
+    Route::post('{connection_string}/connected', 'LobbyController@connected')->name("Lobby.connected");
+    Route::post('{connection_string}/disconnected', 'LobbyController@disconnected')->name("Lobby.disconnected");
+    Route::post('{connection_string}/request-reload', 'LobbyController@requestReload')->name("Lobby.requestReload"); 
 });

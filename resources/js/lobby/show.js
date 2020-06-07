@@ -27,6 +27,9 @@ var app = new App(
         $('#operator-3'),
         $('#operator-4')
     ],
+    $('#lobbyList'),
+    $('#host-left-lobby'),
+    $('#saving-screen')
 );
 
 /**************************

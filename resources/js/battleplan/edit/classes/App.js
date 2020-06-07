@@ -10,13 +10,16 @@ class App {
             Constructor
     **************************/
 
-    constructor(user, lobbyData, socket, viewport, slots) {
+    constructor(user, lobbyData, socket, viewport, slots, lobbyList, hostLeftSceen, savingScreen) {
         // this.id = id;
         this.user = user;
         this.lobbyData=lobbyData;
         this.socket = socket;
         this.viewport = viewport
         this.slots = slots;
+        this.lobbyList = lobbyList;
+        this.hostLeftSceen = hostLeftSceen;
+        this.savingScreen = savingScreen;
 
         // Properties
         this.canvas;                    // Canvas data and logic
@@ -25,7 +28,7 @@ class App {
         this.keybinds;                  // Definition of keybind actions
         this.lobby;
         this.socketListener;
-
+        
         //Drawing settings
         this.color = '#ffffff';
         this.opacity = 1;
@@ -50,8 +53,10 @@ class App {
 
         // Initialize variables
         this.keybinds = new Keybinds(this);
-        this.lobby = new Lobby(this.lobbyData);
-        this.socketListener = new SocketListener(this.socket, this);
+        
+        this.lobby = new Lobby(lobbyData);
+
+        this.socketListener = new SocketListener(this.socket, this, hostLeftSceen);
     }
 
     /**
@@ -76,11 +81,15 @@ class App {
     initializeByJson(json){
         // Initialize Battleplan hierarchy
         this.battleplan = new Battleplan(json['id'])
+        
+
         this.battleplan.initializeByJson(json['appJson']['battleplan'],this.slots, function(){
             this.canvas = new Canvas(this,this.viewport);       // Initialize canvas
             this.DisplayOperators();
         }.bind(this));
 
+        this.lobby.initializeByJson(json.appJson.lobby);
+        this.LobbyDisplayUsers();
     }
 
     ChangeFloor(increment){
@@ -108,6 +117,15 @@ class App {
         this.iconSizeModifier = size;
     }
 
+    LobbyDisplayUsers(){
+        var masterClone = this.lobbyList.children().first().clone();
+        this.lobbyList.empty();
+        this.lobby.users.forEach(lobbyUser => {
+            var clone = masterClone.clone();
+            clone.text(lobbyUser['user']['username']);
+            this.lobbyList.append(clone);
+        });
+    }
     /**
      * Operator Logic
      */
@@ -138,11 +156,47 @@ class App {
         });
     }
 
+    requestBattleplanJson(){
+        
+        app.socketListener.waitingForJson = true;
+        
+        $.ajax({
+            method: "POST",
+            url: `/lobby/${LOBBY["connection_string"]}/request-battleplan`,
+            data: {},
+
+            success: function (result) {
+                console.log('awaiting json');
+            }.bind(this),
+            
+            error: function (result) {
+                console.log(result);
+            }
+
+        });
+    }
+
+    requestReload(){
+        $.ajax({
+            method: "POST",
+            url: `/lobby/${LOBBY["connection_string"]}/request-reload`,
+            data: {},
+
+            success: function (result) {
+                console.log(result);
+            }.bind(this),
+            
+            error: function (result) {
+                console.log(result);
+            }
+        });
+    }
+
     /**
      * Save
      */
     SaveAs(){
-
+        this.savingScreen.show();
         $.ajax({
             method: "POST",
             url: `/battleplan/${this.battleplan.id}`,
@@ -153,6 +207,8 @@ class App {
                 this.battleplan.initializeByApi(this.slots, function(){
                     this.canvas = new Canvas(this,this.viewport);       // Initialize canvas
                     this.DisplayOperators();
+                    this.savingScreen.hide();
+                    this.requestReload();
                 }.bind(this));
             }.bind(this),
             
@@ -170,6 +226,7 @@ class App {
             'description' : $('#bDescription').val(),
             'notes' : $('#bNotes').val(),
             'public' : $('#bPublic').val(),
+            'lobby' : this.lobby.ToJson(),
         }
     }
 }
