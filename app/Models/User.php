@@ -36,7 +36,7 @@ class User extends Authenticatable
      * Relationships
      */
     public function battleplans() {
-      return $this->hasMany(Battleplan::class);
+      return $this->hasMany(Battleplan::class, 'owner_id');
     }
 
     public function votes() {

@@ -17,7 +17,6 @@
     app.requestBattleplanJson();
 </script>
 
-
 @endpush
 
 @push('css')
@@ -40,7 +39,7 @@
         width:100%;
         color: white;
         z-index: 10;
-        size: 40px;
+        font-size: 40px;
         text-shadow: 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;
     }
     #host-left-lobby{

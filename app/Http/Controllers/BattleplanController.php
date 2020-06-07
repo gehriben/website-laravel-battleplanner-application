@@ -38,18 +38,22 @@ class BattleplanController extends Controller
      */
     public function index(Request $request){
         $battleplans;
+        $pageNum = $request->input('page') ? $request->input('page') : 1;
+        $itemsPerPage = $request->input('items') ? $request->input('items') : 10;
 
         // Admin see's all plans
         if(Auth::user() && Auth::user()->admin){
-            $battleplans = Battleplan::all();
-        } 
+            $battleplans = Battleplan::paginate(10);
+        }
         
         // all other users only see the public plans
         else{
-            $battleplans = Battleplan::public()->get();
+            $battleplans = Battleplan::public()->paginate($itemsPerPage);
         }
 
-        return view("battleplan.index", compact("battleplans") );
+        $totalPages = count($battleplans) / $itemsPerPage;
+
+        return view("battleplan.index", compact("battleplans",'pageNum','totalPages','itemsPerPage') );
     }
 
     /**
