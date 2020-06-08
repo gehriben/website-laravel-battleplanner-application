@@ -42,4 +42,5 @@ mix.sass('resources/sass/app.scss', 'public/css')
     mix.copy('resources/js/battleplan', 'public/js/battleplan')
         .copy('resources/js/battleplan/edit', 'public/js/battleplan')
         .js('resources/js/battleplan/edit/edit.js', 'public/js/battleplan/edit.bundle.js')
+        .js('resources/js/battleplan/show/show.js', 'public/js/battleplan/show.bundle.js')
         .copy('resources/sass/battleplan/*', 'public/css/battleplan');
