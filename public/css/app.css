@@ -88,7 +88,7 @@
 }
 
 .bg {
-  background-image: url("https://battleplanner-production.s3.ca-central-1.amazonaws.com/static/Annotation_2020-05-27_141556.png");
+  background-image: url("https://battleplanner.s3.ca-central-1.amazonaws.com/static/Banner.png");
   height: 100vh;
   width: 100vw;
   position: fixed;
