@@ -29,29 +29,23 @@
 @endpush
 
 
-<div id="toggletag-right" class="" onclick="togglerightNav()">
-    Operators
-</div>
+<div id="toggletag-right" class="" onclick="togglerightNav()">Operators</div>
 
 <div id="sidebar-right" class="sidebar-right">
 
-    <div class="row mt-3">
-        <div class="sidebar-title col-12 text-center standard-text">Operators</div>
-    </div>
-
-    <div class="row">
-        <div class="col-12">
-            <div id="operator-box" class="row align-center">
-                <div class="col-xl-12 col-sm-12 text-center" id="operatorSlotList">
-                  <img type="image" id="operator-0" data-id="882110" class="cursor-click op-icon operator-slot operator-border" onclick="openOperatorModal(0)" style="border-color: #black" draggable="true" ondragstart="app.keybinds.drag(event)"><br>
-                  <img type="image" id="operator-1" data-id="882110" class="cursor-click op-icon operator-slot operator-border" onclick="openOperatorModal(1)" style="border-color: #black" draggable="true" ondragstart="app.keybinds.drag(event)"><br>
-                  <img type="image" id="operator-2" data-id="882110" class="cursor-click op-icon operator-slot operator-border" onclick="openOperatorModal(2)" style="border-color: #black" draggable="true" ondragstart="app.keybinds.drag(event)"><br>
-                  <img type="image" id="operator-3" data-id="882110" class="cursor-click op-icon operator-slot operator-border" onclick="openOperatorModal(3)" style="border-color: #black" draggable="true" ondragstart="app.keybinds.drag(event)"><br>
-                  <img type="image" id="operator-4" data-id="882110" class="cursor-click op-icon operator-slot operator-border" onclick="openOperatorModal(4)" style="border-color: #black" draggable="true" ondragstart="app.keybinds.drag(event)"><br>
-                </div>
-            </div>
+  <div class="row">
+    <div class="col-12">
+      <div id="operator-box" class="row align-center">
+        <div class="col-xl-12 col-sm-12 text-center" id="operatorSlotList">
+          <img type="image" id="operator-0" data-id="882110" class="cursor-click op-icon operator-slot operator-border" onclick="openOperatorModal(0)" style="border-color: #black" draggable="true" ondragstart="app.keybinds.drag(event)"><br>
+          <img type="image" id="operator-1" data-id="882110" class="cursor-click op-icon operator-slot operator-border" onclick="openOperatorModal(1)" style="border-color: #black" draggable="true" ondragstart="app.keybinds.drag(event)"><br>
+          <img type="image" id="operator-2" data-id="882110" class="cursor-click op-icon operator-slot operator-border" onclick="openOperatorModal(2)" style="border-color: #black" draggable="true" ondragstart="app.keybinds.drag(event)"><br>
+          <img type="image" id="operator-3" data-id="882110" class="cursor-click op-icon operator-slot operator-border" onclick="openOperatorModal(3)" style="border-color: #black" draggable="true" ondragstart="app.keybinds.drag(event)"><br>
+          <img type="image" id="operator-4" data-id="882110" class="cursor-click op-icon operator-slot operator-border" onclick="openOperatorModal(4)" style="border-color: #black" draggable="true" ondragstart="app.keybinds.drag(event)"><br>
         </div>
+      </div>
     </div>
+  </div>
 
 </div>
 
