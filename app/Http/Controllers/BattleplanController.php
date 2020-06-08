@@ -19,6 +19,7 @@ use App\Models\Gadget;
 use App\Models\Lobby;
 
 use Auth;
+
 class BattleplanController extends Controller
 {
     /**
@@ -40,16 +41,8 @@ class BattleplanController extends Controller
         $battleplans;
         $pageNum = $request->input('page') ? $request->input('page') : 1;
         $itemsPerPage = $request->input('items') ? $request->input('items') : 10;
-
-        // Admin see's all plans
-        if(Auth::user() && Auth::user()->admin){
-            $battleplans = Battleplan::paginate(10);
-        }
         
-        // all other users only see the public plans
-        else{
-            $battleplans = Battleplan::public()->paginate($itemsPerPage);
-        }
+        $battleplans = Battleplan::public()->paginate($itemsPerPage);
 
         $totalPages = count($battleplans) / $itemsPerPage;
 

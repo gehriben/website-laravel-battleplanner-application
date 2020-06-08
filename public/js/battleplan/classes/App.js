@@ -54,7 +54,9 @@ class App {
         // Initialize variables
         this.keybinds = new Keybinds(this);
         
-        this.lobby = new Lobby(lobbyData);
+        if(lobbyData){
+            this.lobby = new Lobby(lobbyData);
+        }
 
         this.socketListener = new SocketListener(this.socket, this, hostLeftSceen);
     }

@@ -58,7 +58,7 @@
     <canvas id="viewport"></canvas>
   </div>
 
-  <!-- <div id="host-left-lobby" class="message-screen">
+  <div id="host-left-lobby" class="message-screen">
       <div class="container h-100">
           <div class="row h-100 justify-content-center text-center align-items-center">
                   <p>
@@ -67,7 +67,7 @@
                   </p>
           </div>
       </div>
-  </div> -->
+  </div>
 
   <div id="saving-screen" class="message-screen">
       <div class="container h-100">

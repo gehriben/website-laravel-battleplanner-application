@@ -1,5 +1,6 @@
 {
     "/js/battleplan/edit.bundle.js": "/js/battleplan/edit.bundle.js",
+    "/js/battleplan/show.bundle.js": "/js/battleplan/show.bundle.js",
     "/js/index/index.js": "/js/index/index.js",
     "/css/app.css": "/css/app.css",
     "/js/lobby/show.bundle.js": "/js/lobby/show.bundle.js",
