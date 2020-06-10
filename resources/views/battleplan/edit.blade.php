@@ -15,39 +15,6 @@
 @endpush
 
 @push('css')
-<!-- <link rel="stylesheet" href="{{asset("css/battleplan/edit.css")}}"> -->
-
-<style>
-    .wrapper{
-        height: 100%;
-        width:  100%;
-    }
-    canvas{
-        margin-top: 60px;
-        z-index: -1;
-        top: 0px;
-        bottom: 0px;
-        position: fixed;
-    }
-    
-    .message-screen{
-        display: none;
-        position: absolute;
-        height:100%;
-        width:100%;
-        color: white;
-        z-index: 10;
-        font-size: 40px;
-        text-shadow: 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;
-    }
-    #host-left-lobby{
-        background-color: rgba(255, 0, 0, 0.3);
-    }
-    #saving-screen{
-        background-color: rgba(0, 255, 0, 0.3);
-    }
-
-</style>
 <link rel="stylesheet" href="{{asset("css/battleplan/edit.css")}}">
 @endpush
 
