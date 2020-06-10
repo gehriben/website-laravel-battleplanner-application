@@ -13,9 +13,6 @@
 
 <script src="{{asset("js/lobby/show.bundle.js")}}"></script>
 
-<script>
-    app.requestBattleplanJson();
-</script>
 
 @endpush
 

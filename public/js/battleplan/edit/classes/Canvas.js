@@ -15,6 +15,11 @@ class Canvas{
         this.scaleStep = 0.05;                          // canvas zoom scale increments
         this.scaleMax = 5;                              // maximum scale
         this.scaleMin = 0.5                             // minimum scale
+        
+        this.resolution = {
+            'x': 0,
+            'y': 0    
+        };
 
         this.ctx = this.viewport[0].getContext('2d');   // canvas context
 
@@ -29,17 +34,17 @@ class Canvas{
             x:0,
             y:0
         }
-
-        this.Start();                                   // Initialization
     }
 
     // First time setup
-    Start(){
-        // Gather initial resolution details
-        this.resolution = {
-            "x" : window.innerWidth,
-            "y" : window.innerHeight,
-        }
+    Initialize(){
+        this.SetResolution(this.resolution)
+        // Update frame
+        this.Update();
+    }
+
+    SetResolution(resolution){
+        this.resolution = resolution;
 
         // hardcode height and with in the event user resized the page
         $(this.viewport).attr( "width", this.resolution.x);

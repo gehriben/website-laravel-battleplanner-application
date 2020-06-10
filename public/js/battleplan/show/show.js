@@ -32,6 +32,13 @@ var app = new App(
     null
 );
 app.initializeByApi(BATTLEPLAN_ID);
+app.keybinds.mousePressed['lmb']['tool'] = app.keybinds.toolMove;
+
+
+app.canvas.resolution = {
+    "x" : $('#viewport').width(),
+    "y" : $('#viewport').height(),
+};
 
 /**************************
    Give access to app object in main windows

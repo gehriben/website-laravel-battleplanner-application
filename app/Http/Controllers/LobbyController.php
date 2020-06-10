@@ -24,6 +24,11 @@ use App\Models\Gadget;
 class LobbyController extends Controller
 {
 
+    public function __construct()
+    {
+        // $this->middleware('auth');
+    }
+
     public function show(Request $request, $connection_string){
         $lobby = Lobby::byConnection($connection_string)->with('owner')->first();
         

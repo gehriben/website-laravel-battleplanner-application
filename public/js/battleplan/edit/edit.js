@@ -31,7 +31,13 @@ var app = new App(
     $('#host-left-lobby'),
     $('#saving-screen')
 );
+
 app.initializeByApi(BATTLEPLAN_ID);
+
+app.canvas.resolution ={
+    "x" : window.innerWidth,
+    "y" : window.innerHeight,
+};
 
 /**************************
    Give access to app object in main windows

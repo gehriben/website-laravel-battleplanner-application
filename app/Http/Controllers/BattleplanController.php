@@ -61,10 +61,6 @@ class BattleplanController extends Controller
 
             $battleplan = Battleplan::with(Battleplan::$printWith)->find($battleplan->id);
 
-            if ($request->expectsJson()) {
-                return $battleplan;
-            }
-
             return view("battleplan.show", compact("battleplan"));
         }
 
@@ -112,10 +108,6 @@ class BattleplanController extends Controller
             $gadgets = Gadget::all();
             $listenSocket = env("LISTEN_SOCKET");
 
-            if ($request->expectsJson()) {
-                return $battleplan;
-            }
-            
             return view("battleplan.edit", compact("battleplan", "attackers", "defenders",'gadgets','lobby','listenSocket'));
         }
 
@@ -134,6 +126,20 @@ class BattleplanController extends Controller
     /**
      * API's
      */
+
+    public function get(Request $request, Battleplan $battleplan){
+        if (
+            $battleplan->public ||                                  // Return immediately if plan is public
+            Auth::user() && Auth::user() == $battleplan->owner ||   // Owner of the private plan
+            Auth::user() && Auth::user()->admin                     // Admin can always see the plan
+        ) {
+            $battleplan = Battleplan::with(Battleplan::$printWith)->find($battleplan->id);
+            return $battleplan;
+        }
+
+        // Insufficient permissions
+        abort(403);
+    }
 
     /**
      * Create a battleplan

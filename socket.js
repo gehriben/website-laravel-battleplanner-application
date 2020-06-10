@@ -13,9 +13,8 @@ redis.subscribe('ReceiveDrawUpdate', function(err, count) {});
 redis.subscribe('ReceiveConnected', function(err, count) {});
 redis.subscribe('ReceiveReload', function(err, count) {});
 
-
 redis.on('message', function(channel, message) {
-    message = JSON.parse(message);    
+    message = JSON.parse(message);
     io.emit(channel + '.' + message.data.lobby.connection_string + ':' + message.event, message.data);
 });
 

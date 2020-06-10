@@ -18780,7 +18780,9 @@ function () {
   function App(user, lobbyData, socket, viewport, slots, lobbyList, hostLeftSceen, savingScreen) {
     _classCallCheck(this, App);
 
-    // this.id = id;
+    // Settings
+    this.emptyOperator = 'https://battleplanner.s3.ca-central-1.amazonaws.com/static/EmptyOperator.png'; // saved parameters
+
     this.user = user;
     this.lobbyData = lobbyData;
     this.socket = socket;
@@ -18823,11 +18825,12 @@ function () {
 
     this.keybinds = new Keybinds(this);
 
-    if (lobbyData) {
+    if (lobbyData && this.socket) {
       this.lobby = new Lobby(lobbyData);
+      this.socketListener = new SocketListener(this.socket, this, hostLeftSceen);
     }
 
-    this.socketListener = new SocketListener(this.socket, this, hostLeftSceen);
+    this.canvas = new Canvas(this, this.viewport); // Initialize canvas
   }
   /**
    * Setup the battleplan from API data
@@ -18842,9 +18845,8 @@ function () {
     value: function initializeByApi(id) {
       // Initialize Battleplan hierarchy
       this.battleplan = new Battleplan(id);
-      this.battleplan.initializeByApi(this.slots, function () {
-        this.canvas = new Canvas(this, this.viewport); // Initialize canvas
-
+      this.battleplan.initializeByApi(this.slots, this.emptyOperator, function () {
+        this.canvas.Initialize();
         this.DisplayOperators();
       }.bind(this));
     }
@@ -18858,8 +18860,7 @@ function () {
       // Initialize Battleplan hierarchy
       this.battleplan = new Battleplan(json['id']);
       this.battleplan.initializeByJson(json['appJson']['battleplan'], this.slots, function () {
-        this.canvas = new Canvas(this, this.viewport); // Initialize canvas
-
+        this.canvas.Initialize();
         this.DisplayOperators();
       }.bind(this));
       this.lobby.initializeByJson(json.appJson.lobby);
@@ -18987,9 +18988,8 @@ function () {
         success: function (result) {
           // Initialize Battleplan hierarchy
           this.battleplan = new Battleplan(this.battleplan.id);
-          this.battleplan.initializeByApi(this.slots, function () {
-            this.canvas = new Canvas(this, this.viewport); // Initialize canvas
-
+          this.battleplan.initializeByApi(this.slots, this.emptyOperator, function () {
+            this.canvas.Initialize();
             this.DisplayOperators();
             this.savingScreen.hide();
             this.requestReload();
@@ -19086,7 +19086,7 @@ function (_Databaseable) {
 
   _createClass(Battleplan, [{
     key: "initializeByApi",
-    value: function initializeByApi(slots, callback) {
+    value: function initializeByApi(slots, emptyOperator, callback) {
       this.finishedCallback = callback;
       this.Get(this.id, function (result) {
         // Create floors
@@ -19102,7 +19102,7 @@ function (_Databaseable) {
 
 
         for (var _i = 0; _i < slots.length; _i++) {
-          var operator_src = result['operator_slots'][_i]['operator'] ? result['operator_slots'][_i]['operator']["icon"]["url"] : "https://via.placeholder.com/50";
+          var operator_src = result['operator_slots'][_i]['operator'] ? result['operator_slots'][_i]['operator']["icon"]["url"] : emptyOperator;
           this.operators.push({
             "operator": new Operator(result['operator_slots'][_i]['id'], result['operator_slots'][_i]['operator_id'], operator_src),
             "slot": slots[_i]
@@ -19213,7 +19213,7 @@ function (_Databaseable) {
       $.ajax({
         method: "GET",
         contentType: "application/json",
-        url: "/battleplan/".concat(id),
+        url: "/battleplan/".concat(id, "/json"),
         dataType: "json",
         success: function success(result) {
           callback(result);
@@ -19306,6 +19306,10 @@ function () {
 
     this.scaleMin = 0.5; // minimum scale
 
+    this.resolution = {
+      'x': 0,
+      'y': 0
+    };
     this.ctx = this.viewport[0].getContext('2d'); // canvas context
     // canvas drawing offset
 
@@ -19318,18 +19322,20 @@ function () {
       x: 0,
       y: 0
     };
-    this.Start(); // Initialization
   } // First time setup
 
 
   _createClass(Canvas, [{
-    key: "Start",
-    value: function Start() {
-      // Gather initial resolution details
-      this.resolution = {
-        "x": window.innerWidth,
-        "y": window.innerHeight
-      }; // hardcode height and with in the event user resized the page
+    key: "Initialize",
+    value: function Initialize() {
+      this.SetResolution(this.resolution); // Update frame
+
+      this.Update();
+    }
+  }, {
+    key: "SetResolution",
+    value: function SetResolution(resolution) {
+      this.resolution = resolution; // hardcode height and with in the event user resized the page
 
       $(this.viewport).attr("width", this.resolution.x);
       $(this.viewport).attr("height", this.resolution.y); // Update frame
@@ -20142,7 +20148,7 @@ function () {
     _classCallCheck(this, Keybinds);
 
     this.app = app;
-    this.ToolMove = new (__webpack_require__(/*! ./ToolMove.js */ "./resources/js/battleplan/edit/classes/ToolMove.js")["default"])(app);
+    this.toolMove = new (__webpack_require__(/*! ./ToolMove.js */ "./resources/js/battleplan/edit/classes/ToolMove.js")["default"])(app);
     this.toolZoom = new (__webpack_require__(/*! ./ToolZoom.js */ "./resources/js/battleplan/edit/classes/ToolZoom.js")["default"])(app);
     this.toolLine = new (__webpack_require__(/*! ./ToolLine.js */ "./resources/js/battleplan/edit/classes/ToolLine.js")["default"])(app);
     this.toolSquare = new (__webpack_require__(/*! ./ToolSquare.js */ "./resources/js/battleplan/edit/classes/ToolSquare.js")["default"])(app);
@@ -20165,7 +20171,7 @@ function () {
       },
       "mmb": {
         "active": false,
-        "tool": this.ToolMove
+        "tool": this.toolMove
       }
     }; // Save
 
@@ -22251,6 +22257,11 @@ $.ajaxSetup({
 
 var app = new App(USER, null, null, $('#viewport'), [$('#operator-0'), $('#operator-1'), $('#operator-2'), $('#operator-3'), $('#operator-4')], $('#lobbyList'), null, null);
 app.initializeByApi(BATTLEPLAN_ID);
+app.keybinds.mousePressed['lmb']['tool'] = app.keybinds.toolMove;
+app.canvas.resolution = {
+  "x": $('#viewport').width(),
+  "y": $('#viewport').height()
+};
 /**************************
    Give access to app object in main windows
 **************************/

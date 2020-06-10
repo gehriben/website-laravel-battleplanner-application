@@ -32,7 +32,17 @@ var app = new App(
     $('#saving-screen')
 );
 
+// app.initializeByJson();
+
+app.canvas.resolution ={
+    "x" : window.innerWidth,
+    "y" : window.innerHeight,
+};
+
+
 /**************************
    Give access to app object in main windows
 **************************/
 window.app = app;
+
+app.requestBattleplanJson();
