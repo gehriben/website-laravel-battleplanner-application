@@ -4,6 +4,7 @@
 
 {{-- init --}}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+<script src="//cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
 <script type="text/javascript">
     const BATTLEPLAN_ID = {{ $battleplan->id}};
     const SOCKET = io('{{$listenSocket}}');
@@ -12,14 +13,21 @@
 </script>
 
 <script src="{{asset("js/battleplan/edit.bundle.js")}}"></script>
+
+<script>
+$(document).ready( function () {
+    $('#load-table').DataTable();
+} );
+</script>
 @endpush
 
 @push('css')
+<link rel="stylesheet" href="//cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css">
 <link rel="stylesheet" href="{{asset("css/battleplan/edit.css")}}">
 @endpush
 
 @section('content')
-  @include('battleplan.left-sidebar', ["gadgets" => $gadgets])
+  @include('battleplan.left-sidebar', ["gadgets" => $gadgets, 'operators' => $operators])
   @include('battleplan.right-sidebar')
   <div class="wrapper">
     <canvas id="viewport"></canvas>
@@ -55,13 +63,13 @@
 @push('modals')
 
 
-
-<div class="modal" id="test-modal" tabindex="-1" role="dialog">
+<!-- Save Modal -->
+<div class="modal" id="save-modal" tabindex="-1" role="dialog">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
 
       <div class="modal-header">
-        <h5 class="modal-title">Modal title</h5>
+        <h5 class="modal-title">Save Modal</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -101,6 +109,48 @@
   </div>
 </div>
 
+<div class="modal" id="load-modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Load Modal</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+
+      <table id="load-table" class="display">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Map</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+
+            @foreach($myBattleplans as $battleplan)
+              <tr>
+                  <td>{{$battleplan->name}}</td>
+                  <td>{{$battleplan->description}}</td>
+                  <td>{{$battleplan->map->name}}</td>
+                  <td><a type="button" href="/battleplan/{{$battleplan->id}}/edit/{{$lobby->connection_string}}">Load</a></td>
+              </tr>
+            @endforeach
+        </tbody>
+    </table>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+
+    </div>
+
+  </div>
+</div>
 
 
 @endpush

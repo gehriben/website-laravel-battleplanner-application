@@ -24,15 +24,21 @@ use App\Models\Gadget;
 class LobbyController extends Controller
 {
 
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     public function show(Request $request, $connection_string){
         $lobby = Lobby::byConnection($connection_string)->with('owner')->first();
         
         $attackers = Operator::attackers()->get();
         $defenders = Operator::defenders()->get();
         $gadgets = Gadget::all();
+        $operators = Operator::all();
         $listenSocket = env("LISTEN_SOCKET");
 
-        return view('lobby.show', compact("attackers", "defenders",'gadgets','lobby','listenSocket'));
+        return view('lobby.show', compact("attackers", "defenders",'gadgets','lobby','listenSocket', 'operators'));
     }
 
    /**

@@ -1,4 +1,4 @@
-@extends('layouts.main')
+@extends('layouts.main-bootstrap')
 
 @push('css')
   <link rel="stylesheet" href="{{asset("css/authentication/authentication.css")}}">

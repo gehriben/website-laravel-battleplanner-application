@@ -1,4 +1,4 @@
-@extends('layouts.main')
+@extends('layouts.main-bootstrap')
 
 @push('js')
 <script>
@@ -39,6 +39,10 @@ function selectMap(dom, mapId){
 
   <form action="/battleplan" method="post">
     @csrf
+    @if($connection_string)
+      <input type="hidden" name="connection_string" value='{{$connection_string}}' required>
+    @endif
+
     <div class="row mt-3">
       <div class="col-12 text-center">
         <h1>Create Battleplan</h1>

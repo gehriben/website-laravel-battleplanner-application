@@ -145,6 +145,7 @@ class Icon extends Draw {
 
     UpdateFromJson(json){
         this.origin = {'x':parseFloat(json.origin.x),'y':parseFloat(json.origin.y)};
+        this.updated = true;
     }
 
    ToJson(){

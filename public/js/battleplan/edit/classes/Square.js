@@ -165,6 +165,7 @@ class Square extends Draw {
     UpdateFromJson(json){
         this.origin = {'x':parseFloat(json.origin.x),'y':parseFloat(json.origin.y)};
         this.destination = {'x':parseFloat(json.destination.x),'y':parseFloat(json.destination.y)};
+        this.updated = true;
     }
 
    ToJson(){

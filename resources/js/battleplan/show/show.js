@@ -16,7 +16,7 @@ $.ajaxSetup({
     Constant declarations
 **************************/
 var app = new App(
-    USER,
+    null,
     null,
     null,
     $('#viewport'),
@@ -32,6 +32,20 @@ var app = new App(
     null
 );
 app.initializeByApi(BATTLEPLAN_ID);
+app.keybinds.mousePressed['lmb']['tool'] = app.keybinds.toolMove;
+
+app.canvas.resolution ={
+    "x" : window.innerWidth,
+    "y" : window.innerHeight,
+};
+
+$( window ).resize(function() {
+    app.canvas.resolution = {
+        "x" : window.innerWidth,
+        "y" : window.innerHeight,
+    };
+    app.canvas.Initialize();
+});
 
 /**************************
    Give access to app object in main windows

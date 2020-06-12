@@ -8,7 +8,7 @@ class Keybinds {
     constructor(app) {
         this.app = app;
 
-        this.ToolMove = new (require('./ToolMove.js').default)(app); 
+        this.toolMove = new (require('./ToolMove.js').default)(app); 
         this.toolZoom = new (require('./ToolZoom.js').default)(app); 
         this.toolLine = new (require('./ToolLine.js').default)(app); 
         this.toolSquare = new (require('./ToolSquare.js').default)(app); 
@@ -30,13 +30,13 @@ class Keybinds {
             },
             "mmb": {
                 "active": false,
-                "tool": this.ToolMove
+                "tool": this.toolMove
             },
         }
 
         // Save
         this.keyEvents.push({ "keys": [17,83], "event": function(ev){
-            $('#test-modal').modal();
+            $('#save-modal').modal();
             ev.preventDefault();
         } });
 

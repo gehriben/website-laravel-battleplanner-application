@@ -26,6 +26,7 @@ class Line extends Draw {
     draw(canvas){
         
         var defaultColor = canvas.ctx.strokeStyle;
+        var defaultSize = canvas.ctx.lineWidth;
 
         if(this.highlighted){
             canvas.ctx.strokeStyle = "blue";
@@ -56,6 +57,7 @@ class Line extends Draw {
         canvas.ctx.stroke();
 
         canvas.ctx.strokeStyle = defaultColor;
+        canvas.ctx.lineWidth = defaultSize;
     }
 
     /**
@@ -91,8 +93,7 @@ class Line extends Draw {
     
     
     UpdateFromJson(json){
-        this.points = []
-        
+        this.points = [];
         
         var exploded = json.points.split(",");
         for (let i = 0; i < exploded.length; i++) {
@@ -101,6 +102,7 @@ class Line extends Draw {
                 'y' : exploded[++i]
             });
         }
+        this.updated = true;
         
     }
 

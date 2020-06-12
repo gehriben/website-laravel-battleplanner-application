@@ -1,5 +1,5 @@
 <nav class="navbar navbar-expand-md navbar-dark bg-dark">
-    <a class="navbar-brand" href="/">Rainbow Six Battleplanner</a>
+    <a class="navbar-brand" href="/">Battleplanner</a>
 
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -19,7 +19,19 @@
                   </svg>
                 </a>
             </li>
+
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                More
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <a class="dropdown-item" href="https://github.com/Erik-A-Smith/website-laravel-battleplanner-application">Github</a>
+                <a class="dropdown-item" href="/contact">Contact Us</a>
+              </div>
+            </li>
+            
         </ul>
+        
 
 
         <ul class="navbar-nav ml-auto">

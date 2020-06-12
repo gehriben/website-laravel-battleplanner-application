@@ -61,16 +61,23 @@
 <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 <link rel="stylesheet" href="{{asset("css/battleplan/sidebars.css")}}">
 @endpush
-<div id="toggletag-left" class="" onclick="toggleLeftNav()">Tools</div>
+<div id="toggletag-left" class="text-center" onclick="toggleLeftNav()">Tools</div>
 
 <div id="sidebar-left" class="sidebar-left">
   <h4 class="sidebar-title col-12 mt-3 text-center">Lobby</h4>
 	<div id="tool-lobby">
-    <div class="row mt-3 mx-1">
+	
+	<div class='row'>
+		<a type="button" href="/battleplan/new/{{$lobby->connection_string}}" id="newBattleplan" class="tool col-12 col-xl-6 btn btn-success">New Plan</a>
+		<button type="button" id="newBattleplan" class="tool col-12 col-xl-6 btn btn-success"  data-toggle="modal" data-target="#load-modal" >Load Plan</button>
+	</div>
+    
+	<div class="row mt-3 mx-1">
       <div class="col-12 col-xl-4 standard-text">Invite Link</div>
       <input type="text" class="col-12 col-xl-8" value="{{env('APP_URL')}}lobby/{{$lobby->connection_string}}"/>
     </div>
-    <div class="row mt-2 mx-1">
+    
+	<div class="row mt-2 mx-1">
       <div class="col-12 col-xl-4 standard-text">In Lobby:</div>
       <ul id="lobbyList" class="list-group col-12 col-xl-8 sidebar-list">
         <li class="list-group-item" id="lobby-user-{{Auth::user()->id}}">{{Auth::user()->username}}</li>
@@ -121,11 +128,20 @@
   </div>
   <div id="icon-box" class="row justify-content-center">
     <!-- Populate icons -->
+
     @foreach($gadgets as $gadget)
     <div class="col-xl-2 col-6 p-1 text-center">
       <input type="hidden" class="name" id="" value="{{$gadget->name}}">
       <img src="{{$gadget->icon->url()}}" alt="" draggable="true" ondragstart="app.keybinds.drag(event)" height="50" width="50">
     </div>
     @endforeach
+
+    @foreach($operators as $operator)
+    <div class="col-xl-2 col-6 p-1 text-center">
+      <input type="hidden" class="name" id="" value="{{$operator->name}}">
+      <img src="{{$operator->icon->url()}}" alt="" draggable="true" ondragstart="app.keybinds.drag(event)" height="50" width="50">
+    </div>
+    @endforeach
+
   </div>
 </div>
