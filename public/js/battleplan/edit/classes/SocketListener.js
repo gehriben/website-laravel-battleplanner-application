@@ -89,7 +89,7 @@ class SocketListener {
         LISTEN_SOCKET.on(`ReceiveOperatorSlotChange.${app.lobby.connectionString}:App\\Events\\Lobby\\ReceiveOperatorSlotChange`, function(message){
             if(this.app.user['id'] != message['requester']['id']){
                 var operator = app.battleplan.getOperatorByLocalId(message['operatorSlotData']['localId']);
-                operator.operator.id = message['operatorSlotData']["operator_id"]
+                operator.operator.operatorId = message['operatorSlotData']["operator_id"]
                 operator.operator.src = message['operatorSlotData']["src"];
                 app.DisplayOperators();
             }

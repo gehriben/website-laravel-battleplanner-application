@@ -89,7 +89,6 @@ class BattleplanController extends Controller
     }
 
     public function edit(Request $request, Battleplan $battleplan, $connection_string){
-
         if (
             Auth::user() && Auth::user() == $battleplan->owner ||   // Owner of the private plan
             Auth::user() && Auth::user()->admin                     // Admin can always see the plan
@@ -103,12 +102,15 @@ class BattleplanController extends Controller
             }
 
             $battleplan = Battleplan::with(Battleplan::$printWith)->find($battleplan->id);
+            $myBattleplans = Auth::user()->battleplans;
             $attackers = Operator::attackers()->get();
             $defenders = Operator::defenders()->get();
             $gadgets = Gadget::all();
+            $operators = Operator::all();
+
             $listenSocket = env("LISTEN_SOCKET");
 
-            return view("battleplan.edit", compact("battleplan", "attackers", "defenders",'gadgets','lobby','listenSocket'));
+            return view("battleplan.edit", compact("battleplan", "attackers", "defenders",'gadgets','lobby','listenSocket','operators','myBattleplans'));
         }
 
         // Insufficient permissions
@@ -118,9 +120,9 @@ class BattleplanController extends Controller
     /**
      * New battleplan form
      */
-    public function new(Request $request){
+    public function new(Request $request, $connection_string = null){
         $maps = Map::all();
-        return view("battleplan.new",compact('maps'));
+        return view("battleplan.new",compact('maps','connection_string'));
     }
 
     /**
@@ -151,6 +153,7 @@ class BattleplanController extends Controller
             'description' => [''],
             'notes' => [''],
             'public' => [''],
+            'connection_string' => [''],
         ]);
 
         $data['owner_id'] = Auth::User()->id;
@@ -165,7 +168,17 @@ class BattleplanController extends Controller
             return response()->success($battleplan);
         }
 
-        return redirect("battleplan/$battleplan->id/edit");
+        $lobby;
+        if(isset($data['connection_string'])){
+            $lobby = Lobby::ByConnection($data['connection_string'])->first();
+
+            // lobby exists and owner of said lobby
+            if($lobby && $lobby->owner->id == Auth::user()->id){
+                return redirect("battleplan/{$battleplan->id}/edit/" . $data['connection_string']);
+            }
+        }
+
+        return redirect("battleplan/$battleplan->id/edit/");
     }
 
     /**
@@ -189,6 +202,7 @@ class BattleplanController extends Controller
 
         // dd($data);
 
+        dd($data['public']);
         $data['public'] = isset($data['public']);
         $data['description'] = isset($data['description']) && $data['description'] ? $data['description'] : "";
         $data['notes'] = isset($data['notes']) && $data['notes'] ? $data['notes'] : "";

@@ -23,6 +23,10 @@ Route::get('/', function(){
     return View("index.index");
 })->name("index");
 
+Route::get('contact', function(){
+    return View("contact.index");
+})->name("contact");
+
 Route::prefix('/account')->group(function () {
   Route::get('/', 'AccountController@index')->name("Account.index");
 });
@@ -55,6 +59,7 @@ Route::prefix('/gadgets')->group(function() {
 Route::prefix('/battleplan')->group(function () {
     Route::get('/', 'BattleplanController@index')->name("Battleplan.index");
     Route::get('new', 'BattleplanController@new')->name("Battleplan.new");
+    Route::get('new/{connection_string}', 'BattleplanController@new')->name("Battleplan.new");
     Route::get('{battleplan}', 'BattleplanController@show')->name("Battleplan.show");
     Route::get('{battleplan}/edit', 'BattleplanController@editGenerateRoom')->name("Battleplan.editGenerateRoom");
     Route::get('{battleplan}/edit/{connection_string}', 'BattleplanController@edit')->name("Battleplan.edit");

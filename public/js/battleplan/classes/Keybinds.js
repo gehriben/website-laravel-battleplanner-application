@@ -36,7 +36,7 @@ class Keybinds {
 
         // Save
         this.keyEvents.push({ "keys": [17,83], "event": function(ev){
-            $('#test-modal').modal();
+            $('#save-modal').modal();
             ev.preventDefault();
         } });
 

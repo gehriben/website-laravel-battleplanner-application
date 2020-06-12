@@ -13,7 +13,7 @@ class Canvas{
 
         this.scale = 1;                                 // canvas zoom scale
         this.scaleStep = 0.05;                          // canvas zoom scale increments
-        this.scaleMax = 5;                              // maximum scale
+        this.scaleMax = 10;                              // maximum scale
         this.scaleMin = 0.5                             // minimum scale
         
         this.resolution = {
@@ -38,6 +38,7 @@ class Canvas{
 
     // First time setup
     Initialize(){
+        this.scale = 1;
         this.SetResolution(this.resolution)
         // Update frame
         this.Update();
@@ -59,15 +60,6 @@ class Canvas{
         this.cls();
         this.UpdateFloor(this.app.battleplan.floor);           // Draw map
         this.UpdateDraws(this.app.battleplan.floor.draws)      // Draw drawings
-        
-        // debug Line
-        // var center = {
-        //     'x' : (this.resolution.x  / this.scale) /2,
-        //     'y' : (this.resolution.y / this.scale) /2
-        // }
-        // this.debugLine({"x":center.x,"y":0}, {"x":center.x,"y":center.y});
-        // this.debugLine({"x":0,"y":center.y}, {"x":center.x,"y":center.y});
-
     }
 
     UpdateFloor(floor){
@@ -122,7 +114,7 @@ class Canvas{
         }
 
         var sign = Math.sign(clicks);
-        var step = this.scaleStep * clicks;
+        var step = this.scaleStep * this.scale * clicks;
 
         // reset scale matrix
         this.ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -164,127 +156,6 @@ class Canvas{
         this.ctx.lineTo(c2.x, c2.y);
         this.ctx.stroke();
     }
-
-    /**
-     * EventListeners
-     */
-    // EventListeners(){
-        // viewport.addEventListener("mouseup", this.canvasUp);
-        // viewport.addEventListener("mousedown", this.canvasDown);
-        // viewport.addEventListener("mousewheel", this.canvasScroll);
-        // viewport.addEventListener("mousemove", this.canvasMove);
-        // viewport.addEventListener("mouseout", this.canvasLeave);
-
-        // Needs work
-        // viewport.addEventListener("dragenter", canvasEnter);
-        // viewport.addEventListener("dragover", canvasDrag);
-        // viewport.addEventListener("dragleave", canvasEnter);
-        // viewport.addEventListener("drop", canvasDrop);
-
-    // }
-
-    /**************************
-        Canvas Methods
-    **************************/
-//    canvasUp(ev) {
-//         // var coordinates = this._calculateOffset(ev.offsetX, ev.offsetY);
-//         for (const key in this.buttonEvents) {
-//             if (this.buttonEvents[key].active && this.buttonEvents[key].tool) this.buttonEvents[key].tool.actionUp(coordinates);
-//         }
-//         // this._clickDeactivateEventListen(ev);
-//         // this.ui.update();
-//     }
-
-//     canvasDown(ev) {
-        
-//         // Get current coordinates
-//         var coordinates = {x:ev.offsetX, y:ev.offsetY};
-
-//         // this._clickActivateEventListen(ev)
-//         for (const key in this.buttonEvents) {
-//             if (this.buttonEvents[key].active && this.buttonEvents[key].tool) this.buttonEvents[key].tool.actionDown(coordinates);
-//         }
-//         // this.ui.update();
-//     }
-
-//     canvasMove(ev) {
-//         // var coordinates = this._calculateOffset(ev.offsetX, ev.offsetY);
-//         for (const key in this.buttonEvents) {
-//             if (this.buttonEvents[key].active && this.buttonEvents[key].tool) this.buttonEvents[key].tool.actionMove(coordinates);
-//         }
-//         // this.ui.update();
-//     }
-
-//     canvasEnter(ev) {
-//         // var coordinates = this._calculateOffset(ev.offsetX, ev.offsetY);
-//         for (const key in this.buttonEvents) {
-//             if (this.buttonEvents[key].active && this.buttonEvents[key].tool) this.buttonEvents[key].tool.actionEnter(coordinates);
-//         }
-//         // this._clickDeactivateEventListen(ev);
-//         // Update UI
-//         // this.ui.update();
-//     }
-
-//     canvasLeave(ev) {
-//         // this._clickDeactivateEventListen(ev);
-//         // var coordinates = this._calculateOffset(ev.offsetX, ev.offsetY);
-//         for (const key in this.buttonEvents) {
-//             if (this.buttonEvents[key].active && this.buttonEvents[key].tool && this.buttonEvents[key].tool) this.buttonEvents[key].tool.actionLeave(coordinates);
-//         }
-//         // Update UI
-//         // this.ui.update();
-//     }
-
-//     canvasScroll(ev) {
-//         // var coordinates = this._calculateOffset(ev.offsetX, ev.offsetY);
-
-//         var direction = 1;
-//         // if (ev.originalEvent.wheelDelta / 120 < 0) {
-//         if (ev.originalEvent.deltaY) {
-//             direction = -direction * Math.sign(ev.originalEvent.deltaY);
-//         }
-
-//         this.toolZoom.actionScroll(direction, coordinates);
-
-//         for (const key in this.buttonEvents) {
-//             if (this.buttonEvents[key].active && this.buttonEvents[key].tool) this.buttonEvents[key].tool.actionScroll();
-//         }
-
-//         // Update UI
-//         // this.ui.update();
-//     }
-
-//     canvasDrop(ev) {
-//         // var coordinates = this._calculateOffset(ev.offsetX, ev.offsetY);
-
-//         ev.preventDefault();
-//         var src = ev.dataTransfer.getData("src");
-
-//         this.toolIcon.actionDrop(coordinates, src);
-
-//         for (const key in this.buttonEvents) {
-//             if (this.buttonEvents[key].active && this.buttonEvents[key].tool) this.buttonEvents[key].tool.actionDrop();
-//         }
-
-//         // Update UI
-//         // this.ui.update();
-//     }
-
-//     canvasDrag(ev) {
-//         var coordinates = this._calculateOffset(ev.offsetX, ev.offsetY);
-
-//         // Update UI
-//         // this.ui.update();
-//     }
-
-//     allowDrop(ev) {
-//         ev.preventDefault();
-//     }
-
-//     drag(ev) {
-//         ev.dataTransfer.setData("src", ev.target.src);
-//     }
-
 }
 export {
     Canvas as

@@ -1,4 +1,4 @@
-@extends('layouts.main')
+@extends('layouts.main-bootstrap')
 
 @push('js')
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>

@@ -1,4 +1,4 @@
-@extends('layouts.main')
+@extends('layouts.main-bootstrap')
 
 @push('js')
 
@@ -18,11 +18,11 @@
 
   <div class="row">
 
-    <div class="col-12 col-xl-6 padded align-content-center">
+    <!-- <div class="col-12 col-xl-6 padded align-content-center">
       <img id="profile-pic" src="https://via.placeholder.com/150?text=PFP">
-    </div>
+    </div> -->
 
-    <div class="col-12 col-xl-6 padded">
+    <div class="col-12 col-xl- padded">
       <div class='row'>
         <div class="label col-6">Username:</div>
         <div id="username" class='label col-6'>{{$user->username}}</div>
@@ -33,6 +33,9 @@
       </div>
     </div>
   </div>
+
+  <hr>
+  
   <div class="row text-center">
     <h2 class="col-12">My Battleplans</h2>
   </div>

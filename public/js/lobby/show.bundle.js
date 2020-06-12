@@ -19302,7 +19302,7 @@ function () {
 
     this.scaleStep = 0.05; // canvas zoom scale increments
 
-    this.scaleMax = 5; // maximum scale
+    this.scaleMax = 10; // maximum scale
 
     this.scaleMin = 0.5; // minimum scale
 
@@ -19328,6 +19328,7 @@ function () {
   _createClass(Canvas, [{
     key: "Initialize",
     value: function Initialize() {
+      this.scale = 1;
       this.SetResolution(this.resolution); // Update frame
 
       this.Update();
@@ -19350,13 +19351,6 @@ function () {
       this.UpdateFloor(this.app.battleplan.floor); // Draw map
 
       this.UpdateDraws(this.app.battleplan.floor.draws); // Draw drawings
-      // debug Line
-      // var center = {
-      //     'x' : (this.resolution.x  / this.scale) /2,
-      //     'y' : (this.resolution.y / this.scale) /2
-      // }
-      // this.debugLine({"x":center.x,"y":0}, {"x":center.x,"y":center.y});
-      // this.debugLine({"x":0,"y":center.y}, {"x":center.x,"y":center.y});
     }
   }, {
     key: "UpdateFloor",
@@ -19404,7 +19398,7 @@ function () {
         'y': this.resolution.y / this.scale / 2
       };
       var sign = Math.sign(clicks);
-      var step = this.scaleStep * clicks; // reset scale matrix
+      var step = this.scaleStep * this.scale * clicks; // reset scale matrix
 
       this.ctx.setTransform(1, 0, 0, 1, 0, 0);
       this.scale += step;
@@ -19438,104 +19432,6 @@ function () {
       this.ctx.lineTo(c2.x, c2.y);
       this.ctx.stroke();
     }
-    /**
-     * EventListeners
-     */
-    // EventListeners(){
-    // viewport.addEventListener("mouseup", this.canvasUp);
-    // viewport.addEventListener("mousedown", this.canvasDown);
-    // viewport.addEventListener("mousewheel", this.canvasScroll);
-    // viewport.addEventListener("mousemove", this.canvasMove);
-    // viewport.addEventListener("mouseout", this.canvasLeave);
-    // Needs work
-    // viewport.addEventListener("dragenter", canvasEnter);
-    // viewport.addEventListener("dragover", canvasDrag);
-    // viewport.addEventListener("dragleave", canvasEnter);
-    // viewport.addEventListener("drop", canvasDrop);
-    // }
-
-    /**************************
-        Canvas Methods
-    **************************/
-    //    canvasUp(ev) {
-    //         // var coordinates = this._calculateOffset(ev.offsetX, ev.offsetY);
-    //         for (const key in this.buttonEvents) {
-    //             if (this.buttonEvents[key].active && this.buttonEvents[key].tool) this.buttonEvents[key].tool.actionUp(coordinates);
-    //         }
-    //         // this._clickDeactivateEventListen(ev);
-    //         // this.ui.update();
-    //     }
-    //     canvasDown(ev) {
-    //         // Get current coordinates
-    //         var coordinates = {x:ev.offsetX, y:ev.offsetY};
-    //         // this._clickActivateEventListen(ev)
-    //         for (const key in this.buttonEvents) {
-    //             if (this.buttonEvents[key].active && this.buttonEvents[key].tool) this.buttonEvents[key].tool.actionDown(coordinates);
-    //         }
-    //         // this.ui.update();
-    //     }
-    //     canvasMove(ev) {
-    //         // var coordinates = this._calculateOffset(ev.offsetX, ev.offsetY);
-    //         for (const key in this.buttonEvents) {
-    //             if (this.buttonEvents[key].active && this.buttonEvents[key].tool) this.buttonEvents[key].tool.actionMove(coordinates);
-    //         }
-    //         // this.ui.update();
-    //     }
-    //     canvasEnter(ev) {
-    //         // var coordinates = this._calculateOffset(ev.offsetX, ev.offsetY);
-    //         for (const key in this.buttonEvents) {
-    //             if (this.buttonEvents[key].active && this.buttonEvents[key].tool) this.buttonEvents[key].tool.actionEnter(coordinates);
-    //         }
-    //         // this._clickDeactivateEventListen(ev);
-    //         // Update UI
-    //         // this.ui.update();
-    //     }
-    //     canvasLeave(ev) {
-    //         // this._clickDeactivateEventListen(ev);
-    //         // var coordinates = this._calculateOffset(ev.offsetX, ev.offsetY);
-    //         for (const key in this.buttonEvents) {
-    //             if (this.buttonEvents[key].active && this.buttonEvents[key].tool && this.buttonEvents[key].tool) this.buttonEvents[key].tool.actionLeave(coordinates);
-    //         }
-    //         // Update UI
-    //         // this.ui.update();
-    //     }
-    //     canvasScroll(ev) {
-    //         // var coordinates = this._calculateOffset(ev.offsetX, ev.offsetY);
-    //         var direction = 1;
-    //         // if (ev.originalEvent.wheelDelta / 120 < 0) {
-    //         if (ev.originalEvent.deltaY) {
-    //             direction = -direction * Math.sign(ev.originalEvent.deltaY);
-    //         }
-    //         this.toolZoom.actionScroll(direction, coordinates);
-    //         for (const key in this.buttonEvents) {
-    //             if (this.buttonEvents[key].active && this.buttonEvents[key].tool) this.buttonEvents[key].tool.actionScroll();
-    //         }
-    //         // Update UI
-    //         // this.ui.update();
-    //     }
-    //     canvasDrop(ev) {
-    //         // var coordinates = this._calculateOffset(ev.offsetX, ev.offsetY);
-    //         ev.preventDefault();
-    //         var src = ev.dataTransfer.getData("src");
-    //         this.toolIcon.actionDrop(coordinates, src);
-    //         for (const key in this.buttonEvents) {
-    //             if (this.buttonEvents[key].active && this.buttonEvents[key].tool) this.buttonEvents[key].tool.actionDrop();
-    //         }
-    //         // Update UI
-    //         // this.ui.update();
-    //     }
-    //     canvasDrag(ev) {
-    //         var coordinates = this._calculateOffset(ev.offsetX, ev.offsetY);
-    //         // Update UI
-    //         // this.ui.update();
-    //     }
-    //     allowDrop(ev) {
-    //         ev.preventDefault();
-    //     }
-    //     drag(ev) {
-    //         ev.dataTransfer.setData("src", ev.target.src);
-    //     }
-
   }]);
 
   return Canvas;
@@ -20094,6 +19990,7 @@ function (_Draw) {
         'x': parseFloat(json.origin.x),
         'y': parseFloat(json.origin.y)
       };
+      this.updated = true;
     }
   }, {
     key: "ToJson",
@@ -20178,7 +20075,7 @@ function () {
     this.keyEvents.push({
       "keys": [17, 83],
       "event": function event(ev) {
-        $('#test-modal').modal();
+        $('#save-modal').modal();
         ev.preventDefault();
       }
     }); // Arrow Up
@@ -20517,6 +20414,7 @@ function (_Draw) {
     key: "draw",
     value: function draw(canvas) {
       var defaultColor = canvas.ctx.strokeStyle;
+      var defaultSize = canvas.ctx.lineWidth;
 
       if (this.highlighted) {
         canvas.ctx.strokeStyle = "blue";
@@ -20536,6 +20434,7 @@ function (_Draw) {
 
       canvas.ctx.stroke();
       canvas.ctx.strokeStyle = defaultColor;
+      canvas.ctx.lineWidth = defaultSize;
     }
     /**
      * Parent overrides
@@ -20581,6 +20480,8 @@ function (_Draw) {
           'y': exploded[++i]
         });
       }
+
+      this.updated = true;
     }
     /**************************
         Helper functions
@@ -21034,7 +20935,7 @@ function SocketListener(LISTEN_SOCKET, app, hostLeftSceen) {
   LISTEN_SOCKET.on("ReceiveOperatorSlotChange.".concat(app.lobby.connectionString, ":App\\Events\\Lobby\\ReceiveOperatorSlotChange"), function (message) {
     if (this.app.user['id'] != message['requester']['id']) {
       var operator = app.battleplan.getOperatorByLocalId(message['operatorSlotData']['localId']);
-      operator.operator.id = message['operatorSlotData']["operator_id"];
+      operator.operator.operatorId = message['operatorSlotData']["operator_id"];
       operator.operator.src = message['operatorSlotData']["src"];
       app.DisplayOperators();
     }
@@ -21269,6 +21170,7 @@ function (_Draw) {
         'x': parseFloat(json.destination.x),
         'y': parseFloat(json.destination.y)
       };
+      this.updated = true;
     }
   }, {
     key: "ToJson",
@@ -22261,6 +22163,13 @@ app.canvas.resolution = {
   "x": window.innerWidth,
   "y": window.innerHeight
 };
+$(window).resize(function () {
+  app.canvas.resolution = {
+    "x": window.innerWidth,
+    "y": window.innerHeight
+  };
+  app.canvas.Initialize();
+});
 /**************************
    Give access to app object in main windows
 **************************/
@@ -22278,7 +22187,7 @@ app.requestBattleplanJson();
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! D:\Documents\GitHub\website-laravel-battleplanner-v2\resources\js\lobby\show.js */"./resources/js/lobby/show.js");
+module.exports = __webpack_require__(/*! D:\Repositories\website-laravel-battleplanner-v2\resources\js\lobby\show.js */"./resources/js/lobby/show.js");
 
 
 /***/ })

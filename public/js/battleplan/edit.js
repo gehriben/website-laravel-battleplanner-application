@@ -39,6 +39,14 @@ app.canvas.resolution ={
     "y" : window.innerHeight,
 };
 
+$( window ).resize(function() {
+    app.canvas.resolution = {
+        "x" : window.innerWidth,
+        "y" : window.innerHeight,
+    };
+    app.canvas.Initialize();
+});
+
 /**************************
    Give access to app object in main windows
 **************************/
