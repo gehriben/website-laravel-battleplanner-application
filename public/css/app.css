@@ -60,6 +60,10 @@
   border-color: #98321b !important;
 }
 
+.navbar {
+  z-index: 1;
+}
+
 .navbar-dark .navbar-nav .nav-link {
   color: white;
 }

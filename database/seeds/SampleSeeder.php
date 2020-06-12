@@ -42,7 +42,7 @@ class SampleSeeder extends Seeder
 
         $map = factory(Map::class)->create([
             'name' => 'Bank',
-            'thumbnail_id' => Media::fromFile($file, 'maps/Bank')->id,
+            'thumbnail_id' => Media::fromFile($file, 'maps/Bank', 'public')->id,
         ]);
 
         $order = 0;
@@ -60,7 +60,7 @@ class SampleSeeder extends Seeder
             $floor1 = Floor::create([
                 'name' => '1',
                 'order' => $order++,
-                'source_id' => Media::fromFile($file, 'maps/Bank')->id,
+                'source_id' => Media::fromFile($file, 'maps/Bank', 'public')->id,
                 'map_id' => $map->id
             ]);
         }
@@ -82,7 +82,7 @@ class SampleSeeder extends Seeder
             'name' => 'Iana',
             'colour' => '#ffffff',
             'attacker' => true,
-            'icon_id' => Media::fromFile($file, 'operators/Iana')->id
+            'icon_id' => Media::fromFile($file, 'operators/Iana', 'public')->id
         ]);
 
         // oryx
@@ -99,7 +99,7 @@ class SampleSeeder extends Seeder
             'name' => 'Oryx',
             'colour' => '#000000',
             'attacker' => false,
-            'icon_id' => Media::fromFile($file, 'operators/Oryx')->id
+            'icon_id' => Media::fromFile($file, 'operators/Oryx', 'public')->id
         ]);
     }
 
@@ -117,7 +117,7 @@ class SampleSeeder extends Seeder
 
         $operator = Gadget::create([
             'name' => 'Flashbang',
-            'icon_id' => Media::fromFile($file, 'gadgets/flashbang')->id
+            'icon_id' => Media::fromFile($file, 'gadgets/flashbang', 'public')->id
         ]);
 
     }

@@ -1,4 +1,4 @@
-@extends('layouts.main')
+@extends('layouts.main-bootstrap')
 
 @push('js')
 
@@ -13,9 +13,6 @@
 
 <script src="{{asset("js/lobby/show.bundle.js")}}"></script>
 
-<script>
-    app.requestBattleplanJson();
-</script>
 
 @endpush
 

@@ -19,7 +19,7 @@ class Battleplan extends Databaseable{
         this.operator;                  // Operator slot being edited
     }
     
-    initializeByApi(slots,callback){
+    initializeByApi(slots, emptyOperator, callback){
         this.finishedCallback = callback;
 
         this.Get(this.id,function(result){
@@ -38,7 +38,7 @@ class Battleplan extends Databaseable{
 
             // Create operator slots object
             for (let i = 0; i < slots.length; i++) {
-                var operator_src = (result['operator_slots'][i]['operator']) ? result['operator_slots'][i]['operator']["icon"]["url"] : "https://via.placeholder.com/50";
+                var operator_src = (result['operator_slots'][i]['operator']) ? result['operator_slots'][i]['operator']["icon"]["url"] : emptyOperator;
                 this.operators.push({
                     "operator" : new Operator(result['operator_slots'][i]['id'],result['operator_slots'][i]['operator_id'],operator_src),
                     "slot" : slots[i]
@@ -138,7 +138,7 @@ class Battleplan extends Databaseable{
         $.ajax({
             method: "GET",
             contentType: "application/json",
-            url: `/battleplan/${id}`,
+            url: `/battleplan/${id}/json`,
             dataType: "json",
 
             success: function (result) {

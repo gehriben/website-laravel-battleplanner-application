@@ -143,7 +143,7 @@ class Media extends Model
      * Retrieve signed url for file on S3
      * @return \Exception|String
      */
-    public function url()
+    public function presignedUrl()
     {
         // Get s3 client
         $s3 = $this->s3();
@@ -157,6 +157,15 @@ class Media extends Model
         // Presigned URL set to expire after 60 minutes.
         $request = $s3->createPresignedRequest($cmd, '+60 minutes');
         return (string) $request->getUri();
+    }
+
+    public function url()
+    {
+        // Get s3 client
+        $s3 = $this->s3();
+
+        // $results = $s3->execute($cmd);
+        return $s3->getObjectUrl(env('AWS_BUCKET'), str_replace("/u", "u", $this->path));
     }
 
     /**

@@ -11,7 +11,11 @@ class App {
     **************************/
 
     constructor(user, lobbyData, socket, viewport, slots, lobbyList, hostLeftSceen, savingScreen) {
-        // this.id = id;
+    
+        // Settings
+        this.emptyOperator = 'https://battleplanner.s3.ca-central-1.amazonaws.com/static/EmptyOperator.png'
+
+        // saved parameters
         this.user = user;
         this.lobbyData=lobbyData;
         this.socket = socket;
@@ -54,11 +58,12 @@ class App {
         // Initialize variables
         this.keybinds = new Keybinds(this);
         
-        if(lobbyData){
+        if(lobbyData && this.socket){
             this.lobby = new Lobby(lobbyData);
+            this.socketListener = new SocketListener(this.socket, this, hostLeftSceen);
         }
 
-        this.socketListener = new SocketListener(this.socket, this, hostLeftSceen);
+        this.canvas = new Canvas(this,this.viewport);       // Initialize canvas
     }
 
     /**
@@ -70,8 +75,8 @@ class App {
     initializeByApi(id){
         // Initialize Battleplan hierarchy
         this.battleplan = new Battleplan(id)
-        this.battleplan.initializeByApi(this.slots, function(){
-            this.canvas = new Canvas(this,this.viewport);       // Initialize canvas
+        this.battleplan.initializeByApi(this.slots, this.emptyOperator, function(){
+            this.canvas.Initialize();
             this.DisplayOperators();
         }.bind(this));
 
@@ -86,7 +91,7 @@ class App {
         
 
         this.battleplan.initializeByJson(json['appJson']['battleplan'],this.slots, function(){
-            this.canvas = new Canvas(this,this.viewport);       // Initialize canvas
+            this.canvas.Initialize();
             this.DisplayOperators();
         }.bind(this));
 
@@ -206,8 +211,8 @@ class App {
             success: function (result) {
                 // Initialize Battleplan hierarchy
                 this.battleplan = new Battleplan(this.battleplan.id)
-                this.battleplan.initializeByApi(this.slots, function(){
-                    this.canvas = new Canvas(this,this.viewport);       // Initialize canvas
+                this.battleplan.initializeByApi(this.slots, this.emptyOperator, function(){
+                    this.canvas.Initialize();
                     this.DisplayOperators();
                     this.savingScreen.hide();
                     this.requestReload();
