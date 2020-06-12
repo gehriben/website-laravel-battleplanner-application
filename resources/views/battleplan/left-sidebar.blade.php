@@ -65,24 +65,26 @@
 
 <div id="sidebar-left" class="sidebar-left">
   <h4 class="sidebar-title col-12 mt-3 text-center">Lobby</h4>
-	<div id="tool-lobby">
-	
-	<div class='row'>
-		<a type="button" href="/battleplan/new/{{$lobby->connection_string}}" id="newBattleplan" class="tool col-12 col-xl-6 btn btn-success">New Plan</a>
-		<button type="button" id="newBattleplan" class="tool col-12 col-xl-6 btn btn-success"  data-toggle="modal" data-target="#load-modal" >Load Plan</button>
-	</div>
-    
-	<div class="row mt-3 mx-1">
-      <div class="col-12 col-xl-4 standard-text">Invite Link</div>
-      <input type="text" class="col-12 col-xl-8" value="{{env('APP_URL')}}lobby/{{$lobby->connection_string}}"/>
-    </div>
-    
-	<div class="row mt-2 mx-1">
-      <div class="col-12 col-xl-4 standard-text">In Lobby:</div>
-      <ul id="lobbyList" class="list-group col-12 col-xl-8 sidebar-list">
-        <li class="list-group-item" id="lobby-user-{{Auth::user()->id}}">{{Auth::user()->username}}</li>
-      </ul>
-    </div>
+
+	<div id="tool-lobby row mt-3">
+		<div class="col-12 align-center">
+			<div class="row justify-content-center mx-1">
+				<a type="button" href="/battleplan/new/{{$lobby->connection_string}}" id="newBattleplan" class="tool col-12 col-xl-6 btn btn-success">New Plan</a>
+				<button type="button" id="newBattleplan" class="tool col-12 col-xl-6 btn btn-success"  data-toggle="modal" data-target="#load-modal" >Load Plan</button>
+			</div>
+		</div>
+
+		<div class="row mt-3 mx-1">
+	      <div class="col-12 col-xl-4 standard-text">Invite Link</div>
+	      <input type="text" class="col-12 col-xl-8" value="{{env('APP_URL')}}lobby/{{$lobby->connection_string}}"/>
+	  </div>
+
+		<div class="row mt-2 mx-1">
+	    <div class="col-12 col-xl-4 standard-text">In Lobby:</div>
+	    <ul id="lobbyList" class="list-group col-12 col-xl-8 sidebar-list">
+	      <li class="list-group-item" id="lobby-user-{{Auth::user()->id}}">{{Auth::user()->username}}</li>
+    	</ul>
+	  </div>
   </div>
 
   <h4 class="sidebar-title col-12 mt-3 text-center">Line Options</h4>
@@ -110,8 +112,8 @@
   <div id="tool-box" class="col-12 mt-3 align-center">
 		<!-- Populate tools -->
 		<div class="row justify-content-center mx-1">
-			<button type="button" id="FloorUpTool" class="tool col-12 col-xl-6 btn btn-success" onclick="app.ChangeFloor(1)">Floor Up</button>
 			<button type="button" id="FloorDownTool" class="tool col-12 col-xl-6 btn btn-success" onclick="app.ChangeFloor(-1)">Floor Down</button>
+			<button type="button" id="FloorUpTool" class="tool col-12 col-xl-6 btn btn-success" onclick="app.ChangeFloor(1)">Floor Up</button>
 		</div>
 		<hr>
 		<div class="row justify-content-center mx-1">

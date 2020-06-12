@@ -16,7 +16,7 @@
       bottom: 0px;
       /* top: 60px; */
     }
-    
+
     .message-screen{
       /* display: none; */
       position: absolute;
@@ -64,7 +64,7 @@
 
               <div class="row">
                   <p class='col-12 message-text'>
-                      Plan Your victory!
+                      Plan Your Victory!
                   </p>
               </div>
               <div class="row">

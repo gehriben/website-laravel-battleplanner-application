@@ -37,7 +37,7 @@
   border-color: $light-highlight-hover-color;
 }
 
-.btn-success:focus, .btn-success:active, .btn-success.active {
+.btn-success:focus, .btn-success:active, .btn-success.active, .btn-success:disabled {
   outline: none !important;
   box-shadow: none !important;
   background-color: $light-highlight-hover-color !important;
@@ -61,6 +61,7 @@
   background-color: $dark-highlight-hover-color !important;
   border-color: $dark-highlight-hover-color !important;
 }
+
 
 
 ////////////////////////
