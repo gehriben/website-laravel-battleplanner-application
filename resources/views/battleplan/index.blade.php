@@ -8,7 +8,7 @@
       page += diff;
       window.location.href = `/battleplan?page=${page}`
     }
-    
+
     function vote(planId,vote){
       $(`.vote-${planId}`).removeClass('active');
       var tmp = `#vote-${planId}_${vote}`;
@@ -21,7 +21,7 @@
               'value' : vote
             },
             success: function (result) {
-              
+
             }
 
         });
@@ -36,9 +36,9 @@
 @section('content')
 <div class="container">
 
-  <div class="row mt-2">
-    <div class="col-12 text-center">
-      <a type="button" href="/battleplan/new" class="col-12 btn btn-primary">Create New</a>
+  <div class="row mt-3 justify-content-center">
+    <div class="col-12 col-xl-4 text-center">
+      <a type="button" href="/battleplan/new" class="btn btn-success">Create New Plan (Requires account)</a>
     </div>
   </div>
   <hr>
@@ -50,21 +50,16 @@
   </div>
 
 
-  <div class="row align-content-center">
-    <div class='col-6'>
-      <button type="button" class="btn btn-primary float-left col-6" onclick="ChangePage(-1)" {{($pageNum <= 1) ? 'disabled' : '' }}>Previous</button>
-    </div>
-    
-    <div class='col-6'>
-      <button type="button" class="btn btn-primary float-right col-6" onclick="ChangePage(1)" {{($pageNum >= $totalPages) ? 'disabled' : '' }}>Next</button>
-    </div>
+  <div class="row mt-2 justify-content-between mx-1">
+    <button type="button" class="col-4 col-xl-2 btn btn-success list-button" onclick="ChangePage(-1)" {{($pageNum <= 1) ? 'disabled' : '' }}>Previous</button>
+    <button type="button" class="col-4 col-xl-2 btn btn-success list-button" onclick="ChangePage(1)" {{($pageNum >= $totalPages) ? 'disabled' : '' }}>Next</button>
   </div>
   <hr>
 
   <div class="row">
 
     <div id="public-list" class="list-group col-12">
-    
+
       @foreach($battleplans as $battleplan)
       <!-- <a href="/battleplan/{{$battleplan->id}}" class="list-group-item list-group-item-action flex-column align-items-start"> -->
 
@@ -98,7 +93,7 @@
             </div>
             <div class="d-flex w-100 justify-content-between">
               <p id="plan-description" class="mb-1">&nbsp{{$battleplan->description}}</p>
-              <small id="plan-map">{{$battleplan->map->name}}</small>
+              <small id="plan-map"><strong>Map: </strong>{{$battleplan->map->name}}</small>
             </div>
           </a>
         </div>

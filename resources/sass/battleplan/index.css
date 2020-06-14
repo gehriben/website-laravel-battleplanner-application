@@ -18,10 +18,6 @@ body h1 {
   color: white;
 }
 
-.btn-success {
-  max-width: 150px;
-}
-
 .list-group {
   padding: 0px;
 }
@@ -34,4 +30,8 @@ body h1 {
 .list-group-item:hover {
   background-color: rgba(255, 255, 255, 0.4);
   color: black;
+}
+
+.list-button {
+  width: 100%;
 }

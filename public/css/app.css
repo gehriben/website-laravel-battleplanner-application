@@ -33,7 +33,8 @@
 
 .btn-success:focus,
 .btn-success:active,
-.btn-success.active {
+.btn-success.active,
+.btn-success:disabled {
   outline: none !important;
   box-shadow: none !important;
   background-color: #b35b47 !important;
