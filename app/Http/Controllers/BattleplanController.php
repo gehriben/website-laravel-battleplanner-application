@@ -41,7 +41,7 @@ class BattleplanController extends Controller
         $battleplans;
         $pageNum = $request->input('page') ? $request->input('page') : 1;
         $itemsPerPage = $request->input('items') ? $request->input('items') : 10;
-        
+
         $battleplans = Battleplan::public()->paginate($itemsPerPage);
 
         $totalPages = count($battleplans) / $itemsPerPage;
@@ -93,7 +93,7 @@ class BattleplanController extends Controller
             Auth::user() && Auth::user() == $battleplan->owner ||   // Owner of the private plan
             Auth::user() && Auth::user()->admin                     // Admin can always see the plan
         ) {
-            
+
             $lobby = Lobby::ByConnection($connection_string)->first();
 
             // no lobby or not the owner of said lobby, generate new lobby
@@ -189,7 +189,7 @@ class BattleplanController extends Controller
         if ($battleplan->owner->id != Auth::User()->id) {
             return response()->error("Unauthorized", [], 403);
         }
-        
+
         // validate request object contains all needed data
         $data = $request->validate([
             // Battleplan data
@@ -202,8 +202,7 @@ class BattleplanController extends Controller
 
         // dd($data);
 
-        dd($data['public']);
-        $data['public'] = isset($data['public']);
+        $data['public'] = (isset($data['public'])) ? $data['public'] == "true" : false;
         $data['description'] = isset($data['description']) && $data['description'] ? $data['description'] : "";
         $data['notes'] = isset($data['notes']) && $data['notes'] ? $data['notes'] : "";
 
@@ -244,7 +243,7 @@ class BattleplanController extends Controller
                         $this->updateDraw($draw);
                     }
                 }
-                
+
                 // No id, create new
                 else{
                     $drawModel = Draw::create($draw);
@@ -274,7 +273,7 @@ class BattleplanController extends Controller
         // Return successfull operation
         return response()->success();
     }
-    
+
     /**
      * Helper function
      */
@@ -283,7 +282,7 @@ class BattleplanController extends Controller
     private function updateDraw($data){
         // Note: There are no possible fiels to update in the draw, only the draw morph
         $draw = Draw::find($data['id']);
-        
+
         switch (get_class($draw->drawable)) {
             case Square::class:
                 $data['origin_id'] = Coordinate::create($data["origin"])->id;
@@ -298,7 +297,7 @@ class BattleplanController extends Controller
                 $oldDestination->delete();
 
                 break;
-            
+
             case Line::class:
                 // Generate new points
 
@@ -315,15 +314,15 @@ class BattleplanController extends Controller
                 $toDeleteIds = array_column($draw->drawable->coordinates->toArray(), 'id');
                 $draw->drawable->coordinates()->detach($toDeleteIds);
                 Coordinate::whereIn('id', $toDeleteIds)->delete();
-                
+
                 // Update call
                 $draw->drawable->coordinates()->sync(array_column($points, 'id'));
                 $draw->drawable->update($data);
 
                 break;
-                
+
             case Icon::class:
-                
+
                 $data['origin_id'] = Coordinate::create($data["origin"])->id;
 
                 $oldOrigin = $draw->drawable->origin;
@@ -331,7 +330,7 @@ class BattleplanController extends Controller
                 $oldOrigin->delete();
 
                 break;
-            
+
         }
     }
 }

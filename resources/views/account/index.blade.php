@@ -41,6 +41,9 @@
   </div>
 
   <div class="row">
+    <div class="col-12 text-center">
+      <a href='/battleplan/new' type="button" class="btn btn-primary">Create Battleplan</a>
+    </div>
     <div id="battleplan-list" class="list-group col-12 col-xl-12 padded">
 
     @foreach($battleplans as $battleplan)

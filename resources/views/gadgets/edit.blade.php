@@ -36,11 +36,11 @@
           <div class="form-group row justify-content-center" style="padding-left: 15px;">
             <div class="col-12 align-self-center col-xl-4 mt-3">
               <label for="exampleInputEmail1">Name</label>
-              <input type="text" class="form-control" id="exampleInputEmail1" name="name" value="{{$gadget->name}}" required>
+              <input type="text" class="form-control file-input" id="exampleInputEmail1" name="name" value="{{$gadget->name}}" required>
             </div>
             <div class="col-12 align-self-center col-xl-4 mt-3">
               <label for="exampleInputEmail1">Icon</label>
-              <input type="file" class="col-sm form-control" name="icon">
+              <input type="file" class="col-sm form-control file-input" name="icon">
             </div>
             <div class="col-12 col-xl-4 mt-3">
               <label class="" for="exampleCheck1">Operator(s)</label>
@@ -60,7 +60,7 @@
       </div>
     </div>
   </form>
-  <form class="row mt-3 justify-content-center" action="/gadgets/{{$gadget->id}}/delete" method="post">
+  <form class="row mt-3 justify-content-center" action="/gadgets/{{$gadget->id}}/delete" method="post" onsubmit="return confirm('Are you sure you want to delete, this is irreversable?');">
     @csrf
     <button type="submit" class="col-3 btn btn-secondary">Delete Gadget</a>
   </form>

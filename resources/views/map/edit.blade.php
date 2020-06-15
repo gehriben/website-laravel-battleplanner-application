@@ -90,7 +90,7 @@
       </div>
     </div>
   </form>
-  <form class="row mt-3 justify-content-center" action="/map/{{$map->id}}/delete" method="post">
+  <form class="row mt-3 justify-content-center" action="/map/{{$map->id}}/delete" method="post" onsubmit="return confirm('Are you sure you want to submit? This is irreversable and will delete all associated battleplans!');">
     @csrf
     <button type="submit" class="col-3 btn btn-secondary">Delete Map</a>
   </form>

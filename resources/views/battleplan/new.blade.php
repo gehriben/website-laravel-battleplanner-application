@@ -6,7 +6,7 @@
     $( function() {
         $("#search").on("keyup", function() {
             var value = $(this).val().toLowerCase();
-            $("#map-list .map-item").filter(function() {
+            $("#map-list .container-image").filter(function() {
                 $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
             });
         });
@@ -14,7 +14,7 @@
 
 function selectMap(dom, mapId){
     $('#map_id').val(mapId);
-    $(".map-item").removeClass("selected");
+    $(".container-image").removeClass("selected");
     $(dom).addClass("selected");
 }
 
@@ -77,17 +77,18 @@ function selectMap(dom, mapId){
               <h2>Map</h2>
               <input id="search" type="text" class="col-12" placeholder="Search..">
               <input type="hidden" name="map_id" id="map_id" required>
-              <div id="map-list" class="overflow-auto mt-2">
-                @foreach($maps as $map)
-                <div class="map-item row m-3 justify-content-center" onclick="selectMap(this, {{$map->id}})">
-                  <div class="col-4 my-3">
-                    <img src="{{($map->thumbnail) ? $map->thumbnail->url() : 'https://via.placeholder.com/150'}}" class="card-img-top" alt="...">
+              <div id="map-list" class="overflow-auto mt-2 col-12  ">
+
+                <div class="row">
+                  @foreach($maps as $map)
+                  <div class="col-3 container-image p-1 cursor-pointer" onclick="selectMap(this, {{$map->id}})">
+                    <img src="{{($map->thumbnail) ? $map->thumbnail->url() : 'https://via.placeholder.com/150'}}" class="card-img-top map-thumbnail" alt="...">
+                    <div class="centered map-text">{{$map->name}}</div>
                   </div>
-                  <div class="col-4 my-3 align-self-center">
-                    <h4>{{$map->name}}</h4>
-                  </div>
+                  @endforeach
                 </div>
-                @endforeach
+                
+
               </div>
             </div>
           </div>

@@ -57,12 +57,9 @@
   color: white;
   padding: 10px;
   transition: 0.5s;
-
-  /* writing-mode: vertical-rl;
-  text-orientation: mixed; */
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 991px) {
   #sidebar-left {
     height: 100%;
     width:175px;
@@ -85,7 +82,7 @@
   }
 }
 
-@media (min-width: 1200px) {
+@media (min-width: 991px) {
   #sidebar-left {
     height: 100%;
     width:400px;
@@ -121,4 +118,15 @@
 #icon-box {
    max-height: 400px;
    overflow: auto;
+}
+
+.cursor-click{
+  cursor: pointer;
+}
+.operator-slot:hover{
+  background-color:blue;
+}
+.operator-list-item:hover{
+  background-color:blue;
+  color: white;
 }
