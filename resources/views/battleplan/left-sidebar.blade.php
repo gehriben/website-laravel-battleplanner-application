@@ -64,7 +64,10 @@
 <div id="toggletag-left" class="text-center" onclick="toggleLeftNav()">Tools</div>
 
 <div id="sidebar-left" class="sidebar-left">
-  <h4 class="sidebar-title col-12 mt-3 text-center">Lobby</h4>
+
+	<!-- <button type="button" id="newBattleplan" class="tool col-12 col-xl-12 btn btn-success"  data-toggle="modal" data-target="#help-modal" >Controls/Help</button> -->
+
+  	<h4 class="sidebar-title col-12 mt-3 text-center">Lobby</h4>
 
 	<div id="tool-lobby row mt-3">
 		@if(Auth::user() && isset($battleplan) && $battleplan->owner_id == Auth::user()->id)
