@@ -73,7 +73,7 @@
   <div class="alert alert-danger text-center" role="alert">
     Hey there, looks like you found the <strong>Beta</strong> version of our website! Keep in mind that anything you create on this version of the site may be <strong>deleted at anytime</strong> and will not be imported to the live production site. <br>
     The goal of this beta is to <strong>test features and stability</strong> of the platform. Thank you! <br>
-    You will need to <strong>create new accounts for the Beta</strong>, if they stop working you may need to create the again.
+    You will need to <strong>create new accounts for the Beta</strong>, if they stop working you may need to create them again.
   </div>
 
   <div class="shadow"></div>
