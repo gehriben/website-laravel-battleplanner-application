@@ -5,7 +5,7 @@
     function setOperator(operatorSlot) {
         app.battleplan.operator = app.battleplan.operators[operatorSlot];
     }
-    
+
     function ChangeOperator(id,src){
         app.ChangeOperator(id,src);
     }
@@ -34,8 +34,8 @@
 
   <div class="row">
     <div class="col-12">
-      <div id="operator-box" class="row align-center">
-        <div class="col-xl-12 col-sm-12 text-center" id="operatorSlotList">
+      <div id="operator-box" class="row mt-3 align-center">
+        <div class="col-12 text-center" id="operatorSlotList">
           <img type="image" id="operator-0" data-id="882110" class="cursor-click op-icon operator-slot operator-border" data-toggle="modal" data-target="#operator-modal" onclick="setOperator(0)" style="border-color: #black" draggable="true" ondragstart="app.keybinds.drag(event)"><br>
           <img type="image" id="operator-1" data-id="882110" class="cursor-click op-icon operator-slot operator-border" data-toggle="modal" data-target="#operator-modal" onclick="setOperator(1)" style="border-color: #black" draggable="true" ondragstart="app.keybinds.drag(event)"><br>
           <img type="image" id="operator-2" data-id="882110" class="cursor-click op-icon operator-slot operator-border" data-toggle="modal" data-target="#operator-modal" onclick="setOperator(2)" style="border-color: #black" draggable="true" ondragstart="app.keybinds.drag(event)"><br>

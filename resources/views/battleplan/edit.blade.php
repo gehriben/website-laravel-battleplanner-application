@@ -29,34 +29,9 @@ $(document).ready( function () {
 @section('content')
   @include('battleplan.left-sidebar', ["gadgets" => $gadgets, 'operators' => $operators])
   @include('battleplan.right-sidebar')
+  @include('battleplan.message-screen')
   <div class="wrapper">
     <canvas id="viewport"></canvas>
-  </div>
-
-  <div id="host-left-lobby" class="message-screen">
-      <div class="container h-100">
-          <div class="row h-100 justify-content-center text-center align-items-center">
-                  <p>
-                      Uh Oh! Looks like the host has left! <br>
-                      Please wait!
-                  </p>
-          </div>
-      </div>
-  </div>
-
-  <div id="saving-screen" class="message-screen">
-      <div class="container h-100">
-          <div class="row h-100 justify-content-center text-center align-items-center">
-
-            <div class='col-12'>
-              <div class="spinner-border" role="status"></div>
-            </div>
-
-            <p class='col-12'>
-                Saving... Please Wait
-            </p>
-          </div>
-      </div>
   </div>
 @endsection
 
@@ -69,7 +44,7 @@ $(document).ready( function () {
     <div class="modal-content">
 
       <div class="modal-header">
-        <h5 class="modal-title">Save Modal</h5>
+        <h5 class="modal-title">Save</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -114,7 +89,7 @@ $(document).ready( function () {
     <div class="modal-content">
 
       <div class="modal-header">
-        <h5 class="modal-title">Load Modal</h5>
+        <h5 class="modal-title">Load Battleplan</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
