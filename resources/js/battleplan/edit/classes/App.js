@@ -37,7 +37,7 @@ class App {
         this.color = '#ffffff';
         this.opacity = 1;
         this.lineSize = 1;
-        this.iconSizeModifier = 1
+        this.iconSizeModifier = 0.1
 
         // Button statuses
         this.buttonEvents = {

@@ -18806,7 +18806,7 @@ function () {
     this.color = '#ffffff';
     this.opacity = 1;
     this.lineSize = 1;
-    this.iconSizeModifier = 1; // Button statuses
+    this.iconSizeModifier = 0.1; // Button statuses
 
     this.buttonEvents = {
       "lmb": {
@@ -22187,7 +22187,7 @@ app.requestBattleplanJson();
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! D:\Repositories\website-laravel-battleplanner-v2\resources\js\lobby\show.js */"./resources/js/lobby/show.js");
+module.exports = __webpack_require__(/*! D:\Repositories\website-laravel-battleplanner-application\resources\js\lobby\show.js */"./resources/js/lobby/show.js");
 
 
 /***/ })

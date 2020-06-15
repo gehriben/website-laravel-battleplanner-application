@@ -97,7 +97,7 @@
 		</div>
 		<div class="row mt-2 mx-1">
 			<div class="col-12 col-xl-4 standard-text">Icon Size</div>
-			<input type="number" class="col-12 col-xl-8" id='icon-size-value' value='1' min="0" step="0.25" onchange="app.ChangeIconSizeModifier(this.value);"\>
+			<input type="number" class="col-12 col-xl-8" id='icon-size-value' value='0.1' min="0" step="0.25" onchange="app.ChangeIconSizeModifier(this.value);"\>
 		</div>
     <div class="row mx-1">
       <p class="col-6 col-xl-4 mt-2 standard-text align-self-center">Opacity</p>

@@ -24,15 +24,38 @@ body h1 {
 }
 
 #map-list{
-    height:400px;
-    overflow: auto;
-    border-style: solid;
-    border-width: 5px;
+  max-height: 400px;
 }
-.map-item.selected{
-    background-color: #e6755c;
+.cursor-pointer{
+  cursor: pointer;
 }
-
+.map-text{
+  -webkit-text-stroke: 1.7px black; /* width and color */
+  font-size: 1.5vh;
+  font-weight: bold;
+}
+.container-image { 
+  width: 200px;
+  position: relative;
+  text-align: center;
+  color: white;
+}
+.map-thumbnail{
+  max-height:200px;
+  max-width:200px;
+}
+.container-image:hover{
+  background-color:yellowgreen
+}
+.container-image.selected{
+  background-color: green;
+}
+.centered {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
 @media (max-width: 1200px) {
   .text-field {
     padding-left: 0;
