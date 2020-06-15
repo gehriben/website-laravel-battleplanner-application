@@ -16,10 +16,19 @@
 
 @endpush
 
+@push('css')
+<style>
+  #viewport {
+    position: fixed;
+    z-index: -1;
+  }
+</style>
+@endpush
+
 @section('content')
-@include('battleplan.message-screen')
 @include('battleplan.left-sidebar', ["gadgets" => $gadgets])
 @include('battleplan.right-sidebar')
+@include('battleplan.message-screen')
 <div class="wrapper">
     <canvas id="viewport"></canvas>
 </div>
