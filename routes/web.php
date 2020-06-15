@@ -63,9 +63,6 @@ Route::middleware(['auth'])->group(function () {
          * API's
          */
     
-        Route::prefix('/battleplan')->group(function () {
-            Route::get('{battleplan}/json', 'BattleplanController@get')->name("Battleplan.get");
-        });
     
         Route::prefix('/vote')->group(function () {
             Route::post('/', 'VoteController@create')->name("Vote.index");
@@ -125,5 +122,5 @@ Route::get('contact', function(){
 Route::prefix('/battleplan')->group(function () {
     Route::get('/', 'BattleplanController@index')->name("Battleplan.index");
     Route::get('{battleplan}', 'BattleplanController@show')->name("Battleplan.show");
+    Route::get('{battleplan}/json', 'BattleplanController@get')->name("Battleplan.get");
 });
-
