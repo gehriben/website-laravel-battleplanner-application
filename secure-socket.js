@@ -25,8 +25,15 @@ redis.subscribe('ReceiveReload', function(err, count) {});
 
 redis.on('message', function(channel,message) {
     message = JSON.parse(message);
-    io.emit(channel + '.' + message.data.identifier + ':' + message.event, message.data);
+    io.emit(channel + '.' + message.data.lobby.connection_string + ':' + message.event, message.data);
 });
+
+io.on('connection', function(socket){
+    socket.on('disconnect', function() {
+        var lobbyId = parseLobbyId(socket);
+        io.emit(`ReceiveLobbyLeave:${lobbyId}`, {'socketId' : socket.id})
+    })
+})
 
 server.listen(serverPort, function() {
     console.log('server up and running at %s port', serverPort);
