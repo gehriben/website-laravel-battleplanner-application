@@ -12,7 +12,7 @@
         <form class="login-form col-12" method="post" action="/register" >
           @csrf
           <input placeholder="Username" id="username" type="username" class="padded form-control{{ $errors->has('username') ? ' is-invalid' : '' }}" name="username" value="{{ old('username') }}" required>
-          {{$errors}}
+
           @if ($errors->has('username'))
             <span class="invalid-feedback" role="alert">
                 <strong>{{ $errors->first('username') }}</strong>

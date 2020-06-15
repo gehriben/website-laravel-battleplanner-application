@@ -78,7 +78,7 @@
             <div class="row">
               <!-- Populate icons -->
               @foreach($defenders as $operator)
-              <div class="col-3 text-center" onclick="ChangeOperator( {{$operator->id}},'{{$operator->icon->url()}}' )" data-dismiss="modal">
+              <div class="col-3 text-center operator-list-item cursor-click" onclick="ChangeOperator( {{$operator->id}},'{{$operator->icon->url()}}' )" data-dismiss="modal">
                 <img src="{{$operator->icon->url()}}" class="op-icon"> <br>
                 <div> {{$operator->name}} </div>
               </div>
@@ -91,7 +91,7 @@
             <div class="row">
               <!-- Populate icons -->
               @foreach($attackers as $operator)
-              <div class="col-3 text-center" onclick="ChangeOperator( {{$operator->id}},'{{$operator->icon->url()}}' ) " data-dismiss="modal">
+              <div class="col-3 text-center operator-list-item cursor-click" onclick="ChangeOperator( {{$operator->id}},'{{$operator->icon->url()}}' ) " data-dismiss="modal">
                 <img src="{{$operator->icon->url()}}" class="op-icon"> <br>
                 <div> {{$operator->name}} </div>
               </div>

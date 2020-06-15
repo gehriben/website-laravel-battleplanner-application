@@ -102,7 +102,7 @@ $(document).ready( function () {
                 <th>Name</th>
                 <th>Description</th>
                 <th>Map</th>
-                <th></th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>

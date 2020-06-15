@@ -37,7 +37,7 @@ class App {
         this.color = '#ffffff';
         this.opacity = 1;
         this.lineSize = 1;
-        this.iconSizeModifier = 0.1
+        this.iconSizeModifier = 1
 
         // Button statuses
         this.buttonEvents = {
@@ -232,7 +232,7 @@ class App {
             'name' : $('#bName').val(),
             'description' : $('#bDescription').val(),
             'notes' : $('#bNotes').val(),
-            'public' : $('#bPublic').val(),
+            'public' : $('#bPublic').is(':checked'),
             'lobby' : this.lobby.ToJson(),
         }
     }

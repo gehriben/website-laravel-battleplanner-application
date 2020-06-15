@@ -67,7 +67,7 @@ class InitialSeederCommand extends Command
             $mapJson =  json_decode($raw);
             
             $thumbnail = new UploadedFile(
-                $mapsPath . "/${map}/" . $mapJson->thumbnail,
+                "{$mapsPath}/${map}/{$mapJson->thumbnail}",
                 $mapJson->thumbnail,
                 $this->parseExtention($mapJson->thumbnail),
                 1234,
@@ -84,7 +84,7 @@ class InitialSeederCommand extends Command
             foreach ($mapJson->floors as $key => $floor)
             {
                 $source = new UploadedFile(
-                    $mapsPath . "/${map}/" . $floor,
+                    "{$mapsPath}/${map}/{$floor}",
                     $floor,
                     $this->parseExtention($floor),
                     1234,

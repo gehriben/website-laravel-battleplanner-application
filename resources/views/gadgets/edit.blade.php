@@ -60,7 +60,7 @@
       </div>
     </div>
   </form>
-  <form class="row mt-3 justify-content-center" action="/gadgets/{{$gadget->id}}/delete" method="post">
+  <form class="row mt-3 justify-content-center" action="/gadgets/{{$gadget->id}}/delete" method="post" onsubmit="return confirm('Are you sure you want to delete, this is irreversable?');">
     @csrf
     <button type="submit" class="col-3 btn btn-secondary">Delete Gadget</a>
   </form>

@@ -202,7 +202,7 @@ class BattleplanController extends Controller
 
         // dd($data);
 
-        $data['public'] = isset($data['public']);
+        $data['public'] = (isset($data['public'])) ? $data['public'] == "true" : false;
         $data['description'] = isset($data['description']) && $data['description'] ? $data['description'] : "";
         $data['notes'] = isset($data['notes']) && $data['notes'] ? $data['notes'] : "";
 

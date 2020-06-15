@@ -119,3 +119,14 @@
    max-height: 400px;
    overflow: auto;
 }
+
+.cursor-click{
+  cursor: pointer;
+}
+.operator-slot:hover{
+  background-color:blue;
+}
+.operator-list-item:hover{
+  background-color:blue;
+  color: white;
+}

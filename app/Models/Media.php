@@ -113,7 +113,7 @@ class Media extends Model
 
         // Attempt to upload via S3 API
         try{
-            $filePath = self::S3_PATH . $subfolder. "/" . $name . "." . $type;
+            $filePath = urlencode(self::S3_PATH . $subfolder. "/" . $name . "." . $type);
             $success = Storage::disk('s3')->put($filePath, $content, $visibility);
         }
 
@@ -165,7 +165,7 @@ class Media extends Model
         $s3 = $this->s3();
 
         // $results = $s3->execute($cmd);
-        return $s3->getObjectUrl(env('AWS_BUCKET'), str_replace("/u", "u", $this->path));
+        return $s3->getObjectUrl(env('AWS_BUCKET'), str_replace(" ", "", $this->path));
     }
 
     /**

@@ -88,11 +88,12 @@
         <div class='col-12'>
           <a href="/battleplan/{{$battleplan->id}}" class="list-group-item list-group-item-action flex-column align-items-start">
             <div class="d-flex w-100 justify-content-between">
-              <h5 id="plan-title" class="mb-1">{{$battleplan->name}}</h5>
+              <h5 id="plan-title" class="mb-1">{{$battleplan->name}} <small>({{$battleplan->owner->username}})</small></h5>
               <small id="plan-date">{{$battleplan->updated_at}}</small>
             </div>
             <div class="d-flex w-100 justify-content-between">
               <p id="plan-description" class="mb-1">&nbsp{{$battleplan->description}}</p>
+              
               <small id="plan-map"><strong>Map: </strong>{{$battleplan->map->name}}</small>
             </div>
           </a>
