@@ -1,4 +1,4 @@
-@extends('layouts.main-bootstrap')
+@extends('layouts.main')
 
 @push('js')
 
@@ -12,7 +12,6 @@
 </script>
 
 <script src="{{asset("js/lobby/show.bundle.js")}}"></script>
-
 
 @endpush
 

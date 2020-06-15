@@ -67,10 +67,12 @@
   <h4 class="sidebar-title col-12 mt-3 text-center">Lobby</h4>
 
 	<div id="tool-lobby row mt-3">
+		@if(Auth::user() && isset($battleplan) && $battleplan->owner_id == Auth::user()->id)
 		<div class="col-12 align-center">
 			<div class="row justify-content-center mx-1">
-				<a type="button" href="/battleplan/new/{{$lobby->connection_string}}" id="newBattleplan" class="tool col-12 col-xl-6 btn btn-success">New Plan</a>
-				<button type="button" id="newBattleplan" class="tool col-12 col-xl-6 btn btn-success"  data-toggle="modal" data-target="#load-modal" >Load Plan</button>
+				<a type="button" href="/battleplan/new/{{$lobby->connection_string}}" id="newBattleplan" class="tool col-12 col-xl-4 btn btn-success">New Plan</a>
+				<button type="button" id="newBattleplan" class="tool col-12 col-xl-4 btn btn-success"  data-toggle="modal" data-target="#load-modal" >Load Plan</button>
+				<button type="button" id="newBattleplan" class="tool col-12 col-xl-4 btn btn-success"  data-toggle="modal" data-target="#save-modal" >Save Plan</button>
 			</div>
 		</div>
 
@@ -78,6 +80,7 @@
 	      <div class="col-12 col-xl-4 standard-text">Invite Link</div>
 	      <input type="text" class="col-12 col-xl-8" value="{{env('APP_URL')}}lobby/{{$lobby->connection_string}}"/>
 	  </div>
+	  @endif
 
 		<div class="row mt-2 mx-1">
 	    <div class="col-12 col-xl-4 standard-text">In Lobby:</div>
