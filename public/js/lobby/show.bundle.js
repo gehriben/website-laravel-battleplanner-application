@@ -20394,9 +20394,8 @@ function () {
 
       for (var key in this.mousePressed) {
         if (this.mousePressed[key].active && this.mousePressed[key].tool) this.mousePressed[key].tool.actionDown(coordinates);
-      }
+      } // ev.preventDefault();
 
-      ev.preventDefault();
     }
   }, {
     key: "canvasMove",

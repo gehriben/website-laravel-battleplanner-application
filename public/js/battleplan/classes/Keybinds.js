@@ -152,7 +152,6 @@ class Keybinds {
         app.viewport[0].addEventListener("drop", function(ev){
             this.canvasDrop(ev);
         }.bind(this));
-
         
         /**
          * Mobile
@@ -327,7 +326,7 @@ class Keybinds {
         for (const key in this.mousePressed)
             if (this.mousePressed[key].active && this.mousePressed[key].tool) this.mousePressed[key].tool.actionDown(coordinates);
         
-        ev.preventDefault();
+        // ev.preventDefault();
     }
     
     canvasMove(ev) {

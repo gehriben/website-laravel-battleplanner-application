@@ -24,10 +24,6 @@
 			app.ChangeOpacity(parseFloat($(this).val()));
 		});
 
-	    // Default App values
-	    // $('#opacity-value').val($("#opacity-slider").slider('value'));
-		// app.ChangeOpacity($("#opacity-slider").slider('value'));
-		
 	    app.ChangeColor($("#color-picker").val());
 	});
 
@@ -74,10 +70,9 @@
 
 <div id="sidebar-left" class="sidebar-left">
 
-	<button type="button" id="newBattleplan" class="tool col-12 col-xl-12 btn btn-success"  data-toggle="modal" data-target="#help-modal" >Controls/Help</button>
+	<button type="button" id="newBattleplan" class="tool col-12 col-xl-12 btn btn-primary mt-1"  data-toggle="modal" data-target="#help-modal" >Controls/Help</button>
 
-  	<h4 class="sidebar-title col-12 mt-3 text-center">Lobby</h4>
-
+  	<!-- <h4 class="sidebar-title col-12 mt-3 text-center">Lobby</h4>
 	<div id="tool-lobby row mt-3">
 		@if(Auth::user() && isset($battleplan) && $battleplan->owner_id == Auth::user()->id)
 		<div class="col-12 align-center">
@@ -100,72 +95,165 @@
 	      <li class="list-group-item" id="lobby-user-{{Auth::user()->id}}">{{Auth::user()->username}}</li>
     	</ul>
 	  </div>
-  </div>
+  	</div>
 
-  <h4 class="sidebar-title col-12 mt-3 text-center">Settings</h4>
-  <div id="tool-options">
-    <div class="row mt-3 mx-1">
-      <div class="col-6 col-xl-4 standard-text">Color</div>
-      <input type="color" class="col-5 col-xl-2" id='color-picker' onchange="app.ChangeColor(this.value);">
-    </div>
-		<div class="row mt-2 mx-1">
-			<div class="col-6 col-xl-4 mt-2 standard-text align-self-center">Line size</div>
-			<input type="number" id='line-size-value' class="col-6 col-xl-3 mt-2" value='5' onchange="app.ChangeLineSize(this.value);">
+	<h4 class="sidebar-title col-12 mt-3 text-center">Settings</h4>
+	<div id="tool-options">
+		<div class="row mt-3 mx-1">
+		<div class="col-6 col-xl-4 standard-text">Color</div>
+		<input type="color" class="col-5 col-xl-2" id='color-picker' onchange="app.ChangeColor(this.value);">
 		</div>
-		<div class="row mt-2 mx-1">
-			<div class="col-6 col-xl-4 mt-2 standard-text align-self-center">Icon Size</div>
-			<input type="number" class="col-6 col-xl-3 mt-2" id='icon-size-value' value='1' min="0" step="0.1" onchange="app.ChangeIconSizeModifier(this.value);"\>
+			<div class="row mt-2 mx-1">
+				<div class="col-6 col-xl-4 mt-2 standard-text align-self-center">Line size</div>
+				<input type="number" id='line-size-value' class="col-6 col-xl-3 mt-2" value='5' onchange="app.ChangeLineSize(this.value);">
+			</div>
+			<div class="row mt-2 mx-1">
+				<div class="col-6 col-xl-4 mt-2 standard-text align-self-center">Icon Size</div>
+				<input type="number" class="col-6 col-xl-3 mt-2" id='icon-size-value' value='1' min="0" step="0.1" onchange="app.ChangeIconSizeModifier(this.value);"\>
+			</div>
+		<div class="row mx-1">
+			<p class="col-6 col-xl-4 mt-2 standard-text align-self-center">Opacity</p>
+			<input class="col-6 col-xl-3 mt-2" type="number" step="0.1" min="0" max="1" value="1" id="opacity-value"></input>
 		</div>
-    <div class="row mx-1">
-      	<p class="col-6 col-xl-4 mt-2 standard-text align-self-center">Opacity</p>
-		<input class="col-6 col-xl-3 mt-2" type="number" step="0.1" min="0" max="1" value="1" id="opacity-value"></input>
-      <!-- <div class="col-11 col-xl-4 mt-2 align-self-center" id="opacity-slider"></div> -->
-    </div>
-    <div class="row mx-1">
-      <p class="col-6 col-xl-4 mt-2 standard-text align-self-center">Zoom</p>
-	<input type="number" step="0.1" class="col-6 col-xl-3 mt-2" value="1" id="zoom-value"></input>
-    </div>
-  </div>
-
-  <h4 class="sidebar-title col-12 mt-3 text-center">Tools</h4>
-  <div id="tool-box" class="col-12 mt-3 align-center">
-		<!-- Populate tools -->
-		<div class="row justify-content-center mx-1">
-			<button type="button" id="FloorDownTool" class="tool col-12 col-xl-6 btn btn-success" onclick="app.ChangeFloor(-1)">Floor Down</button>
-			<button type="button" id="FloorUpTool" class="tool col-12 col-xl-6 btn btn-success" onclick="app.ChangeFloor(1)">Floor Up</button>
+		<div class="row mx-1">
+		<p class="col-6 col-xl-4 mt-2 standard-text align-self-center">Zoom</p>
+		<input type="number" step="0.1" class="col-6 col-xl-3 mt-2" value="1" id="zoom-value"></input>
 		</div>
-		<hr>
-		<div class="row justify-content-center mx-1">
-			<button type="button" id="selectMove" class="active tool col-12 col-xl-3 btn btn-success" onclick="selectTool(this);app.keybinds.ChangeTool(app.keybinds.toolMove)">Pan</button>
-			<button type="button" id="selectTool" class="tool col-12 col-xl-3 btn btn-success" onclick="selectTool(this);app.keybinds.ChangeTool(app.keybinds.toolSelect)">Select</button>
-			<button type="button" id="lineTool" class="tool col-12 col-xl-3 btn btn-success" onclick="selectTool(this);app.keybinds.ChangeTool(app.keybinds.toolLine)">Line</button>
-			<button type="button" id="squareTool" class="tool col-12 col-xl-3 btn btn-success" onclick="selectTool(this);app.keybinds.ChangeTool(app.keybinds.toolSquare)">Square</button>
-			<button type="button" id="eraserTool" class="tool col-12 col-xl-3 btn btn-success" onclick="selectTool(this);app.keybinds.ChangeTool(app.keybinds.toolEraser)">Eraser</button>
+	</div>
+
+	<h4 class="sidebar-title col-12 mt-3 text-center">Tools</h4>
+	<div id="tool-box" class="col-12 mt-3 align-center">
+			<div class="row justify-content-center mx-1">
+				<button type="button" id="FloorDownTool" class="tool col-12 col-xl-6 btn btn-success" onclick="app.ChangeFloor(-1)">Floor Down</button>
+				<button type="button" id="FloorUpTool" class="tool col-12 col-xl-6 btn btn-success" onclick="app.ChangeFloor(1)">Floor Up</button>
+			</div>
+			<hr>
+			<div class="row justify-content-center mx-1">
+				<button type="button" id="selectMove" class="active tool col-12 col-xl-3 btn btn-success" onclick="selectTool(this);app.keybinds.ChangeTool(app.keybinds.toolMove)">Pan</button>
+				<button type="button" id="selectTool" class="tool col-12 col-xl-3 btn btn-success" onclick="selectTool(this);app.keybinds.ChangeTool(app.keybinds.toolSelect)">Select</button>
+				<button type="button" id="lineTool" class="tool col-12 col-xl-3 btn btn-success" onclick="selectTool(this);app.keybinds.ChangeTool(app.keybinds.toolLine)">Line</button>
+				<button type="button" id="squareTool" class="tool col-12 col-xl-3 btn btn-success" onclick="selectTool(this);app.keybinds.ChangeTool(app.keybinds.toolSquare)">Square</button>
+				<button type="button" id="eraserTool" class="tool col-12 col-xl-3 btn btn-success" onclick="selectTool(this);app.keybinds.ChangeTool(app.keybinds.toolEraser)">Eraser</button>
+			</div>
+	</div>
+
+	<h4 class="sidebar-title mt-3 col-12 text-center">Icons (drag & drop onto map)</h4>
+	<div class="row justify-content-center" id="icon-searchbox">
+		<input type="text" class="col-10" onkeyup="search('icon-box', this.value)" placeholder="Search">
+	</div>
+	<div id="icon-box" class="row justify-content-center">
+		@foreach($gadgets as $gadget)
+		<div class="col-xl-2 col-6 p-1 text-center">
+		<input type="hidden" class="name" id="" value="{{$gadget->name}}">
+		<img src="{{$gadget->icon->url()}}" alt="" draggable="true" ondragstart="app.keybinds.drag(event)" height="50" width="50">
 		</div>
-  </div>
+		@endforeach
 
-  <h4 class="sidebar-title mt-3 col-12 text-center">Icons (drag & drop onto map)</h4>
-  <div class="row justify-content-center" id="icon-searchbox">
-    <input type="text" class="col-10" onkeyup="search('icon-box', this.value)" placeholder="Search">
-  </div>
-  <div id="icon-box" class="row justify-content-center">
-    <!-- Populate icons -->
+		@foreach($operators as $operator)
+		<div class="col-xl-2 col-6 p-1 text-center">
+		<input type="hidden" class="name" id="" value="{{$operator->name}}">
+		<img src="{{$operator->icon->url()}}" alt="" draggable="true" ondragstart="app.keybinds.drag(event)" height="50" width="50">
+		</div>
+		@endforeach
 
-    @foreach($gadgets as $gadget)
-    <div class="col-xl-2 col-6 p-1 text-center">
-      <input type="hidden" class="name" id="" value="{{$gadget->name}}">
-      <img src="{{$gadget->icon->url()}}" alt="" draggable="true" ondragstart="app.keybinds.drag(event)" height="50" width="50">
-    </div>
-    @endforeach
+	</div> -->
 
-    @foreach($operators as $operator)
-    <div class="col-xl-2 col-6 p-1 text-center">
-      <input type="hidden" class="name" id="" value="{{$operator->name}}">
-      <img src="{{$operator->icon->url()}}" alt="" draggable="true" ondragstart="app.keybinds.drag(event)" height="50" width="50">
-    </div>
-    @endforeach
 
-  </div>
+	<button type="button" class="tool col-12 col-xl-12 btn btn-primary mt-1 content-toggle" data-toggle="collapse" data-target="#lobby">Lobby</button>
+	<div id="lobby" class="collapse">
+		<div id="tool-lobby row mt-3">
+			@if(Auth::user() && isset($battleplan) && $battleplan->owner_id == Auth::user()->id)
+				<div class="col-12 align-center">
+					<div class="row justify-content-center mx-1">
+						<a type="button" href="/battleplan/new/{{$lobby->connection_string}}" id="newBattleplan" class="tool col-12 col-xl-4 btn btn-success">New Plan</a>
+						<button type="button" id="newBattleplan" class="tool col-12 col-xl-4 btn btn-success"  data-toggle="modal" data-target="#load-modal" >Load Plan</button>
+						<button type="button" id="newBattleplan" class="tool col-12 col-xl-4 btn btn-success"  data-toggle="modal" data-target="#save-modal" >Save Plan</button>
+					</div>
+				</div>
+
+				<div class="row mt-3 mx-1">
+				<div class="col-12 col-xl-4 standard-text">Invite Link</div>
+				<input type="text" class="col-12 col-xl-8" value="{{env('APP_URL')}}lobby/{{$lobby->connection_string}}"/>
+			</div>
+			@endif
+
+			<div class="row mt-2 mx-1">
+				<div class="col-12 col-xl-4 standard-text">In Lobby:</div>
+				<ul id="lobbyList" class="list-group col-12 col-xl-8 sidebar-list">
+				<li class="list-group-item" id="lobby-user-{{Auth::user()->id}}">{{Auth::user()->username}}</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+
+	<button type="button" class="tool col-12 col-xl-12 btn btn-primary mt-1 content-toggle" data-toggle="collapse" data-target="#settings">Drawing Settings</button>
+	<div id="settings" class="collapse">
+		<div id="tool-options">
+			<div class="row mt-3 mx-1">
+			<div class="col-6 col-xl-4 standard-text">Color</div>
+			<input type="color" class="col-5 col-xl-2" id='color-picker' onchange="app.ChangeColor(this.value);">
+			</div>
+				<div class="row mt-2 mx-1">
+					<div class="col-6 col-xl-4 mt-2 standard-text align-self-center">Line size</div>
+					<input type="number" id='line-size-value' class="col-6 col-xl-3 mt-2" value='5' onchange="app.ChangeLineSize(this.value);">
+				</div>
+				<div class="row mt-2 mx-1">
+					<div class="col-6 col-xl-4 mt-2 standard-text align-self-center">Icon Size</div>
+					<input type="number" class="col-6 col-xl-3 mt-2" id='icon-size-value' value='1' min="0" step="0.1" onchange="app.ChangeIconSizeModifier(this.value);"\>
+				</div>
+			<div class="row mx-1">
+				<p class="col-6 col-xl-4 mt-2 standard-text align-self-center">Opacity</p>
+				<input class="col-6 col-xl-3 mt-2" type="number" step="0.1" min="0" max="1" value="1" id="opacity-value"></input>
+			</div>
+			<div class="row mx-1">
+			<p class="col-6 col-xl-4 mt-2 standard-text align-self-center">Zoom</p>
+			<input type="number" step="0.1" class="col-6 col-xl-3 mt-2" value="1" id="zoom-value"></input>
+			</div>
+		</div>
+	</div>
+
+	<button type="button" class="tool col-12 col-xl-12 btn btn-primary mt-1 content-toggle" data-toggle="collapse" data-target="#tools">Tools</button>
+	<div id="tools" class="collapse show">
+		<div id="tool-box" class="col-12 mt-3 align-center">
+				<div class="row justify-content-center mx-1">
+					<button type="button" id="FloorDownTool" class="tool col-12 col-xl-6 btn btn-success" onclick="app.ChangeFloor(-1)">Floor Down</button>
+					<button type="button" id="FloorUpTool" class="tool col-12 col-xl-6 btn btn-success" onclick="app.ChangeFloor(1)">Floor Up</button>
+				</div>
+				<hr>
+				<div class="row justify-content-center mx-1">
+					<button type="button" id="selectMove" class="active tool col-12 col-xl-4 btn btn-success" onclick="selectTool(this);app.keybinds.ChangeTool(app.keybinds.toolMove)">Pan</button>
+					<button type="button" id="selectTool" class="tool col-12 col-xl-4 btn btn-success" onclick="selectTool(this);app.keybinds.ChangeTool(app.keybinds.toolSelect)">Select</button>
+					<button type="button" id="lineTool" class="tool col-12 col-xl-4 btn btn-success" onclick="selectTool(this);app.keybinds.ChangeTool(app.keybinds.toolLine)">Line</button>
+					<button type="button" id="squareTool" class="tool col-12 col-xl-4 btn btn-success" onclick="selectTool(this);app.keybinds.ChangeTool(app.keybinds.toolSquare)">Square</button>
+					<button type="button" id="eraserTool" class="tool col-12 col-xl-4 btn btn-success" onclick="selectTool(this);app.keybinds.ChangeTool(app.keybinds.toolEraser)">Eraser</button>
+				</div>
+		</div>
+	</div>
+	
+	<button type="button" class="tool col-12 col-xl-12 btn btn-primary mt-1 content-toggle" data-toggle="collapse" data-target="#icons">Icons</button>
+	<div id="icons" class="collapse show">
+		<h4 class="sidebar-title mt-3 col-12 text-center">Icons (drag & drop onto map)</h4>
+		<div class="row justify-content-center" id="icon-searchbox">
+			<input type="text" class="col-10" onkeyup="search('icon-box', this.value)" placeholder="Search">
+		</div>
+		<div id="icon-box" class="row">
+			@foreach($gadgets as $gadget)
+			<div class="col-xl-2 col-6 p-1 text-center">
+			<input type="hidden" class="name" id="" value="{{$gadget->name}}">
+			<img src="{{$gadget->icon->url()}}" alt="" draggable="true" ondragstart="app.keybinds.drag(event)" height="50" width="50">
+			</div>
+			@endforeach
+
+			@foreach($operators as $operator)
+			<div class="col-xl-2 col-6 p-1 text-center">
+			<input type="hidden" class="name" id="" value="{{$operator->name}}">
+			<img src="{{$operator->icon->url()}}" alt="" draggable="true" ondragstart="app.keybinds.drag(event)" height="50" width="50">
+			</div>
+			@endforeach
+
+		</div>
+	</div>
+	
 </div>
 
 @push('modals')
