@@ -14,7 +14,7 @@ class Canvas{
         this.scale = 1;                                 // canvas zoom scale
         this.scaleStep = 0.05;                          // canvas zoom scale increments
         this.scaleMax = 10;                              // maximum scale
-        this.scaleMin = 0.5                             // minimum scale
+        this.scaleMin = 0.1                             // minimum scale
         
         this.resolution = {
             'x': 0,
@@ -106,25 +106,28 @@ class Canvas{
         this.Update();
     }
 
-    zoom(clicks, coordinates){
+    zoom(clicks){
+
+        var sign = Math.sign(clicks);
+        var step = this.scaleStep * this.scale * clicks;
+
+        this.setScale(this.scale + step);
+    }
+
+    setScale(value){
+        // reset scale matrix
+        this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+
         // properties for calculations
         var originCenter = {
             'x' : (this.resolution.x  / this.scale) /2,
             'y' : (this.resolution.y / this.scale) /2
         }
 
-        var sign = Math.sign(clicks);
-        var step = this.scaleStep * this.scale * clicks;
-
-        // reset scale matrix
-        this.ctx.setTransform(1, 0, 0, 1, 0, 0);
-
-        this.scale += step;
-        if(sign >=1 ){
-            this.scale = (this.scale + step > this.scaleMax) ? this.scaleMax : this.scale + step;
-        } else{
-            this.scale = (this.scale + step < this.scaleMin) ? this.scaleMin: this.scale + step;
-        }
+        this.scale = value;
+        
+        this.scale = (this.scale > this.scaleMax) ? this.scaleMax : this.scale;
+        this.scale = (this.scale < this.scaleMin) ? this.scaleMin : this.scale;
 
         this.ctx.scale(
             this.scale,

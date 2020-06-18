@@ -16,7 +16,10 @@ class ToolZoom extends Tool {
     }
 
     actionScroll(clicks, coordinates) {
-        this.app.canvas.zoom(clicks, coordinates)
+        
+        // var sign = Math.sign(clicks);
+        var step = this.app.canvas.scaleStep * this.app.canvas.scale * clicks;
+        this.app.ChangeZoom(this.app.canvas.scale + step)
     }
 
 }

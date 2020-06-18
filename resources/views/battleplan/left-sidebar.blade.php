@@ -2,23 +2,32 @@
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script type="text/javascript">
 	$(function() {
-	    // Initialize slider
-	    $("#slider").slider({
-	        max: 1,
-	        min: 0,
-	        step: 0.01,
-	        value: 1,
-	        slide: function( event, ui ) {
-	            $('#opacity-value').val($("#slider").slider('value'))
-	        },
-	        change: function( event, ui ) {
-	            app.ChangeOpacity($("#slider").slider('value'));
-	        }
-	    });
+	    // Initialize opacity slider
+	    // $("#opacity-slider").slider({
+	    //     max: 1,
+	    //     min: 0,
+	    //     step: 0.01,
+	    //     value: 1,
+	    //     slide: function( event, ui ) {
+	    //         $('#opacity-value').val($("#opacity-slider").slider('value'))
+	    //     },
+	    //     change: function( event, ui ) {
+	    //         app.ChangeOpacity($("#opacity-slider").slider('value'));
+	    //     }
+	    // });
+		
+		$("#zoom-value").change(function(){
+			app.ChangeZoom(parseFloat($(this).val()));
+		});
+
+		$("#opacity-value").change(function(){
+			app.ChangeOpacity(parseFloat($(this).val()));
+		});
 
 	    // Default App values
-	    $('#opacity-value').val($("#slider").slider('value'));
-	    app.ChangeOpacity($("#slider").slider('value'));
+	    // $('#opacity-value').val($("#opacity-slider").slider('value'));
+		// app.ChangeOpacity($("#opacity-slider").slider('value'));
+		
 	    app.ChangeColor($("#color-picker").val());
 	});
 
@@ -65,7 +74,7 @@
 
 <div id="sidebar-left" class="sidebar-left">
 
-	<!-- <button type="button" id="newBattleplan" class="tool col-12 col-xl-12 btn btn-success"  data-toggle="modal" data-target="#help-modal" >Controls/Help</button> -->
+	<button type="button" id="newBattleplan" class="tool col-12 col-xl-12 btn btn-success"  data-toggle="modal" data-target="#help-modal" >Controls/Help</button>
 
   	<h4 class="sidebar-title col-12 mt-3 text-center">Lobby</h4>
 
@@ -93,24 +102,28 @@
 	  </div>
   </div>
 
-  <h4 class="sidebar-title col-12 mt-3 text-center">Line Options</h4>
+  <h4 class="sidebar-title col-12 mt-3 text-center">Settings</h4>
   <div id="tool-options">
     <div class="row mt-3 mx-1">
       <div class="col-6 col-xl-4 standard-text">Color</div>
       <input type="color" class="col-5 col-xl-2" id='color-picker' onchange="app.ChangeColor(this.value);">
     </div>
 		<div class="row mt-2 mx-1">
-			<div class="col-12 col-xl-4 standard-text">Line size</div>
-			<input type="number" id='line-size-value' class="col-12 col-xl-8" value='1' onchange="app.ChangeLineSize(this.value);">
+			<div class="col-6 col-xl-4 mt-2 standard-text align-self-center">Line size</div>
+			<input type="number" id='line-size-value' class="col-6 col-xl-3 mt-2" value='5' onchange="app.ChangeLineSize(this.value);">
 		</div>
 		<div class="row mt-2 mx-1">
-			<div class="col-12 col-xl-4 standard-text">Icon Size</div>
-			<input type="number" class="col-12 col-xl-8" id='icon-size-value' value='1' min="0" step="0.1" onchange="app.ChangeIconSizeModifier(this.value);"\>
+			<div class="col-6 col-xl-4 mt-2 standard-text align-self-center">Icon Size</div>
+			<input type="number" class="col-6 col-xl-3 mt-2" id='icon-size-value' value='1' min="0" step="0.1" onchange="app.ChangeIconSizeModifier(this.value);"\>
 		</div>
     <div class="row mx-1">
-      <p class="col-6 col-xl-4 mt-2 standard-text align-self-center">Opacity</p>
-			<input disabled class="col-6 col-xl-3 mt-2" value="1" id="opacity-value"></input>
-      <div class="col-11 col-xl-4 mt-2 align-self-center" id="slider"></div>
+      	<p class="col-6 col-xl-4 mt-2 standard-text align-self-center">Opacity</p>
+		<input class="col-6 col-xl-3 mt-2" type="number" step="0.1" min="0" max="1" value="1" id="opacity-value"></input>
+      <!-- <div class="col-11 col-xl-4 mt-2 align-self-center" id="opacity-slider"></div> -->
+    </div>
+    <div class="row mx-1">
+      <p class="col-6 col-xl-4 mt-2 standard-text align-self-center">Zoom</p>
+	<input type="number" step="0.1" class="col-6 col-xl-3 mt-2" value="1" id="zoom-value"></input>
     </div>
   </div>
 
@@ -123,10 +136,11 @@
 		</div>
 		<hr>
 		<div class="row justify-content-center mx-1">
+			<button type="button" id="selectMove" class="active tool col-12 col-xl-3 btn btn-success" onclick="selectTool(this);app.keybinds.ChangeTool(app.keybinds.toolMove)">Pan</button>
 			<button type="button" id="selectTool" class="tool col-12 col-xl-3 btn btn-success" onclick="selectTool(this);app.keybinds.ChangeTool(app.keybinds.toolSelect)">Select</button>
 			<button type="button" id="lineTool" class="tool col-12 col-xl-3 btn btn-success" onclick="selectTool(this);app.keybinds.ChangeTool(app.keybinds.toolLine)">Line</button>
 			<button type="button" id="squareTool" class="tool col-12 col-xl-3 btn btn-success" onclick="selectTool(this);app.keybinds.ChangeTool(app.keybinds.toolSquare)">Square</button>
-			<button type="button" id="EraserTool" class="tool col-12 col-xl-3 btn btn-success" onclick="selectTool(this);app.keybinds.ChangeTool(app.keybinds.toolEraser)">Eraser</button>
+			<button type="button" id="eraserTool" class="tool col-12 col-xl-3 btn btn-success" onclick="selectTool(this);app.keybinds.ChangeTool(app.keybinds.toolEraser)">Eraser</button>
 		</div>
   </div>
 
@@ -153,3 +167,107 @@
 
   </div>
 </div>
+
+@push('modals')
+
+<!-- Save Modal -->
+<div class="modal" id="help-modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Help/Controls</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+
+	  	<h3 class="col-12 text-center">Shortcuts</h3>
+
+	  	<!-- Move Tool -->
+		<div class='row'>
+			<div class="col-6">Move Tool</div>
+			<div class="col-6">ALT + Q</div>
+		</div>
+		<!-- Select Tool -->
+		<div class='row'>
+			<div class="col-6">Select Tool</div>
+			<div class="col-6">ALT + W</div>
+		</div>
+		<!-- Line Tool -->
+		<div class='row'>
+			<div class="col-6">Line Tool</div>
+			<div class="col-6">ALT + E</div>
+		</div>
+		<!-- Square Tool -->
+		<div class='row'>
+			<div class="col-6">Square Tool</div>
+			<div class="col-6">ALT + R</div>
+		</div>
+		<!-- Eraser Tool -->
+		<div class='row'>
+			<div class="col-6">Eraser Tool</div>
+			<div class="col-6">ALT + T</div>
+		</div>
+		<!-- Save Tool -->
+		<div class='row'>
+			<div class="col-6">Save</div>
+			<div class="col-6">ALT + S</div>
+		</div>
+		<!-- Delete Tool -->
+		<div class='row'>
+			<div class="col-6">Delete All Selected</div>
+			<div class="col-6">DEL</div>
+		</div>
+		<!-- Floor Up -->
+		<div class='row'>
+			<div class="col-6">Floor Up</div>
+			<div class="col-6">Up Arrow</div>
+		</div>
+		<!-- Floor Down -->
+		<div class='row'>
+			<div class="col-6">Floor Down</div>
+			<div class="col-6">Down Arrow</div>
+		</div>
+		<!-- Drag -->
+		<div class='row'>
+			<div class="col-6">Move Map</div>
+			<div class="col-6">Middle or Left Mouse Button</div>
+		</div>
+		
+		<!-- Zoom -->
+		<div class='row'>
+			<div class="col-6">Zoom Map</div>
+			<div class="col-6">Scroll Wheel</div>
+		</div>
+
+		<hr>
+
+		<h3 class="col-12 text-center">Lobby System</h3>
+		
+		<div class='row'>
+			<p class="col-12">
+				To invite a user to help edit this battleplan, send them the 'Invite Link' in the left sidebar.
+				This will allows them to do all the same actions as you can except for loading and saving (Host only).
+				<br>
+				<br>
+				All actions are in synced in real time!
+			</p>
+		</div>
+
+	  </div>
+	  
+
+
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+@endpush
