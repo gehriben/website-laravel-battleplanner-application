@@ -53,6 +53,7 @@ Route::middleware(['auth'])->group(function () {
             Route::get('new/{connection_string}', 'BattleplanController@new')->name("Battleplan.new");
             Route::get('{battleplan}/edit', 'BattleplanController@editGenerateRoom')->name("Battleplan.editGenerateRoom");
             Route::get('{battleplan}/edit/{connection_string}', 'BattleplanController@edit')->name("Battleplan.edit");
+            Route::post('{battleplan}/delete', 'BattleplanController@delete')->name("Battleplan.delete");
         });
     
         Route::prefix('/lobby')->group(function () {

@@ -22,11 +22,11 @@ class Keybinds {
         this.mousePressed = {               // keys pressed on mouse       
             "lmb": {
                 "active": false,
-                "tool": this.toolLine
+                "tool": this.toolMove
             },
             "rmb": {
                 "active": false,
-                "tool": null
+                "tool": this.toolMove
             },
             "mmb": {
                 "active": false,
@@ -52,6 +52,41 @@ class Keybinds {
             ev.preventDefault();
         }});
         
+        // alt + q
+        this.keyEvents.push({ "keys": [18,81], "event": function(ev){
+            this.mousePressed.lmb.tool = this.toolMove;
+            $('#selectMove').click();
+            ev.preventDefault();
+        }.bind(this)});
+
+        // alt + w
+        this.keyEvents.push({ "keys": [18,87], "event": function(ev){
+            this.mousePressed.lmb.tool = this.toolSelect;
+            $('#selectTool').click();
+            ev.preventDefault();
+        }.bind(this)});
+
+        // alt + e
+        this.keyEvents.push({ "keys": [18,69], "event": function(ev){
+            this.mousePressed.lmb.tool = this.toolLine;
+            $('#lineTool').click();
+            ev.preventDefault();
+        }.bind(this)});
+
+        // alt + r
+        this.keyEvents.push({ "keys": [18,82], "event": function(ev){
+            this.mousePressed.lmb.tool = this.toolSquare;
+            $('#squareTool').click();
+            ev.preventDefault();
+        }.bind(this)});
+
+        // alt + t
+        this.keyEvents.push({ "keys": [18,84], "event": function(ev){
+            this.mousePressed.lmb.tool = this.toolEraser;
+            $('#eraserTool').click();
+            ev.preventDefault();
+        }.bind(this)});
+
         // Delete key
         this.keyEvents.push({ "keys": [46], "event": function(ev){
             
@@ -117,6 +152,43 @@ class Keybinds {
         app.viewport[0].addEventListener("drop", function(ev){
             this.canvasDrop(ev);
         }.bind(this));
+        
+        /**
+         * Mobile
+         */
+        app.viewport[0].addEventListener("touchstart", function(ev){
+            this.pressMobile(ev);
+        }.bind(this));
+
+        app.viewport[0].addEventListener("touchend", function(ev){
+            this.unpressMobile(ev);
+        }.bind(this));
+        app.viewport[0].addEventListener("touchmove", function(ev){
+            this.dragMobile(ev);
+        }.bind(this));
+
+        app.viewport[0].addEventListener('gesturechange', function(ev) {
+            if (ev.scale < 1.0) {
+                this.toolZoom.actionScroll(3);
+            } else if (ev.scale > 1.0) {
+                this.toolZoom.actionScroll(-3);
+            }
+            ev.preventDefault()
+        }, false);
+
+        app.viewport[0].addEventListener('gestureend', function(ev) {
+            if (ev.scale < 1.0) {
+                this.toolZoom.actionScroll(3);
+            } else if (ev.scale > 1.0) {
+                this.toolZoom.actionScroll(-3);
+            }
+            ev.preventDefault()
+        }, false);
+
+        // Remove context menue
+        $(document).contextmenu(function() {
+            return false;
+        });
 
     }
 
@@ -139,6 +211,40 @@ class Keybinds {
 
         }.bind(this));
         return false;
+    }
+
+    /**
+     * Mobile press listeners
+     */
+    pressMobile(ev){
+        this.mousePressed.lmb.active = true;
+
+        var coordinates = {
+            'x': ev.touches[0].clientX,
+            'y': ev.touches[0].clientY
+        };
+
+        this.mousePressed.lmb.tool.actionDown(coordinates);
+        ev.preventDefault()
+    }
+
+    dragMobile(ev){
+        // Get current coordinates
+        var coordinates = {
+            'x': ev.touches[0].clientX,
+            'y': ev.touches[0].clientY
+        };
+
+        if (this.mousePressed.lmb.active) {
+            this.mousePressed.lmb.tool.actionMove(coordinates);
+        }
+        ev.preventDefault()
+    }
+
+    unpressMobile(ev){
+        this.mousePressed.lmb.tool.actionUp(this.mousePressed.lmb.tool.origin);
+        this.mousePressed.lmb.active = false;
+        ev.preventDefault()
     }
 
     /**
@@ -197,7 +303,7 @@ class Keybinds {
             return value != code;
         });
     }
-
+    
     /**
      * Canvas Actions
      */
@@ -208,6 +314,8 @@ class Keybinds {
 
         for (const key in this.mousePressed)
             (this.mousePressed[key].active && this.mousePressed[key].tool) ? this.mousePressed[key].tool.actionUp(coordinates) : null;
+        
+        ev.preventDefault();
     }
 
     canvasDown(ev) {
@@ -217,6 +325,8 @@ class Keybinds {
         // this._clickActivateEventListen(ev)
         for (const key in this.mousePressed)
             if (this.mousePressed[key].active && this.mousePressed[key].tool) this.mousePressed[key].tool.actionDown(coordinates);
+        
+        // ev.preventDefault();
     }
     
     canvasMove(ev) {
@@ -227,6 +337,8 @@ class Keybinds {
         for (const key in this.mousePressed) {
             if (this.mousePressed[key].active && this.mousePressed[key].tool) this.mousePressed[key].tool.actionMove(coordinates);
         }
+        
+        ev.preventDefault();
     }
 
     canvasScroll(ev) {

@@ -18769,7 +18769,8 @@ var Keybinds = __webpack_require__(/*! ./Keybinds.js */ "./resources/js/battlepl
 
 var SocketListener = __webpack_require__(/*! ./SocketListener.js */ "./resources/js/battleplan/edit/classes/SocketListener.js")["default"];
 
-var Lobby = __webpack_require__(/*! ./Lobby.js */ "./resources/js/battleplan/edit/classes/Lobby.js")["default"];
+var Lobby = __webpack_require__(/*! ./Lobby.js */ "./resources/js/battleplan/edit/classes/Lobby.js")["default"]; // import 'jquery-ui';
+
 
 var App =
 /*#__PURE__*/
@@ -18805,7 +18806,7 @@ function () {
 
     this.color = '#ffffff';
     this.opacity = 1;
-    this.lineSize = 1;
+    this.lineSize = 5;
     this.iconSizeModifier = 1; // Button statuses
 
     this.buttonEvents = {
@@ -18886,6 +18887,12 @@ function () {
     key: "ChangeOpacity",
     value: function ChangeOpacity(opacity) {
       this.opacity = opacity;
+    }
+  }, {
+    key: "ChangeZoom",
+    value: function ChangeZoom(level) {
+      this.canvas.setScale(level);
+      $('#zoom-value').val(this.canvas.scale);
     }
   }, {
     key: "ChangeLineSize",
@@ -19304,7 +19311,7 @@ function () {
 
     this.scaleMax = 10; // maximum scale
 
-    this.scaleMin = 0.5; // minimum scale
+    this.scaleMin = 0.1; // minimum scale
 
     this.resolution = {
       'x': 0,
@@ -19391,24 +19398,24 @@ function () {
     }
   }, {
     key: "zoom",
-    value: function zoom(clicks, coordinates) {
-      // properties for calculations
+    value: function zoom(clicks) {
+      var sign = Math.sign(clicks);
+      var step = this.scaleStep * this.scale * clicks;
+      this.setScale(this.scale + step);
+    }
+  }, {
+    key: "setScale",
+    value: function setScale(value) {
+      // reset scale matrix
+      this.ctx.setTransform(1, 0, 0, 1, 0, 0); // properties for calculations
+
       var originCenter = {
         'x': this.resolution.x / this.scale / 2,
         'y': this.resolution.y / this.scale / 2
       };
-      var sign = Math.sign(clicks);
-      var step = this.scaleStep * this.scale * clicks; // reset scale matrix
-
-      this.ctx.setTransform(1, 0, 0, 1, 0, 0);
-      this.scale += step;
-
-      if (sign >= 1) {
-        this.scale = this.scale + step > this.scaleMax ? this.scaleMax : this.scale + step;
-      } else {
-        this.scale = this.scale + step < this.scaleMin ? this.scaleMin : this.scale + step;
-      }
-
+      this.scale = value;
+      this.scale = this.scale > this.scaleMax ? this.scaleMax : this.scale;
+      this.scale = this.scale < this.scaleMin ? this.scaleMin : this.scale;
       this.ctx.scale(this.scale, this.scale);
       var newCenter = {
         'x': this.resolution.x / this.scale / 2,
@@ -20060,11 +20067,11 @@ function () {
       // keys pressed on mouse       
       "lmb": {
         "active": false,
-        "tool": this.toolLine
+        "tool": this.toolMove
       },
       "rmb": {
         "active": false,
-        "tool": null
+        "tool": this.toolMove
       },
       "mmb": {
         "active": false,
@@ -20094,6 +20101,51 @@ function () {
         app.ChangeFloor(-1);
         ev.preventDefault();
       }
+    }); // alt + q
+
+    this.keyEvents.push({
+      "keys": [18, 81],
+      "event": function (ev) {
+        this.mousePressed.lmb.tool = this.toolMove;
+        $('#selectMove').click();
+        ev.preventDefault();
+      }.bind(this)
+    }); // alt + w
+
+    this.keyEvents.push({
+      "keys": [18, 87],
+      "event": function (ev) {
+        this.mousePressed.lmb.tool = this.toolSelect;
+        $('#selectTool').click();
+        ev.preventDefault();
+      }.bind(this)
+    }); // alt + e
+
+    this.keyEvents.push({
+      "keys": [18, 69],
+      "event": function (ev) {
+        this.mousePressed.lmb.tool = this.toolLine;
+        $('#lineTool').click();
+        ev.preventDefault();
+      }.bind(this)
+    }); // alt + r
+
+    this.keyEvents.push({
+      "keys": [18, 82],
+      "event": function (ev) {
+        this.mousePressed.lmb.tool = this.toolSquare;
+        $('#squareTool').click();
+        ev.preventDefault();
+      }.bind(this)
+    }); // alt + t
+
+    this.keyEvents.push({
+      "keys": [18, 84],
+      "event": function (ev) {
+        this.mousePressed.lmb.tool = this.toolEraser;
+        $('#eraserTool').click();
+        ev.preventDefault();
+      }.bind(this)
     }); // Delete key
 
     this.keyEvents.push({
@@ -20149,6 +20201,41 @@ function () {
     app.viewport[0].addEventListener("drop", function (ev) {
       this.canvasDrop(ev);
     }.bind(this));
+    /**
+     * Mobile
+     */
+
+    app.viewport[0].addEventListener("touchstart", function (ev) {
+      this.pressMobile(ev);
+    }.bind(this));
+    app.viewport[0].addEventListener("touchend", function (ev) {
+      this.unpressMobile(ev);
+    }.bind(this));
+    app.viewport[0].addEventListener("touchmove", function (ev) {
+      this.dragMobile(ev);
+    }.bind(this));
+    app.viewport[0].addEventListener('gesturechange', function (ev) {
+      if (ev.scale < 1.0) {
+        this.toolZoom.actionScroll(3);
+      } else if (ev.scale > 1.0) {
+        this.toolZoom.actionScroll(-3);
+      }
+
+      ev.preventDefault();
+    }, false);
+    app.viewport[0].addEventListener('gestureend', function (ev) {
+      if (ev.scale < 1.0) {
+        this.toolZoom.actionScroll(3);
+      } else if (ev.scale > 1.0) {
+        this.toolZoom.actionScroll(-3);
+      }
+
+      ev.preventDefault();
+    }, false); // Remove context menue
+
+    $(document).contextmenu(function () {
+      return false;
+    });
   } // fire events id button combination pressed
 
 
@@ -20173,6 +20260,43 @@ function () {
         }
       }.bind(this));
       return false;
+    }
+    /**
+     * Mobile press listeners
+     */
+
+  }, {
+    key: "pressMobile",
+    value: function pressMobile(ev) {
+      this.mousePressed.lmb.active = true;
+      var coordinates = {
+        'x': ev.touches[0].clientX,
+        'y': ev.touches[0].clientY
+      };
+      this.mousePressed.lmb.tool.actionDown(coordinates);
+      ev.preventDefault();
+    }
+  }, {
+    key: "dragMobile",
+    value: function dragMobile(ev) {
+      // Get current coordinates
+      var coordinates = {
+        'x': ev.touches[0].clientX,
+        'y': ev.touches[0].clientY
+      };
+
+      if (this.mousePressed.lmb.active) {
+        this.mousePressed.lmb.tool.actionMove(coordinates);
+      }
+
+      ev.preventDefault();
+    }
+  }, {
+    key: "unpressMobile",
+    value: function unpressMobile(ev) {
+      this.mousePressed.lmb.tool.actionUp(this.mousePressed.lmb.tool.origin);
+      this.mousePressed.lmb.active = false;
+      ev.preventDefault();
     }
     /**
      * Button press listeners
@@ -20256,6 +20380,8 @@ function () {
       for (var key in this.mousePressed) {
         this.mousePressed[key].active && this.mousePressed[key].tool ? this.mousePressed[key].tool.actionUp(coordinates) : null;
       }
+
+      ev.preventDefault();
     }
   }, {
     key: "canvasDown",
@@ -20268,7 +20394,8 @@ function () {
 
       for (var key in this.mousePressed) {
         if (this.mousePressed[key].active && this.mousePressed[key].tool) this.mousePressed[key].tool.actionDown(coordinates);
-      }
+      } // ev.preventDefault();
+
     }
   }, {
     key: "canvasMove",
@@ -20282,6 +20409,8 @@ function () {
       for (var key in this.mousePressed) {
         if (this.mousePressed[key].active && this.mousePressed[key].tool) this.mousePressed[key].tool.actionMove(coordinates);
       }
+
+      ev.preventDefault();
     }
   }, {
     key: "canvasScroll",
@@ -22121,7 +22250,9 @@ function (_Tool) {
   _createClass(ToolZoom, [{
     key: "actionScroll",
     value: function actionScroll(clicks, coordinates) {
-      this.app.canvas.zoom(clicks, coordinates);
+      // var sign = Math.sign(clicks);
+      var step = this.app.canvas.scaleStep * this.app.canvas.scale * clicks;
+      this.app.ChangeZoom(this.app.canvas.scale + step);
     }
   }]);
 

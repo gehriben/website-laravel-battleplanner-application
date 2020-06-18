@@ -85,7 +85,7 @@
 
               <div class="row">
                   <p class='col-12 message-text'>
-                      Plan Your Victory!
+                      Plan Your Victory
                   </p>
               </div>
               <div class="row">

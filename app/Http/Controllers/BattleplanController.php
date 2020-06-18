@@ -270,8 +270,9 @@ class BattleplanController extends Controller
         // Do the delete
         $battleplan->delete();
 
+        return redirect()->route('Account.index');
         // Return successfull operation
-        return response()->success();
+        // return response()->success();
     }
 
     /**

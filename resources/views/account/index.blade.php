@@ -51,6 +51,12 @@
         <div class="d-flex w-100 justify-content-between">
           <h5 id="plan-title" class="mb-1">{{$battleplan->name}}</h5>
           <small id="plan-date">{{$battleplan->updated_at}}</small>
+
+          <form action="/battleplan/{{$battleplan->id}}/delete" method="POST" onsubmit="return confirm('Are you sure you want to delete, this is irreversable!');">
+            @csrf
+            <button type="submit" class="btn btn-success">Delete</button>
+          </form>
+
         </div>
         <div class="d-flex w-100 justify-content-between">
           <p id="plan-description" class="mb-1">&nbsp{{$battleplan->description}}</p>
