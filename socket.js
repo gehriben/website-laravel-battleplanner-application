@@ -25,8 +25,10 @@ io.on('connection', function(socket){
     })
 })
 
-http.listen(3000, function() {
-    console.log('Node server is live!');
+var args = process.argv.slice(2);
+
+http.listen(args[0], function() {
+    console.log('server up and running at %s port', args[0]);
 });
 
 /**
