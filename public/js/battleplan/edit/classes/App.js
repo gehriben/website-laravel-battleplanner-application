@@ -4,6 +4,8 @@ var Keybinds = require('./Keybinds.js').default;
 var SocketListener = require('./SocketListener.js').default;
 var Lobby = require('./Lobby.js').default;
 
+// import 'jquery-ui';
+
 class App {
 
     /**************************
@@ -36,7 +38,7 @@ class App {
         //Drawing settings
         this.color = '#ffffff';
         this.opacity = 1;
-        this.lineSize = 1;
+        this.lineSize = 5;
         this.iconSizeModifier = 1
 
         // Button statuses
@@ -114,6 +116,11 @@ class App {
 
     ChangeOpacity(opacity){
         this.opacity = opacity;
+    }
+
+    ChangeZoom(level){
+        this.canvas.setScale(level);
+        $('#zoom-value').val(this.canvas.scale);
     }
 
     ChangeLineSize(lineSize){
@@ -232,7 +239,7 @@ class App {
             'name' : $('#bName').val(),
             'description' : $('#bDescription').val(),
             'notes' : $('#bNotes').val(),
-            'public' : $('#bPublic').val(),
+            'public' : $('#bPublic').is(':checked'),
             'lobby' : this.lobby.ToJson(),
         }
     }

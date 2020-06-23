@@ -16,7 +16,7 @@
       bottom: 0px;
       /* top: 60px; */
     }
-    
+
     .message-screen{
       /* display: none; */
       position: absolute;
@@ -40,6 +40,26 @@
       margin: auto;
       font-size: 40px;
     }
+
+
+    #nav-patreon {
+      animation: color 7s linear infinite;
+      /* animation-duration: 7s;
+      animation-iteration-count: infinite; */
+    }
+
+    @keyframes color {
+      0% {
+        color: #757008;
+      }
+      50% {
+        color: #f7ed11;
+      }
+      100% {
+        color: #757008;
+      }
+    }
+
   </style>
 @endpush
 
@@ -52,7 +72,8 @@
 
   <div class="alert alert-danger text-center" role="alert">
     Hey there, looks like you found the <strong>Beta</strong> version of our website! Keep in mind that anything you create on this version of the site may be <strong>deleted at anytime</strong> and will not be imported to the live production site. <br>
-    The goal of this beta is to <strong>test features and stability</strong> of the platform. Thank you!
+    The goal of this beta is to <strong>test features and stability</strong> of the platform. Thank you! <br>
+    You will need to <strong>create new accounts for the Beta</strong>, if they stop working you may need to create them again.
   </div>
 
   <div class="shadow"></div>
@@ -64,7 +85,7 @@
 
               <div class="row">
                   <p class='col-12 message-text'>
-                      Plan Your victory!
+                      Plan Your Victory
                   </p>
               </div>
               <div class="row">

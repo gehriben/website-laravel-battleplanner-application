@@ -177,7 +177,7 @@ class Media extends Model
             $length = self::DEFAULT_NAME_LENGTH;
         }
 
-        $characters = '0123456789abcdefghijklmnopqrstuvwxyz';
+        $characters = '0123456789abcdefghijklmnopqrstvwxyz';
         $string = "";    
         for ($p = 0; $p < $length; $p++) {
             $string .= $characters[rand(0,strlen($characters)-1)];
