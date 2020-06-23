@@ -35,8 +35,10 @@ io.on('connection', function(socket){
     })
 })
 
-server.listen(serverPort, function() {
-    console.log('server up and running at %s port', serverPort);
+var args = process.argv.slice(2);
+
+server.listen(args[0], function() {
+    console.log('server up and running at %s port', args[0]);
 });
 
 /**
