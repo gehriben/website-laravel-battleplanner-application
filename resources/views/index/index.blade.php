@@ -70,11 +70,13 @@
 
 <div class="content">
 
-  <div class='row justify-content-center'>
-    <div class="alert alert-danger text-left col-6" role="alert">
-      Hey there, looks like you found the <strong>Beta</strong> version of our website! Keep in mind that anything you create on this version of the site may be <strong>deleted at anytime</strong> and will not be imported to the live production site. <br>
-      The goal of this beta is to <strong>test features and stability</strong> of the platform. Thank you! <br>
-      You will need to <strong>create new accounts for the Beta</strong>, if they stop working you may need to create them again.
+  <div class='col-12 justify-content-center'>
+    <div class="alert alert-success text-left col-6" role="alert" style="margin:auto">
+      Welcome to the new site! We've finally finished refactoring the battleplanner to <strong>increase useability, stability, performance and community features</strong>!
+      Unfortunately we are not able to transfer old data from the original site (still available <a href="https://old.battleplanner.io">here</a>),
+      so you will need to <strong>create a new account</strong>.
+      <br> If you like what we are doing and want to support the this project,
+      <strong> consider becoming a <a href="https://www.patreon.com/battleplanner_app">patron</a> </strong>(It helps pay for the server, development/maintenance and keeping up to date with the game).
     </div>
   </div>
 
