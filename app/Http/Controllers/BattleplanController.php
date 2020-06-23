@@ -42,11 +42,11 @@ class BattleplanController extends Controller
         $pageNum = $request->input('page') ? $request->input('page') : 1;
         $itemsPerPage = $request->input('items') ? $request->input('items') : 10;
 
-        $battleplans = Battleplan::public()->paginate($itemsPerPage);
-
-        $totalPages = count($battleplans) / $itemsPerPage;
+        $totalPages = Battleplan::public()->count() / $itemsPerPage;
+        $battleplans = Battleplan::public()->orderBy('created_at','DESC')->paginate($itemsPerPage);
 
         return view("battleplan.index", compact("battleplans",'pageNum','totalPages','itemsPerPage') );
+
     }
 
     /**
