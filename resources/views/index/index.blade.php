@@ -71,7 +71,7 @@
 <div class="content">
 
   <div class='col-12 justify-content-center'>
-    <div class="alert alert-success text-left col-6" role="alert" style="margin:auto">
+    <div class="alert alert-success text-left col-12 col-md-6" role="alert" style="margin:auto">
       Welcome to the new site! We've finally finished refactoring the battleplanner to <strong>increase useability, stability, performance and community features</strong>!
       Unfortunately we are not able to transfer old data from the original site (still available <a href="https://old.battleplanner.io">here</a>),
       so you will need to <strong>create a new account</strong>.
