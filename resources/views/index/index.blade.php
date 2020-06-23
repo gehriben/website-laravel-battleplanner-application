@@ -75,7 +75,7 @@
       Welcome to the new site! We've finally finished refactoring the battleplanner to <strong>increase useability, stability, performance and community features</strong>!
       Unfortunately we are not able to transfer old data from the original site (still available <a href="https://old.battleplanner.io">here</a>),
       so you will need to <strong>create a new account</strong>.
-      <br> If you like what we are doing and want to support the this project,
+      <br> If you like what we are doing and want to support this project,
       <strong> consider becoming a <a href="https://www.patreon.com/battleplanner_app">patron</a> </strong>(It helps pay for the server, development/maintenance and keeping up to date with the game).
     </div>
   </div>
