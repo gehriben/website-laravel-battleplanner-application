@@ -7,7 +7,13 @@
 @section('content')
 <div class="container">
   <div class="row">
-      <div class="form card col-12 col-xl-4 text-center">
+      <div class="form card col-12 col-xl-6 text-center">
+        <div class="alert alert-warning text-left" role="alert">
+          We seem to be encountering a problem with @yahoo, @aol, @web and a handfull of other smaller providers blocking our emails.
+          Currently guaranteed supported are <strong>@gmail, @hotmail, @outlook and @windowslive</strong>.
+          We apologize for the inconvinience and are actively looking into the problem.
+        </div>
+        
         {{-- Login --}}
         <form class="login-form col-12" method="post" action="/register" >
           @csrf
