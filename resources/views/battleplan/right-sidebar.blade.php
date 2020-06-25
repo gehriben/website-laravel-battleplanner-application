@@ -6,8 +6,8 @@
         app.battleplan.operator = app.battleplan.operators[operatorSlot];
     }
 
-    function ChangeOperator(id,src){
-        app.ChangeOperator(id,src);
+    function ChangeOperator(id,src,color){
+        app.ChangeOperator(id,src,color);
     }
 
     function togglerightNav() {
@@ -32,9 +32,9 @@
 
 <div id="sidebar-right" class="sidebar-right">
 
-  <div class="row">
     <div class="col-12">
-      <div id="operator-box" class="row mt-3 align-center">
+      <div id="operator-box" class="row align-center">
+        <div class="col-12 text-center p-2 mb-1" style="background-color: lightskyblue">Right click operator to select their color</div>
         <div class="col-12 text-center" id="operatorSlotList">
           <img type="image" id="operator-0" data-id="882110" class="cursor-click op-icon operator-slot operator-border" data-toggle="modal" data-target="#operator-modal" onclick="setOperator(0)" style="border-color: #black" draggable="true" ondragstart="app.keybinds.drag(event)"><br>
           <img type="image" id="operator-1" data-id="882110" class="cursor-click op-icon operator-slot operator-border" data-toggle="modal" data-target="#operator-modal" onclick="setOperator(1)" style="border-color: #black" draggable="true" ondragstart="app.keybinds.drag(event)"><br>
@@ -44,7 +44,6 @@
         </div>
       </div>
     </div>
-  </div>
 
 </div>
 
@@ -78,7 +77,7 @@
             <div class="row">
               <!-- Populate icons -->
               @foreach($defenders as $operator)
-              <div class="col-3 text-center operator-list-item cursor-click" onclick="ChangeOperator( {{$operator->id}},'{{$operator->icon->url()}}' )" data-dismiss="modal">
+              <div class="col-3 text-center operator-list-item cursor-click" onclick="ChangeOperator( {{$operator->id}},'{{$operator->icon->url()}}', '{{$operator->colour}}' )" data-dismiss="modal">
                 <img src="{{$operator->icon->url()}}" class="op-icon"> <br>
                 <div> {{$operator->name}} </div>
               </div>
@@ -91,7 +90,7 @@
             <div class="row">
               <!-- Populate icons -->
               @foreach($attackers as $operator)
-              <div class="col-3 text-center operator-list-item cursor-click" onclick="ChangeOperator( {{$operator->id}},'{{$operator->icon->url()}}' ) " data-dismiss="modal">
+              <div class="col-3 text-center operator-list-item cursor-click" onclick="ChangeOperator( {{$operator->id}},'{{$operator->icon->url()}}', '{{$operator->colour}}'  ) " data-dismiss="modal">
                 <img src="{{$operator->icon->url()}}" class="op-icon"> <br>
                 <div> {{$operator->name}} </div>
               </div>

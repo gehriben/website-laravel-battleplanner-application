@@ -112,6 +112,7 @@ class App {
 
     ChangeColor(color){
         this.color = color;
+        $('#color-picker').val(color);
     }
 
     ChangeOpacity(opacity){
@@ -146,12 +147,14 @@ class App {
     DisplayOperators(){
         this.battleplan.operators.forEach(operator => {
             operator.slot.attr( "src", operator.operator.src );
+            operator.slot.css("color", operator.operator.color );
         });
     }
 
-    ChangeOperator(operatorId,src){
+    ChangeOperator(operatorId,src,color){
         this.battleplan.operator.operator.operatorId = operatorId;
         this.battleplan.operator.operator.src = src;
+        this.battleplan.operator.operator.color = color;
         this.DisplayOperators();
 
         $.ajax({
