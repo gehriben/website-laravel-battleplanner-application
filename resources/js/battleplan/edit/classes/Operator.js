@@ -8,9 +8,10 @@ class Operator extends Databaseable{
     /**************************
             Constructor
     **************************/
-    constructor(id,operator_id,src) {
+    constructor(id,operator_id,src, color) {
         super(id);
         this.src = src;
+        this.color = color;
         this.operatorId = operator_id;
     }
 
@@ -19,6 +20,7 @@ class Operator extends Databaseable{
             'id' : this.id,
             'localId' : this.localId,
             'src' : this.src,
+            'color' : this.color,
             'operator_id' : this.operatorId
         }
     }

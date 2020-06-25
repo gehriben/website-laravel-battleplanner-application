@@ -185,6 +185,21 @@ class Keybinds {
             ev.preventDefault()
         }, false);
 
+        /**
+         * Specific DOM binds
+         */
+        $('.operator-slot').mousedown(function(event) {
+
+            // right or middle click
+            switch (event.which) {
+                case 2:
+                case 3:
+                    var color = $(event.target).css("color");
+                    this.app.ChangeColor(this.rgb2hex(color));
+                    break;
+            }
+        }.bind(this));
+
         // Remove context menue
         $(document).contextmenu(function() {
             return false;
@@ -384,6 +399,22 @@ class Keybinds {
 
     ChangeTool(tool){
         this.mousePressed.lmb.tool = tool;
+    }
+
+    /**
+     * Helper functions
+     */
+
+    // Convert RBG to hex  
+    rgb2hex(rgb) {
+        rgb = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+        return "#" + this.hex(rgb[1]) + this.hex(rgb[2]) + this.hex(rgb[3]);
+    }
+
+    hex(x) {
+        var hexDigits = new Array
+           ("0","1","2","3","4","5","6","7","8","9","a","b","c","d","e","f"); 
+        return isNaN(x) ? "00" : hexDigits[(x - x % 16) / 16] + hexDigits[x % 16];
     }
 }
 export {

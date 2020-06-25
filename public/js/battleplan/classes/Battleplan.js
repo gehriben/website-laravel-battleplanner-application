@@ -39,8 +39,9 @@ class Battleplan extends Databaseable{
             // Create operator slots object
             for (let i = 0; i < slots.length; i++) {
                 var operator_src = (result['operator_slots'][i]['operator']) ? result['operator_slots'][i]['operator']["icon"]["url"] : emptyOperator;
+                var operator_color = (result['operator_slots'][i]['operator']) ? result['operator_slots'][i]['operator']["colour"] : null;
                 this.operators.push({
-                    "operator" : new Operator(result['operator_slots'][i]['id'],result['operator_slots'][i]['operator_id'],operator_src),
+                    "operator" : new Operator(result['operator_slots'][i]['id'],result['operator_slots'][i]['operator_id'],operator_src,operator_color),
                     "slot" : slots[i]
                 });
             }
@@ -67,7 +68,7 @@ class Battleplan extends Databaseable{
         // Create operator slots object
         for (let i = 0; i < Json.operators.length; i++) {
             var operatorData = Json.operators[i];
-            var operator = new Operator(operatorData.id,operatorData.operator_id,operatorData.src);
+            var operator = new Operator(operatorData.id,operatorData.operator_id,operatorData.src,operatorData.color);
             operator.localId = operatorData['localId'];
             this.operators.push({
                 "operator" : operator,
