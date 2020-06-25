@@ -91,6 +91,7 @@ class SocketListener {
                 var operator = app.battleplan.getOperatorByLocalId(message['operatorSlotData']['localId']);
                 operator.operator.operatorId = message['operatorSlotData']["operator_id"]
                 operator.operator.src = message['operatorSlotData']["src"];
+                operator.operator.color = message['operatorSlotData']["color"];
                 app.DisplayOperators();
             }
         }.bind(this));
