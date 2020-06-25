@@ -18882,6 +18882,7 @@ function () {
     key: "ChangeColor",
     value: function ChangeColor(color) {
       this.color = color;
+      $('#color-picker').val(color);
     }
   }, {
     key: "ChangeOpacity",
@@ -18927,13 +18928,15 @@ function () {
     value: function DisplayOperators() {
       this.battleplan.operators.forEach(function (operator) {
         operator.slot.attr("src", operator.operator.src);
+        operator.slot.css("color", operator.operator.color);
       });
     }
   }, {
     key: "ChangeOperator",
-    value: function ChangeOperator(operatorId, src) {
+    value: function ChangeOperator(operatorId, src, color) {
       this.battleplan.operator.operator.operatorId = operatorId;
       this.battleplan.operator.operator.src = src;
+      this.battleplan.operator.operator.color = color;
       this.DisplayOperators();
       $.ajax({
         method: "POST",
@@ -19110,8 +19113,9 @@ function (_Databaseable) {
 
         for (var _i = 0; _i < slots.length; _i++) {
           var operator_src = result['operator_slots'][_i]['operator'] ? result['operator_slots'][_i]['operator']["icon"]["url"] : emptyOperator;
+          var operator_color = result['operator_slots'][_i]['operator'] ? result['operator_slots'][_i]['operator']["colour"] : null;
           this.operators.push({
-            "operator": new Operator(result['operator_slots'][_i]['id'], result['operator_slots'][_i]['operator_id'], operator_src),
+            "operator": new Operator(result['operator_slots'][_i]['id'], result['operator_slots'][_i]['operator_id'], operator_src, operator_color),
             "slot": slots[_i]
           });
         }
@@ -19137,7 +19141,7 @@ function (_Databaseable) {
 
       for (var _i2 = 0; _i2 < Json.operators.length; _i2++) {
         var operatorData = Json.operators[_i2];
-        var operator = new Operator(operatorData.id, operatorData.operator_id, operatorData.src);
+        var operator = new Operator(operatorData.id, operatorData.operator_id, operatorData.src, operatorData.color);
         operator.localId = operatorData['localId'];
         this.operators.push({
           "operator": operator,
@@ -20231,7 +20235,21 @@ function () {
       }
 
       ev.preventDefault();
-    }, false); // Remove context menue
+    }, false);
+    /**
+     * Specific DOM binds
+     */
+
+    $('.operator-slot').mousedown(function (event) {
+      // right or middle click
+      switch (event.which) {
+        case 2:
+        case 3:
+          var color = $(event.target).css("color");
+          this.app.ChangeColor(this.rgb2hex(color));
+          break;
+      }
+    }.bind(this)); // Remove context menue
 
     $(document).contextmenu(function () {
       return false;
@@ -20463,6 +20481,23 @@ function () {
     key: "ChangeTool",
     value: function ChangeTool(tool) {
       this.mousePressed.lmb.tool = tool;
+    }
+    /**
+     * Helper functions
+     */
+    // Convert RBG to hex  
+
+  }, {
+    key: "rgb2hex",
+    value: function rgb2hex(rgb) {
+      rgb = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+      return "#" + this.hex(rgb[1]) + this.hex(rgb[2]) + this.hex(rgb[3]);
+    }
+  }, {
+    key: "hex",
+    value: function hex(x) {
+      var hexDigits = new Array("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f");
+      return isNaN(x) ? "00" : hexDigits[(x - x % 16) / 16] + hexDigits[x % 16];
     }
   }]);
 
@@ -20813,13 +20848,14 @@ function (_Databaseable) {
   /**************************
           Constructor
   **************************/
-  function Operator(id, operator_id, src) {
+  function Operator(id, operator_id, src, color) {
     var _this;
 
     _classCallCheck(this, Operator);
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(Operator).call(this, id));
     _this.src = src;
+    _this.color = color;
     _this.operatorId = operator_id;
     return _this;
   }
@@ -20831,6 +20867,7 @@ function (_Databaseable) {
         'id': this.id,
         'localId': this.localId,
         'src': this.src,
+        'color': this.color,
         'operator_id': this.operatorId
       };
     }
@@ -21066,6 +21103,7 @@ function SocketListener(LISTEN_SOCKET, app, hostLeftSceen) {
       var operator = app.battleplan.getOperatorByLocalId(message['operatorSlotData']['localId']);
       operator.operator.operatorId = message['operatorSlotData']["operator_id"];
       operator.operator.src = message['operatorSlotData']["src"];
+      operator.operator.color = message['operatorSlotData']["color"];
       app.DisplayOperators();
     }
   }.bind(this));
