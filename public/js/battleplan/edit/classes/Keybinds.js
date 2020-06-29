@@ -141,9 +141,25 @@ class Keybinds {
             this.canvasMove(ev);
         }.bind(this));
 
-        app.viewport[0].addEventListener("mousewheel", function(ev){
-            this.canvasScroll(ev);
-        }.bind(this));
+
+        /**
+         * Firefox and chrome do not handle mouse scroll the same, do a check for browser specifics
+         */
+
+        // Firefox
+        if(navigator.userAgent.toLowerCase().indexOf('firefox') > -1){
+            app.viewport[0].addEventListener("wheel", function(ev){
+                this.canvasScrollFireFox(ev);
+            }.bind(this));
+        }
+
+        // Chrome & others
+        else{
+            app.viewport[0].addEventListener("mousewheel", function(ev){
+                this.canvasScrollChrome(ev);
+            }.bind(this));
+        }
+
 
         app.viewport[0].addEventListener("dragover", function(ev){
             this.allowDrop(ev);
@@ -356,12 +372,26 @@ class Keybinds {
         ev.preventDefault();
     }
 
-    canvasScroll(ev) {
+    canvasScrollChrome(ev) {
 
         // Get current coordinates
         var coordinates = {x:ev.offsetX, y:ev.offsetY};
-
+        
         var delta = ev.wheelDelta ? ev.wheelDelta/40 : ev.detail ? -ev.detail : 0;
+
+        if (delta){
+            this.toolZoom.actionScroll(delta,coordinates);
+        }
+
+        return ev.preventDefault() && false;
+    }
+
+    canvasScrollFireFox(ev) {
+
+        // Get current coordinates
+        var coordinates = {x:ev.offsetX, y:ev.offsetY};
+        
+        var delta = -1 * ev.deltaY;
 
         if (delta){
             this.toolZoom.actionScroll(delta,coordinates);
