@@ -21,6 +21,9 @@
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <link href="{{ asset('css/global/global.css') }}" rel="stylesheet">
+    
+    <script data-ad-client="ca-pub-9689382422383562" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+    
     @stack('css')
 </head>
 <body>
