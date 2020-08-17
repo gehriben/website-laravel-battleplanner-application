@@ -66,10 +66,12 @@ class MapController extends Controller
             'floor-ids' => [],
             'floor-orders' => [],
             'competitive' => [],
+            'available' => [],
         ]);
 
         // Checkbox is set to 'on' if true, null if false. Convert to bool value
         $data['competitive'] = isset($data['competitive']);
+        $data['available'] = isset($data['available']);
 
         $data['floor-files'] = isset($data['floor-files']) ? $data['floor-files'] : [];
         $data['floor-names'] = isset($data['floor-names']) ? $data['floor-names'] : [];
@@ -103,9 +105,11 @@ class MapController extends Controller
             'floor-orders' => [],
             'floor-ids' => [],
             'competitive' => [],
+            'available' => [],
         ]);
 
         $data['competitive'] = isset($data['competitive']);
+        $data['available'] = isset($data['available']);
 
         // Update the thumbnail
         if(isset($data["thumbnail"])){
