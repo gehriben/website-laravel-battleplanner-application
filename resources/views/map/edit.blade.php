@@ -70,6 +70,23 @@
             <label class="custom-control-label" for="exampleCheck1">Competitive Playlist</label>
             @endif
           </div>
+          
+          <div class="form-check">
+
+            @if($map->available)
+            <input class="form-check-input" checked type="checkbox" name="available" id="available">
+            <label class="form-check-label" for="available">
+              Available
+            </label>
+            @else
+            <input class="form-check-input" type="checkbox" name="available" id="available">
+            <label class="form-check-label" for="available">
+              Available
+            </label>
+            @endif
+
+          </div>
+
         </div>
 
         <div class="floors container">

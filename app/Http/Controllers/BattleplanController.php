@@ -121,7 +121,7 @@ class BattleplanController extends Controller
      * New battleplan form
      */
     public function new(Request $request, $connection_string = null){
-        $maps = Map::all();
+        $maps = Map::available()->get();
         return view("battleplan.new",compact('maps','connection_string'));
     }
 

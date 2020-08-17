@@ -16,7 +16,7 @@ class Map extends Model
 
   protected $fillable = [
     // Properties
-    'name', 'thumbnail_id', 'competitive',
+    'name', 'thumbnail_id', 'competitive', 'available'
   ];
 
   public Static $printWith = [
@@ -39,6 +39,13 @@ class Map extends Model
 
   public function floors() {
     return $this->hasMany('App\Models\Floor', 'map_id');
+  }
+
+  /**
+   * Scopes
+   */
+  public function scopeAvailable($query){
+    return $query->where('available', true);
   }
 
   /**

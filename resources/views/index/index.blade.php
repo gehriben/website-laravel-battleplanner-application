@@ -12,7 +12,7 @@
 
       height: 100%;
       width: 100%;
-      /* position: fixed; */
+      position: fixed;
       bottom: 0px;
       /* top: 60px; */
     }
@@ -48,6 +48,10 @@
       animation-iteration-count: infinite; */
     }
 
+    .alert-section{
+      z-index: 5;
+    }
+
     @keyframes color {
       0% {
         color: #757008;
@@ -65,16 +69,19 @@
 
 @section('content')
 <div class="bg">
-  <div class="shadow"></div>
+  <!-- <div class="shadow"></div> -->
 </div>
 
 <div class="content">
 
-  <div class='col-12'>
-    <div class="alert alert-danger text-left col-12 col-md-6" role="alert" style="margin:auto">
-      Hey there, looks like you found the <strong>Beta</strong> version of our website! Keep in mind that anything you create on this version of the site may be <strong>deleted at anytime</strong> and will not be imported to the live production site. <br>
-      The goal of this beta is to <strong>test features and stability</strong> of the platform. Thank you! <br>
-      You will need to <strong>create new accounts for the Beta</strong>, if they stop working you may need to create them again.
+<div class='col-12 alert-section'>
+    <div class="alert alert-warning text-left col-12 col-md-6" role="alert" style="margin:auto">
+      Hey there, looks like you found the <strong>Beta</strong> version of our website! Anything you create on this version of the site may be <strong>deleted at anytime</strong> and will not be imported to the live production site.<br>
+    </div>
+  </div>
+  <div class='col-12 alert-section'>
+    <div class="alert alert-info text-left col-12 col-md-6" role="alert" style="margin:auto">
+      Due to a copyright claim on the <strong>Athena/R6Tactics maps</strong>, we can no longer host them on this site. Existing plans have been ported to the equivalent Ubisoft official maps. We sincerely apologize for the inconvenience and hope to provide better quality maps in the future. If you have access to non-copyrighted high quality map scans, feel free to email us at <strong>battleplanner.app@gmail.com</strong>.
     </div>
   </div>
 
