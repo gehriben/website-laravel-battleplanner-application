@@ -6,8 +6,8 @@ var express = require('express');
 var app = express();
 
 var options = {
-    key: fs.readFileSync('/etc/letsencrypt/live/beta.battleplanner.io/privkey.pem'),
-    cert: fs.readFileSync('/etc/letsencrypt/live/beta.battleplanner.io/fullchain.pem')
+    key: fs.readFileSync('/etc/letsencrypt/live/battleplanner.io/privkey.pem'),
+    cert: fs.readFileSync('/etc/letsencrypt/live/battleplanner.io/fullchain.pem')
 };
 var serverPort = 3000;
 
