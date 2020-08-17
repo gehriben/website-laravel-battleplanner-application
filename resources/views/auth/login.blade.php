@@ -17,13 +17,20 @@
 
 
         {{-- Login --}}
+          <div class='col-12'>
+            <div class="alert alert-info text-left col-12 col-md-12" role="alert" style="margin:auto">
+              Please note, <strong>login is now done using email </strong>, rather than username. This is to solve an error in our previous login page that broke the experience for several users. Thank you for your understanding.  
+            </div>
+          </div>
         <form class="login-form col-12" method="POST" action="/login" >
           @csrf
-          <input placeholder="Username" id="username" type="username" class="form-control{{ $errors->has('username') ? ' is-invalid' : '' }} padded" name="username" value="{{ old('username') }}" required>
+          
+          
+          <input placeholder="Email" id="email" type="email" class="form-control{{ $errors->has('email') ? ' is-invalid' : '' }} padded" name="email" value="{{ old('email') }}" required>
 
-          @if ($errors->has('username'))
+          @if ($errors->has('email'))
             <span class="invalid-feedback" role="alert">
-                <strong>{{ $errors->first('username') }}</strong>
+                <strong>{{ $errors->first('email') }}</strong>
             </span>
           @endif
 

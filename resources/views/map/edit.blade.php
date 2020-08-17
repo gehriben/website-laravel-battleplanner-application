@@ -60,16 +60,39 @@
               <label class="mt-3 col-auto align-self-center" for="exampleInputEmail1">Thumbnail</label>
               <input type="file" class="mt-3 file-input align-self-center col-12 col-xl-4 form-control" name="thumbnail">
           </div>
+          
+          <div class="form-check">
 
-          <div class="row mt-3 custom-control custom-switch">
             @if($map->competitive)
-            <input type="checkbox" checked class="col-2 custom-control-input" name="competitive" id="exampleCheck1">
-            <label class="col-2 custom-control-label" for="exampleCheck1">Competitive Playlist</label>
+            <input class="form-check-input" checked type="checkbox" name="competitive" id="competitive">
+            <label class="form-check-label" for="competitive">
+            Competitive Playlist
+            </label>
             @else
-            <input type="checkbox" class="custom-control-input" name="competitive" id="exampleCheck1">
-            <label class="custom-control-label" for="exampleCheck1">Competitive Playlist</label>
+            <input class="form-check-input" type="checkbox" name="competitive" id="competitive">
+            <label class="form-check-label" for="competitive">
+            Competitive Playlist
+            </label>
             @endif
+
           </div>
+
+          <div class="form-check">
+
+            @if($map->available)
+            <input class="form-check-input" checked type="checkbox" name="available" id="available">
+            <label class="form-check-label" for="available">
+              Available
+            </label>
+            @else
+            <input class="form-check-input" type="checkbox" name="available" id="available">
+            <label class="form-check-label" for="available">
+              Available
+            </label>
+            @endif
+
+          </div>
+
         </div>
 
         <div class="floors container">

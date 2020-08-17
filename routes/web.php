@@ -11,6 +11,10 @@
 |
 */
 
+// Addsense
+Route::get('/ads.txt',function(){
+   return view('ads');
+});
 
 // All authentication routes
 Auth::routes(['verify' => true]);

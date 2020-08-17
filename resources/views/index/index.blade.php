@@ -12,7 +12,7 @@
 
       height: 100%;
       width: 100%;
-      /* position: fixed; */
+      position: fixed;
       bottom: 0px;
       /* top: 60px; */
     }
@@ -48,6 +48,10 @@
       animation-iteration-count: infinite; */
     }
 
+    .alert-section{
+      z-index: 5;
+    }
+
     @keyframes color {
       0% {
         color: #757008;
@@ -65,18 +69,14 @@
 
 @section('content')
 <div class="bg">
-  <div class="shadow"></div>
+  <!-- <div class="shadow"></div> -->
 </div>
 
 <div class="content">
 
-  <div class='col-12 justify-content-center'>
-    <div class="alert alert-success text-left col-12 col-md-6" role="alert" style="margin:auto">
-      Welcome to the new site! We've finally finished refactoring the battleplanner to <strong>increase useability, stability, performance and community features</strong>!
-      Unfortunately we are not able to transfer old data from the original site (still available <a href="https://old.battleplanner.io">here</a>),
-      so you will need to <strong>create a new account</strong>.
-      <br> If you like what we are doing and want to support this project,
-      <strong> consider becoming a <a href="https://www.patreon.com/battleplanner_app">patron</a> </strong>(It helps pay for the server, development/maintenance and keeping up to date with the game).
+  <div class='col-12 alert-section'>
+    <div class="alert alert-info text-left col-12 col-md-6" role="alert" style="margin:auto">
+      Due to a copyright claim on the <strong>Athena/R6Tactics maps</strong>, we can no longer host them on this site. Existing plans have been ported to the equivalent Ubisoft official maps. We sincerely apologize for the inconvenience and hope to provide better quality maps in the future. If you have access to non-copyrighted high quality map scans, feel free to email us at <strong>battleplanner.app@gmail.com</strong>.
     </div>
   </div>
 
