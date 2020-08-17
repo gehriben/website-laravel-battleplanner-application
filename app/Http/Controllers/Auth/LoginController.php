@@ -41,8 +41,8 @@ class LoginController extends Controller
     /**
      * Override the login field (default is email)
      */
-    public function username()
-    {
-        return 'username';
-    }
+    // public function username()
+    // {
+    //     return 'username';
+    // }
 }
