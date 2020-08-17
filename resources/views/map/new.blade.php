@@ -66,14 +66,16 @@
               <input type="file" class="col-sm form-control" name="thumbnail" required>
           </div>
 
-          <div class="custom-control">
-            <input type="checkbox" class="custom-control-input" name="competitive" id="exampleCheck1"/>
-            <label class="custom-control-label" for="exampleCheck1">Competitive Playlist</label>
-          </div>
-
           <div class="form-check">
-            <input class="form-check-input" type="checkbox" value="" id="defaultCheck1">
-            <label class="form-check-label" for="defaultCheck1">
+            <input class="form-check-input" type="checkbox" name="competitive" id="competitive">
+            <label class="form-check-label" for="competitive">
+              Competitive Playlist
+            </label>
+          </div>
+          
+          <div class="form-check">
+            <input checked class="form-check-input" type="checkbox" name="available" id="available">
+            <label class="form-check-label" for="available">
               Available
             </label>
           </div>
