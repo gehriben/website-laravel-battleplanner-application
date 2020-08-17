@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-md navbar-dark bg-dark">
+<nav class="navbar navbar-expand-md navbar-dark bg-dark" style="z-index:100">
     <a class="navbar-brand" href="/">Battleplanner</a>
 
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,7 +32,6 @@
             
         </ul>
         
-
 
         <ul class="navbar-nav ml-auto">
           @guest

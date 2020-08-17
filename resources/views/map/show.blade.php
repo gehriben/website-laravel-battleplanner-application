@@ -39,7 +39,8 @@
           </div>
           @endforeach
         </div>
-        <div class="col-auto mt-3 col-xl-3 text-center">
+
+        <div class="col-auto mt-3 col-xl-6 text-center">
           <h5 style="color:white;">Competitive&nbsp;</h5>
           @if ($map->competitive)
           <i class="fa fa-check"></i>
@@ -47,6 +48,16 @@
           <i class="fas fa-times"></i>
           @endif
         </div>
+        
+        <div class="col-auto mt-3 col-xl-6 text-center">
+          <h5 style="color:white;">Available&nbsp;</h5>
+          @if ($map->available)
+          <i class="fa fa-check"></i>
+          @else
+          <i class="fas fa-times"></i>
+          @endif
+        </div>
+
       </div>
     </div>
   </div>
