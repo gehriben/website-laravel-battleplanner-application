@@ -6,7 +6,8 @@
 
     // Properties
     var page = {{$pageNum}};
-
+    var totalPages = {{$totalPages}};
+    
     // on page load get url parameters
     $( document ).ready( function(){
 
