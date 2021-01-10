@@ -25,6 +25,13 @@
         <p class="mb-1">Customize available Maps</p>
       </a>
 
+      <a href="/users" class="list-group-item list-group-item-action flex-column align-items-start">
+        <div class="d-flex w-100 justify-content-between">
+          <h5 class="mb-1">Users</h5>
+        </div>
+        <p class="mb-1">Manage Users</p>
+      </a>
+
       <a href="/operators" class="list-group-item list-group-item-action flex-column align-items-start">
         <div class="d-flex w-100 justify-content-between">
           <h5 class="mb-1">Operators</h5>
