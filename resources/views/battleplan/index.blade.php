@@ -34,9 +34,9 @@
     function ChangePage(diff){
       page += diff;
       
-      $('#battleplan_name').val(name);
-      $('#battleplan_map').val(map);
-      $('#battleplan_creator').val(creator);
+      let name = $('#battleplan_name').val();
+      let map = $('#battleplan_map').val();
+      let creator = $('#battleplan_creator').val();
       
       window.location.href = genUrl(page, name, map, creator);
     }
