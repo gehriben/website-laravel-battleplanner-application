@@ -12,6 +12,12 @@
             </li>
 
             <li class="nav-item">
+                <a id="nav-item" class="nav-link" href="https://discord.gg/hWZehYF">
+                  Discord
+                </a>
+            </li>
+
+            <li class="nav-item">
                 <a id="nav-patreon" class="nav-link" href="https://www.patreon.com/battleplanner_app">
                   Patreon
                   <svg class="bi bi-heart-fill" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
