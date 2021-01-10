@@ -47,27 +47,9 @@ class BattleplanController extends Controller
         $map = $request->input('map');
         $creator = $request->input('creator');
 
-        // Pagination
-        $battleplanQuery = Battleplan::public(); 
-
-        if($name){
-            $battleplanQuery->where('name', 'like', "%$name%");
-        }
-        
-        if($map){
-            $battleplanQuery->whereHas('map', function($query) use ($map){
-                $query->where('id', $map);
-            });
-        }
-        
-        if($creator){
-            $battleplanQuery->whereHas('owner', function($query) use ($creator){
-                $query->where('username', 'like', "%$creator%");
-            });
-        }
-
-        $battleplans = $battleplanQuery->orderBy('created_at','DESC')->paginate($itemsPerPage);
-        $totalPages = $battleplanQuery->count() / $itemsPerPage;
+        // Query build
+        $battleplans = $this->buildListQuery($name,$map,$creator)->orderBy('created_at','DESC')->paginate($itemsPerPage);
+        $totalPages = $this->buildListQuery($name,$map,$creator)->count() / $itemsPerPage;
         $maps = Map::all();
 
         return view("battleplan.index", compact("maps", "battleplans",'pageNum','totalPages','itemsPerPage') );
@@ -358,5 +340,28 @@ class BattleplanController extends Controller
                 break;
 
         }
+    }
+
+    private function buildListQuery($name, $map, $creator){
+        // Pagination
+        $battleplanQuery = Battleplan::public(); 
+
+        if($name){
+            $battleplanQuery->where('name', 'like', "%$name%");
+        }
+        
+        if($map){
+            $battleplanQuery->whereHas('map', function($query) use ($map){
+                $query->where('id', $map);
+            });
+        }
+        
+        if($creator){
+            $battleplanQuery->whereHas('owner', function($query) use ($creator){
+                $query->where('username', 'like', "%$creator%");
+            });
+        }
+
+        return $battleplanQuery;
     }
 }
