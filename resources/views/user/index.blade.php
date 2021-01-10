@@ -6,7 +6,7 @@
     var page = {{$pageNum}};
     function ChangePage(diff){
       page += diff;
-      window.location.href = `/user?page=${page}`
+      window.location.href = `/users?page=${page}`
     }
 
     function vote(planId,vote){

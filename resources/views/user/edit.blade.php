@@ -51,7 +51,7 @@
             <td>
               <div class="row">
                 <input type="text" class="form-control col-6" id="input_email_verified_at" name="email_verified_at" placeholder="Username" aria-label="Username" value="{{$user->email_verified_at}}" aria-describedby="basic-addon1">
-                <button onClick="emailVerifiedTimeNow()" type="button col-6" class="btn btn-primary">now</button>
+                <a onClick="emailVerifiedTimeNow()" class="btn btn-primary">now</a>
               </div>
             
             </td>
