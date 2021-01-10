@@ -33,7 +33,12 @@
     // Pagination
     function ChangePage(diff){
       page += diff;
-      window.location.href = genUrl(page);
+      
+      $('#battleplan_name').val(name);
+      $('#battleplan_map').val(map);
+      $('#battleplan_creator').val(creator);
+      
+      window.location.href = genUrl(page, name, map, creator);
     }
 
     // voting system

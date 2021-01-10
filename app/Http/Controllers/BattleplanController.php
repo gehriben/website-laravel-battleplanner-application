@@ -48,7 +48,6 @@ class BattleplanController extends Controller
         $creator = $request->input('creator');
 
         // Pagination
-        $totalPages = Battleplan::public()->count() / $itemsPerPage;
         $battleplanQuery = Battleplan::public(); 
 
         if($name){
@@ -63,11 +62,12 @@ class BattleplanController extends Controller
         
         if($creator){
             $battleplanQuery->whereHas('owner', function($query) use ($creator){
-                $query->where('name', 'like', "%$creator%");
+                $query->where('username', 'like', "%$creator%");
             });
         }
 
         $battleplans = $battleplanQuery->orderBy('created_at','DESC')->paginate($itemsPerPage);
+        $totalPages = $battleplanQuery->count() / $itemsPerPage;
         $maps = Map::all();
 
         return view("battleplan.index", compact("maps", "battleplans",'pageNum','totalPages','itemsPerPage') );
