@@ -38,14 +38,39 @@ class BattleplanController extends Controller
      * List all plans
      */
     public function index(Request $request){
-        $battleplans;
+        // $battleplans;
+
+        // Get filter Parameter
         $pageNum = $request->input('page') ? $request->input('page') : 1;
         $itemsPerPage = $request->input('items') ? $request->input('items') : 10;
+        $name = $request->input('name');
+        $map = $request->input('map');
+        $creator = $request->input('creator');
 
+        // Pagination
         $totalPages = Battleplan::public()->count() / $itemsPerPage;
-        $battleplans = Battleplan::public()->orderBy('created_at','DESC')->paginate($itemsPerPage);
+        $battleplanQuery = Battleplan::public(); 
 
-        return view("battleplan.index", compact("battleplans",'pageNum','totalPages','itemsPerPage') );
+        if($name){
+            $battleplanQuery->where('name', 'like', "%$name%");
+        }
+        
+        if($map){
+            $battleplanQuery->whereHas('map', function($query) use ($map){
+                $query->where('id', $map);
+            });
+        }
+        
+        if($creator){
+            $battleplanQuery->whereHas('owner', function($query) use ($creator){
+                $query->where('name', 'like', "%$creator%");
+            });
+        }
+
+        $battleplans = $battleplanQuery->orderBy('created_at','DESC')->paginate($itemsPerPage);
+        $maps = Map::all();
+
+        return view("battleplan.index", compact("maps", "battleplans",'pageNum','totalPages','itemsPerPage') );
 
     }
 

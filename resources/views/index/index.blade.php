@@ -74,11 +74,11 @@
 
 <div class="content">
 
-  <div class='col-12 alert-section'>
-    <div class="alert alert-info text-left col-12 col-md-6" role="alert" style="margin:auto">
-      Due to a copyright claim on the <strong>Athena/R6Tactics maps</strong>, we can no longer host them on this site. Existing plans have been ported to the equivalent Ubisoft official maps. We sincerely apologize for the inconvenience and hope to provide better quality maps in the future. If you have access to non-copyrighted high quality map scans, feel free to email us at <strong>battleplanner.app@gmail.com</strong>.
+  <!-- <div class='col-12 alert-section'>
+    <div class="alert alert-warning text-left col-12 col-md-6" role="alert" style="margin:auto">
+      Hey there, looks like you found the <strong>Beta</strong> version of our website! Anything you create on this version of the site may be <strong>deleted at anytime</strong> and will not be imported to the live production site.<br>
     </div>
-  </div>
+  </div> -->
 
   <div class="shadow"></div>
 

@@ -3,12 +3,40 @@
 @push('js')
   <script src="{{asset("js/battleplan/index.js")}}"></script>
   <script>
+
+    // Properties
     var page = {{$pageNum}};
-    function ChangePage(diff){
-      page += diff;
-      window.location.href = `/battleplan?page=${page}`
+
+    // on page load get url parameters
+    $( document ).ready( function(){
+
+      var url = new URL(window.location.href);
+      var name = url.searchParams.get("name");
+      var map = url.searchParams.get("map");
+      var creator = url.searchParams.get("creator");
+      
+      $('#battleplan_name').val(name);
+      $('#battleplan_map').val(map);
+      $('#battleplan_creator').val(creator);
+    });
+
+
+    // Search Function
+    function search(){
+      page = 0;
+      let name = $('#battleplan_name').val();
+      let map = $('#battleplan_map').val();
+      let creator = $('#battleplan_creator').val();
+      window.location.href = genUrl(page, name, map, creator);
     }
 
+    // Pagination
+    function ChangePage(diff){
+      page += diff;
+      window.location.href = genUrl(page);
+    }
+
+    // voting system
     function vote(planId,vote){
       $(`.vote-${planId}`).removeClass('active');
       var tmp = `#vote-${planId}_${vote}`;
@@ -26,11 +54,26 @@
 
         });
     }
+
+    // Generate url
+    function genUrl(page = 0, name = "", map = "", creator = ""){
+      page = encodeURIComponent(page);
+      name = encodeURIComponent(name);
+      map = encodeURIComponent(map);
+      creator = encodeURIComponent(creator);
+      return `/battleplan?page=${page}&name=${name}&map=${map}&creator=${creator}`;
+    }
+
   </script>
 @endpush
 
 @push('css')
   <link rel="stylesheet" href="{{asset("css/battleplan/index.css")}}">
+  <style>
+    .search-field-title{
+      color:white;
+    }
+  </style>
 @endpush
 
 @section('content')
@@ -55,6 +98,50 @@
     <button type="button" class="col-4 col-xl-2 btn btn-success list-button" onclick="ChangePage(1)" {{($pageNum >= $totalPages) ? 'disabled' : '' }}>Next</button>
   </div>
   <hr>
+
+<div class="row">
+
+    <!-- Name Filter -->
+    <div class=col-4>
+      <div class="form-group">
+        <label class="search-field-title" for="inputAddress">Name</label>
+        <input type="text" class="form-control" id="battleplan_name" placeholder="Battleplan Name">
+      </div>
+    </div>
+
+    <!-- Map filter -->
+    <div class=col-4>
+      <div class="form-group">
+        <label class="search-field-title" for="inputState">Map</label>
+        <select id="battleplan_map" class="form-control">
+          <option value="" selected>none</option>
+          
+          @foreach($maps as $map)
+          <option value="{{$map->id}}">{{$map->name}}</option>
+          @endforeach
+          
+        </select>
+      </div>
+    </div>
+    
+    <!-- Creator Filter -->
+    <div class=col-4>
+      <div class="form-group">
+        <label class="search-field-title" for="inputAddress">Creator</label>
+        <input type="text" class="form-control" id="battleplan_creator" placeholder="username">
+      </div>
+    </div>
+
+</div>
+
+<div class="row">
+    <div class="col-12">
+      <button onClick="search()" type="button" class="col-12 btn btn-info">Search</button>
+    </div>
+</div>
+
+<hr>
+
 
   <div class="row">
 
