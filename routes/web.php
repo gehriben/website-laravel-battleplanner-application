@@ -108,6 +108,15 @@ Route::middleware(['auth'])->group(function () {
             Route::post('{connection_string}/disconnected', 'LobbyController@disconnected')->name("Lobby.disconnected");
             Route::post('{connection_string}/request-reload', 'LobbyController@requestReload')->name("Lobby.requestReload"); 
         });
+
+        Route::prefix('/users')->group(function () {
+            Route::get('/', 'UserController@index')->name("User.index");
+            Route::get('{user}', 'UserController@show')->name("User.show");
+            Route::get('{user}/edit', 'UserController@edit')->name("User.edit");
+            
+            Route::post('{user}', 'UserController@update')->name("User.update");
+        });
+
     });
 
 });

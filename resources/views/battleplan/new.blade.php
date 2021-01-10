@@ -76,9 +76,9 @@ function selectMap(dom, mapId){
             <div class="col-12 text-center">
               <h2>Map</h2>
               
-              <div class="alert alert-info" role="alert">
+              <!-- <div class="alert alert-info" role="alert">
                   Due to a copyright claim, we can no longer host the Athena/R6Tactics maps. We apologize for the inconvenience.
-              </div>
+              </div> -->
               
               <input id="search" type="text" class="col-12" placeholder="Search..">
               <input type="hidden" name="map_id" id="map_id" required>
