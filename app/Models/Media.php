@@ -113,8 +113,8 @@ class Media extends Model
 
         // Attempt to upload via S3 API
         try{
-            $filePath = self::S3_PATH . $subfolder. "/" . $name . "." . $type;
-            $success = Storage::disk('s3')->put($filePath, $content, $visibility);
+            $filePath = /* self::S3_PATH . */$subfolder. "/" . $name . "." . $type;
+            $success = Storage::disk('public')->put($filePath, $content, $visibility);
         }
 
         // S3 upload had an error
@@ -132,8 +132,8 @@ class Media extends Model
      */
     public function remove(){
 
-        if(Storage::disk('s3')->exists($this->path)){
-            Storage::disk('s3')->delete($this->path);
+        if(Storage::disk('public')->exists($this->path)){
+            Storage::disk('public')->delete($this->path);
         }
 
         return true;
@@ -165,7 +165,7 @@ class Media extends Model
         $s3 = $this->s3();
 
         // $results = $s3->execute($cmd);
-        return $s3->getObjectUrl(env('AWS_BUCKET'), str_replace("/u", "u", $this->path));
+        return asset('storage/' . $this->path); //$s3->getObjectUrl(env('AWS_BUCKET'), str_replace("/u", "u", $this->path));
     }
 
     /**
